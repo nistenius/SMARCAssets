@@ -570,6 +570,7 @@ GameObject:
   - component: {fileID: 2680158660300619110}
   - component: {fileID: 8722047277435163285}
   - component: {fileID: 1359318736637056421}
+  - component: {fileID: 7100000000000000101}
   m_Layer: 0
   m_Name: ThrusterPitch
   m_TagString: Untagged
@@ -664,6 +665,7 @@ GameObject:
   - component: {fileID: 8718265960510638219}
   - component: {fileID: 6077257626405968604}
   - component: {fileID: 131148592012403515}
+  - component: {fileID: 7100000000000000102}
   m_Layer: 0
   m_Name: ThrusterYaw
   m_TagString: Untagged
@@ -862,6 +864,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   topic: acoustic/read
+  NotARobot: 0
+  frequency: 10
+  ignoreSensorState: 0
+--- !u!114 &7100000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6492752199017079265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba2274c9a2cfbb209949c7493a84c250, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topic: core/standard/thrust_vector_pitch_fb
+  NotARobot: 0
+  frequency: 10
+  ignoreSensorState: 0
+--- !u!114 &7100000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6784644159264955759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba2274c9a2cfbb209949c7493a84c250, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topic: core/standard/thrust_vector_yaw_fb
   NotARobot: 0
   frequency: 10
   ignoreSensorState: 0
