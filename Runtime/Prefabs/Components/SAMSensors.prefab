@@ -317,7 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   topic: core/imu
   NotARobot: 0
-  frequency: 10
+  frequency: 20
   ignoreSensorState: 0
   useNED: 0
 --- !u!1 &1905596893524856152
