@@ -9,7 +9,7 @@ using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 namespace ROS.Publishers.GroundTruth
 {
     [AddComponentMenu("Smarc/ROS/GT_Odom_Pub")]
-    class GT_Odom_Pub : ROSPublisher<OdometryMsg>
+    public class GT_Odom_Pub : ROSPublisher<OdometryMsg>
     {
         [Tooltip("Suffix for the child frame, matching ROSTransformTreePublisher's tf_suffix. Set to '_gt' when the TF tree is published as ground truth.")]
         public string tf_suffix = "";

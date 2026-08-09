@@ -3,6 +3,7 @@ using UnityEditor;
 
 using VehicleComponents.Sensors;
 using ROS.Publishers;
+using ROS.Publishers.GroundTruth;
 using Visualizers;
 
 /// <summary>
@@ -201,6 +202,19 @@ public static class SamV2PerceptionBuilder
             else Debug.LogWarning($"[SamV2] Expected child {name} not found in SAMSensors copy.");
         }
 
+        // Session B ground-truth separation, completed: Unity must publish ONLY _gt
+        // frames; the estimator owns the plain frames. The root TF_Pub already has
+        // tf_suffix=_gt in sam_auv_v1.prefab, but the sensor suite's own tree
+        // publishers were left at "" (field never serialized after the Session B
+        // script change), so Unity ALSO published a plain truth tree — which is why
+        // dr_vs_gt read 0.00 for a whole run (truth compared to itself).
+        foreach (var name in new[] { "ROS_TF", "ROS_TF Rope" })
+        {
+            var t = FindDeep(root.transform, name);
+            if (t != null && t.TryGetComponent<ROSTransformTreePublisher>(out var treePub))
+                treePub.tf_suffix = "_gt";
+        }
+
         // New nose package, as nested prefab instances.
         foreach (var path in new[] { SonarPrefabPath, RealSensePrefabPath })
         {
@@ -239,7 +253,14 @@ public static class SamV2PerceptionBuilder
         sensorsV2.transform.SetParent(sensorsParent, false);
         sensorsV2.transform.SetSiblingIndex(sensorsSiblingIndex);
 
-        // 2) Add the new nose links under base_link.
+        // 2) GT odom publisher: label its child frame as ground truth (Session B doc
+        // intent, never actually serialized into the v1 prefab). The smarc/odom topic
+        // name is left as-is deliberately — the duplicate-with-DR question is the
+        // estimator session's open item.
+        foreach (var gtOdom in root.GetComponentsInChildren<GT_Odom_Pub>(true))
+            gtOdom.tf_suffix = "_gt";
+
+        // 3) Add the new nose links under base_link.
         var baseLink = FindDeep(root.transform, "base_link");
         if (baseLink == null)
         {

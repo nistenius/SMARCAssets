@@ -107,7 +107,7 @@ namespace VehicleComponents.Sensors
             for (int i = 0; i < numPixels; i++)
             {
                 var hit = results[i];
-                if (hit.colliderInstanceID == 0)
+                if (hit.collider == null) // no hit (main thread, so the managed accessor is fine)
                 {
                     Depths[i] = 0f;
                     continue;

@@ -232,7 +232,7 @@ MonoBehaviour:
   frequency: 10
   MapFrameTransform: {fileID: 0}
   tf_prefix: 
-  tf_suffix: 
+  tf_suffix: _gt
   OnlyRelative: 0
 --- !u!1 &3680131770725555474
 GameObject:
@@ -283,7 +283,7 @@ MonoBehaviour:
   frequency: 10
   MapFrameTransform: {fileID: 0}
   tf_prefix: 
-  tf_suffix: 
+  tf_suffix: _gt
   OnlyRelative: 0
 --- !u!1 &3935863985825935361
 GameObject:
