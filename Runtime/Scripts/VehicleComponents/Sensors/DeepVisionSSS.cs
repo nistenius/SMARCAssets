@@ -5,18 +5,19 @@ using ROS.Core;
 namespace VehicleComponents.Sensors
 {
     /// <summary>
-    /// Deep Vision side scan sonar (DE340/DE680 family, as on SAM 2.2): ONE transducer,
-    /// switchable between two operating frequencies. Selecting the mode applies the
-    /// matching range/resolution/ping-rate preset to the Sonar component (and the
-    /// publisher rate). Interferometric in both modes -> SidescanMsg angle bytes are
-    /// populated and point clouds can be built downstream.
+    /// Deep Vision side scan sonar (DE340/DE680 family, as on SAM 2.2): one sonar unit
+    /// with TWO transducers (port + starboard), switchable between two operating
+    /// frequencies. The underlying Sonar runs in SSS mode with two beams, and SSS_Pub
+    /// publishes separate port_channel / starboard_channel arrays — i.e. left/right
+    /// data ready for waterfall images. With Interferometric on, per-bin angle bytes
+    /// are also published, so point clouds can be built downstream.
     ///
     ///   LF 340 kHz: 15-200 m/side, 20 cm bins  — wide-area search      (~3 Hz ping)
     ///   HF 680 kHz: 10-100 m/side,  5 cm bins  — high-res imaging      (~7 Hz ping)
     ///
-    /// The mode takes effect when entering Play (the Sonar sizes its bucket arrays in
-    /// Awake); switching mid-run needs a Stop/Play, same as re-configuring the real
-    /// unit's recording session.
+    /// Mode/interferometric take effect when entering Play (the Sonar sizes its bucket
+    /// arrays in Awake); switching mid-run needs a Stop/Play, same as re-configuring
+    /// the real unit's recording session.
     /// </summary>
     [DefaultExecutionOrder(-100)] // apply the preset before Sonar.Awake sizes its arrays
     [RequireComponent(typeof(Sonar))]
@@ -25,8 +26,11 @@ namespace VehicleComponents.Sensors
     {
         public enum FrequencyMode { LF340, HF680 }
 
-        [Tooltip("Operating frequency of the (single) transducer. LF340: 200 m/side wide-area. HF680: 100 m/side high-res. Applied at Play start.")]
+        [Tooltip("Operating frequency (both transducers switch together). LF340: 200 m/side wide-area. HF680: 100 m/side high-res. Applied at Play start.")]
         public FrequencyMode Mode = FrequencyMode.HF680;
+
+        [Tooltip("Interferometric mode: publish per-bin elevation angles alongside the port/starboard echo channels, enabling point clouds. Off = plain waterfall echoes only.")]
+        public bool Interferometric = true;
 
         void OnValidate() { Apply(); }
         void Awake() { Apply(); }
@@ -51,7 +55,7 @@ namespace VehicleComponents.Sensors
                 sonar.NumRaysPerBeam = 512;
                 pingHz = 7f;
             }
-            sonar.isInterferometric = true;
+            sonar.isInterferometric = Interferometric;
             sonar.frequency = pingHz;
 
             // Match the SSS publisher rate to the ping rate. Reflection because the
