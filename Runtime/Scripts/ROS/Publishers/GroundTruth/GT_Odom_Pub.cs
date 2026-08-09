@@ -11,6 +11,9 @@ namespace ROS.Publishers.GroundTruth
     [AddComponentMenu("Smarc/ROS/GT_Odom_Pub")]
     class GT_Odom_Pub : ROSPublisher<OdometryMsg>
     {
+        [Tooltip("Suffix for the child frame, matching ROSTransformTreePublisher's tf_suffix. Set to '_gt' when the TF tree is published as ground truth.")]
+        public string tf_suffix = "";
+
         MixedBody body;
 
         protected override void InitPublisher()
@@ -29,7 +32,7 @@ namespace ROS.Publishers.GroundTruth
 
                 GetRobotGO(out var robotGO);
                 ROSMsg.header.frame_id = "unity_origin";
-                ROSMsg.child_frame_id = $"{robotGO.name}/base_link";
+                ROSMsg.child_frame_id = $"{robotGO.name}/base_link{tf_suffix}";
             }
         }
 

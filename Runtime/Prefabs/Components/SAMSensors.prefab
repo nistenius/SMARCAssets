@@ -268,6 +268,15 @@ MonoBehaviour:
   frequency: 10
   hasNewData: 0
   withGravity: 1
+  enableNoise: 1
+  noiseSeed: 0
+  accelNoiseDensity: 0.0014
+  gyroNoiseDensity: 9e-05
+  orientationSigmaRollPitch: 0.0035
+  orientationSigmaYaw: 0.0175
+  yawDriftDegPerSqrtMin: 0.5
+  yawDriftCapDeg: 0
+  yawBiasDeg: 0
   localVelocity: {x: 0, y: 0, z: 0}
   linearAcceleration: {x: 0, y: 0, z: 0}
   linearAccelerationCovariance:
@@ -759,6 +768,15 @@ MonoBehaviour:
   frequency: 10
   hasNewData: 0
   withGravity: 1
+  enableNoise: 1
+  noiseSeed: 0
+  accelNoiseDensity: 0.0014
+  gyroNoiseDensity: 9e-05
+  orientationSigmaRollPitch: 0.0035
+  orientationSigmaYaw: 0.0175
+  yawDriftDegPerSqrtMin: 0.5
+  yawDriftCapDeg: 0
+  yawBiasDeg: 0
   localVelocity: {x: 0, y: 0, z: 0}
   linearAcceleration: {x: 0, y: 0, z: 0}
   linearAccelerationCovariance:
@@ -1560,7 +1578,7 @@ MonoBehaviour:
   pitch: 0
   yaw: 0
   FixedRotation: 0
-  frequency: 10
+  frequency: 5
   hasNewData: 0
   numBeams: 4
   minHitsToReport: 3
@@ -1604,6 +1622,8 @@ GameObject:
   - component: {fileID: 8921096746309416013}
   - component: {fileID: 2147931179597612432}
   - component: {fileID: 3067360293598247023}
+  - component: {fileID: 109811610191844842}
+  - component: {fileID: 721254055431598238}
   m_Layer: 0
   m_Name: IMU SBG
   m_TagString: Untagged
@@ -1714,6 +1734,15 @@ MonoBehaviour:
   frequency: 10
   hasNewData: 0
   withGravity: 1
+  enableNoise: 1
+  noiseSeed: 0
+  accelNoiseDensity: 0.0014
+  gyroNoiseDensity: 9e-05
+  orientationSigmaRollPitch: 0.0035
+  orientationSigmaYaw: 0.035
+  yawDriftDegPerSqrtMin: 0
+  yawDriftCapDeg: 0
+  yawBiasDeg: 0
   localVelocity: {x: 0, y: 0, z: 0}
   linearAcceleration: {x: 0, y: 0, z: 0}
   linearAccelerationCovariance:
@@ -2062,3 +2091,59 @@ MonoBehaviour:
   HitsSize: 0.2
   HitsLifetime: 10
   MaxParticlesMultiplier: 100
+--- !u!114 &109811610191844842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7856187343067556969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d84435175f8e4f76aac50f571888a7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linkName: sbg_link
+  retryUntilSuccess: 1
+  rotateForROSCamera: 0
+  roll: 0
+  pitch: 0
+  yaw: 0
+  FixedRotation: 0
+  frequency: 10
+  hasNewData: 0
+  fieldStrengthMicroTesla: 50.7
+  inclinationDeg: 72.5
+  declinationDeg: 7
+  enableNoise: 1
+  noiseSeed: 0
+  noiseSigmaMicroTesla: 0.3
+  hardIronBiasMicroTesla: {x: 0, y: 0, z: 0}
+  magneticField: {x: 0, y: 0, z: 0}
+  impliedHeadingDeg: 0
+  magneticFieldCovariance:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+--- !u!114 &721254055431598238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7856187343067556969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ece84a92965433890a8cd0e743709c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topic: core/compass
+  NotARobot: 0
+  frequency: 10
+  ignoreSensorState: 0

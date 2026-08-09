@@ -21,6 +21,7 @@ namespace ROS.Publishers
         {
             ROSMsg.header.stamp = new TimeStamp(Clock.time);
             ROSMsg.fluid_pressure = DataSource.pressure;
+            ROSMsg.variance = DataSource.pressureSigmaPa * DataSource.pressureSigmaPa;
         }
     }
 }

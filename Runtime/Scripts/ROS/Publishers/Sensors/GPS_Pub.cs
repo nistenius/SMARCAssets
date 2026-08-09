@@ -20,12 +20,14 @@ namespace ROS.Publishers
         protected override void UpdateMessage()
         {
             ROSMsg.header.stamp = new TimeStamp(Clock.time);
-            if(DataSource.fix) 
+            if(DataSource.fix)
             {
                 ROSMsg.status.status = NavSatStatusMsg.STATUS_FIX;
                 ROSMsg.latitude = DataSource.lat;
                 ROSMsg.longitude = DataSource.lon;
                 ROSMsg.altitude = DataSource.alt;
+                ROSMsg.position_covariance = DataSource.positionCovariance;
+                ROSMsg.position_covariance_type = NavSatFixMsg.COVARIANCE_TYPE_DIAGONAL_KNOWN;
             }
             else ROSMsg.status.status = NavSatStatusMsg.STATUS_NO_FIX;
         }

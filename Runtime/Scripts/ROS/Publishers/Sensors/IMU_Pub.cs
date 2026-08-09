@@ -29,6 +29,10 @@ namespace ROS.Publishers
             
             ROSMsg.angular_velocity = DataSource.angularVelocity.To<FLU>();
             ROSMsg.linear_acceleration = DataSource.linearAcceleration.To<FLU>();
+
+            ROSMsg.orientation_covariance = DataSource.orientationCovariance;
+            ROSMsg.angular_velocity_covariance = DataSource.angularVelocityCovariance;
+            ROSMsg.linear_acceleration_covariance = DataSource.linearAccelerationCovariance;
         }
     }
 }

@@ -37,6 +37,9 @@ namespace ROS.Publishers
             }
             ROSMsg.velocity = DataSource.velocity.To<FLU>();
             ROSMsg.altitude = DataSource.altitude;
+            // Diagonal from the noise model; all -1 during dropout / lost lock,
+            // per the smarc_msgs/DVL "invalid measurement" convention.
+            ROSMsg.velocity_covariance = DataSource.velocityCovariance;
         }
     }
 }

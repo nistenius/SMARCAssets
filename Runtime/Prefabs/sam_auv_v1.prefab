@@ -1002,6 +1002,7 @@ MonoBehaviour:
   frequency: 10
   MapFrameTransform: {fileID: 0}
   tf_prefix: 
+  tf_suffix: _gt
 --- !u!1 &1163357502922114015
 GameObject:
   m_ObjectHideFlags: 0
