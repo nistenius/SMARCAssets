@@ -234,6 +234,133 @@ MonoBehaviour:
   tf_prefix: 
   tf_suffix: _gt
   OnlyRelative: 0
+--- !u!1 &2165765640714547768
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6351949767962695731}
+  - component: {fileID: 156237144461519381}
+  - component: {fileID: 420871467813992407}
+  - component: {fileID: 7300630941771041428}
+  - component: {fileID: 9004097572987515791}
+  m_Layer: 0
+  m_Name: SideScanSonar DeepVision
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6351949767962695731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2165765640714547768}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.683, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9010193403575076248}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &156237144461519381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2165765640714547768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3b6288b40e80267dbb708af626d7c9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linkName: sidescan_link
+  retryUntilSuccess: 1
+  rotateForROSCamera: 0
+  roll: 0
+  pitch: 0
+  yaw: 0
+  FixedRotation: 0
+  frequency: 7
+  hasNewData: 0
+  Type: 1
+  NumRaysPerBeam: 512
+  BeamBreadthDeg: 45
+  NumBeams: 2
+  MaxRange: 100
+  BeamBreadth3DecibelsDeg: 60
+  TiltAngleDeg: 45
+  FLSFOVDeg: 30
+  NumBucketsPerBeam: 2000
+  isInterferometric: 1
+  MultGain: 1
+  UseAdditiveNoise: 1
+  AddNoiseStd: 1
+  AddNoiseMean: 0
+  Buckets: 
+  BucketsAngleHigh: 
+  BucketsAngleLow: 
+  HitsMinHeight: Infinity
+  HitsMaxHeight: 0
+  TimeShareInFixedUpdate: 0
+  BeamProfile: []
+--- !u!114 &420871467813992407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2165765640714547768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d48e31a385b4944483627b44fcd43e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topic: payload/sidescan
+  NotARobot: 0
+  frequency: 7
+  ignoreSensorState: 0
+--- !u!114 &7300630941771041428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2165765640714547768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 435e0ca92f45ace5794321756f92eaef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DrawRays: 1
+  RayMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  RayThickness: 0.05
+  DrawHits: 1
+  DrawEveryNthFrame: 10
+  UseRainbow: 1
+  HitsSize: 0.1
+  HitsLifetime: 1
+  MaxParticlesMultiplier: 10
+--- !u!114 &9004097572987515791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2165765640714547768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77453f3860b454eec9a63d21672a940e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SMARC.SMARCAssets::VehicleComponents.Sensors.DeepVisionSSS
+  Mode: 1
 --- !u!1 &3680131770725555474
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,53 +412,6 @@ MonoBehaviour:
   tf_prefix: 
   tf_suffix: _gt
   OnlyRelative: 0
---- !u!1 &3853760825066742870
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 9171558873505314708}
-  - component: {fileID: 4337399395407369153}
-  m_Layer: 0
-  m_Name: MissionWPHoop
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &9171558873505314708
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3853760825066742870}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9010193403575076248}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4337399395407369153
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3853760825066742870}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8229df508b1924afaadccedf185acc23, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Subscribers.MissionWPHoop_Sub
-  topic: mission/last_wp
-  NotARobot: 0
-  TubeRadius: 0.1
 --- !u!1 &3935863985825935361
 GameObject:
   m_ObjectHideFlags: 0
@@ -961,8 +1041,7 @@ Transform:
   - {fileID: 2942766953905485671}
   - {fileID: 3990739566695791216}
   - {fileID: 7602820844738885769}
-  - {fileID: 1580502238157707176}
-  - {fileID: 9171558873505314708}
+  - {fileID: 6351949767962695731}
   - {fileID: 6707139462772831855}
   - {fileID: 7403567559220400070}
   m_Father: {fileID: 0}
@@ -1403,119 +1482,6 @@ MonoBehaviour:
   NotARobot: 0
   frequency: 10
   ignoreSensorState: 0
---- !u!1 &8756736518970275630
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1580502238157707176}
-  - component: {fileID: 2358929897720072576}
-  - component: {fileID: 483682619556761966}
-  - component: {fileID: 7358602979960007782}
-  m_Layer: 0
-  m_Name: SideScanSonar
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1580502238157707176
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8756736518970275630}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.683, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9010193403575076248}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2358929897720072576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8756736518970275630}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3b6288b40e80267dbb708af626d7c9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  linkName: sidescan_link
-  retryUntilSuccess: 1
-  rotateForROSCamera: 0
-  roll: 0
-  pitch: 0
-  yaw: 0
-  FixedRotation: 0
-  frequency: 20
-  hasNewData: 0
-  Type: 1
-  NumRaysPerBeam: 256
-  BeamBreadthDeg: 45
-  NumBeams: 2
-  MaxRange: 100
-  BeamBreadth3DecibelsDeg: 60
-  TiltAngleDeg: 45
-  FLSFOVDeg: 30
-  NumBucketsPerBeam: 1000
-  isInterferometric: 0
-  MultGain: 1
-  UseAdditiveNoise: 1
-  AddNoiseStd: 1
-  AddNoiseMean: 0
-  Buckets: 
-  BucketsAngleHigh: 
-  BucketsAngleLow: 
-  HitsMinHeight: Infinity
-  HitsMaxHeight: 0
-  TimeShareInFixedUpdate: 0
-  BeamProfile: []
---- !u!114 &483682619556761966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8756736518970275630}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d48e31a385b4944483627b44fcd43e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  topic: payload/sidescan
-  NotARobot: 0
-  frequency: 20
-  ignoreSensorState: 0
---- !u!114 &7358602979960007782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8756736518970275630}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 435e0ca92f45ace5794321756f92eaef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DrawRays: 1
-  RayMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
-  RayThickness: 0.05
-  DrawHits: 1
-  DrawEveryNthFrame: 10
-  UseRainbow: 1
-  HitsSize: 0.1
-  HitsLifetime: 1
-  MaxParticlesMultiplier: 10
 --- !u!1 &9128483908501997444
 GameObject:
   m_ObjectHideFlags: 0

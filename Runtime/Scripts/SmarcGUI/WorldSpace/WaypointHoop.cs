@@ -17,9 +17,13 @@ namespace SmarcGUI.WorldSpace
         public int TubeSegments = 10;
         public Color HoopColor = new Color(1f, 0.6f, 0f, 1f); // orange
 
+        [Tooltip("Give the hoop a MeshCollider so physics raycasts hit it — makes it visible to the 3D sonar (and a physical gate the vehicle could clip).")]
+        public bool Collidable = true;
+
         float radius = -1f;
         MeshFilter meshFilter;
         MeshRenderer meshRenderer;
+        MeshCollider meshCollider;
 
         void Awake()
         {
@@ -47,7 +51,24 @@ namespace SmarcGUI.WorldSpace
             if (r <= 0f) return;
             if (Mathf.Approximately(r, radius)) return;
             radius = r;
-            meshFilter.mesh = BuildTorus(radius, TubeRadius, RingSegments, TubeSegments);
+            var mesh = BuildTorus(radius, TubeRadius, RingSegments, TubeSegments);
+            meshFilter.mesh = mesh;
+            UpdateCollider(mesh);
+        }
+
+        void UpdateCollider(Mesh mesh)
+        {
+            if (Collidable)
+            {
+                if (meshCollider == null) meshCollider = gameObject.GetComponent<MeshCollider>();
+                if (meshCollider == null) meshCollider = gameObject.AddComponent<MeshCollider>();
+                meshCollider.sharedMesh = mesh; // non-convex: raycasts (sonar) see the actual ring
+                meshCollider.enabled = true;
+            }
+            else if (meshCollider != null)
+            {
+                meshCollider.enabled = false;
+            }
         }
 
         /// <summary>Face the hoop opening along dir (the direction of travel through the WP).</summary>

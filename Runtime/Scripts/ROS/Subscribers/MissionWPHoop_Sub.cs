@@ -9,26 +9,48 @@ using ROS.Core;
 namespace ROS.Subscribers
 {
     /// <summary>
-    /// Subscribes to the vehicle's CURRENT waypoint (mission/last_wp, republished by the
-    /// dive action server on every accepted goal) and shows it as a "hula hoop":
-    /// diameter = 2 x goal tolerance, positioned at the WP's lat/lon/depth, opening
-    /// facing the vehicle's approach direction.
+    /// Shows the vehicle's CURRENT waypoint (mission/last_wp, republished by the dive
+    /// action server on every accepted goal) as a "hula hoop": diameter = 2 x goal
+    /// tolerance, positioned at the WP's lat/lon/depth, opening facing the approach.
     ///
-    /// This is deliberately subscriber-driven from the VM's own mission plan — whatever
-    /// mission the vehicle is really flying is what gets visualized. No mission-planner
-    /// GUI involvement (design direction: Ivan, 2026-08-09).
+    /// Standalone scene object by design: drag the MissionWPHoop prefab into a scene
+    /// and set RobotName to choose whose mission to mirror. The display is
+    /// subscriber-driven from the VM's own plan — whatever mission the vehicle is
+    /// really flying is what gets visualized (design direction: Ivan, 2026-08-09).
     /// </summary>
     [AddComponentMenu("Smarc/ROS/MissionWPHoop_Sub")]
     public class MissionWPHoop_Sub : ROSBehaviour
     {
+        [Tooltip("Robot whose mission to mirror. Used to namespace the topic (/<RobotName>/<topic>) and, if the robot exists in the scene, to orient the first hoop toward it.")]
+        public string RobotName = "sam_auv_v1";
+
         [Tooltip("Visual thickness of the hoop tube.")]
         public float TubeRadius = 0.1f;
+
+        [Tooltip("Hoop gets a MeshCollider: visible to the 3D sonar, and a physical gate.")]
+        public bool Collidable = true;
 
         GlobalReferencePoint globalRef;
         WaypointHoop hoop;
         Vector3 prevCenter;
         bool hasPrev = false;
         bool subscribed = false;
+
+        void OnValidate()
+        {
+            // Standalone scene object: don't let ROSBehaviour try to find a robot parent.
+            NotARobot = true;
+        }
+
+        void Awake()
+        {
+            // Must happen BEFORE ROSBehaviour.OnEnable: a relative topic without a robot
+            // parent gets the component force-disabled there. Awake runs first, so we
+            // namespace with the chosen robot here and OnEnable sees an absolute topic.
+            NotARobot = true;
+            if (!topic.StartsWith("/") && !string.IsNullOrEmpty(RobotName))
+                topic = $"/{RobotName}/{topic}";
+        }
 
         protected override void StartROS()
         {
@@ -50,11 +72,19 @@ namespace ROS.Subscribers
         void EnsureHoop()
         {
             if (hoop != null) return;
-            // World-anchored: the hoop must NOT move with the robot, so it lives at scene root.
-            var hoopGO = new GameObject($"{transform.root.name}_MissionWPHoop");
+            var hoopGO = new GameObject($"{RobotName}_WPHoop");
+            hoopGO.transform.SetParent(transform, false); // under this scene object, world-anchored
             hoop = hoopGO.AddComponent<WaypointHoop>();
             hoop.TubeRadius = TubeRadius;
+            hoop.Collidable = Collidable;
             hoopGO.SetActive(false);
+        }
+
+        Vector3 RobotPosition()
+        {
+            var robotGO = GameObject.Find(RobotName);
+            if (robotGO != null) return robotGO.transform.position;
+            return transform.position;
         }
 
         void OnWaypoint(GotoWaypointMsg msg)
@@ -71,9 +101,7 @@ namespace ROS.Subscribers
 
             // Face the hoop along the approach: previous WP -> this WP if we have one
             // (the actual leg), otherwise robot -> WP (the transit to the first WP).
-            Vector3 dir = Vector3.zero;
-            if (hasPrev) dir = center - prevCenter;
-            else if (GetBaseLink(out var baseLink)) dir = center - baseLink.position;
+            Vector3 dir = hasPrev ? center - prevCenter : center - RobotPosition();
             dir.y = 0;
             if (dir.sqrMagnitude > 1e-6f) hoop.SetDirection(dir);
 
@@ -87,11 +115,6 @@ namespace ROS.Subscribers
         void OnDisable()
         {
             if (hoop != null) hoop.gameObject.SetActive(false);
-        }
-
-        void OnDestroy()
-        {
-            if (hoop != null) Destroy(hoop.gameObject);
         }
     }
 }

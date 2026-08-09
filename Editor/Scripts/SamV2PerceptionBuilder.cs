@@ -62,11 +62,14 @@ public static class SamV2PerceptionBuilder
     static readonly Vector3 CamRightLinkPos = new Vector3(Baseline / 2f, 0.09f, 0.70f);
     const float MountPitchDeg = 20f;
 
+    const string MissionHoopPrefabPath = PKG + "/Components/MissionWPHoop.prefab";
+
     [MenuItem("SMARC/Build SAM v2 Perception Prefabs")]
     public static void BuildAll()
     {
         BuildSonarPrefab();
         BuildRealSensePrefab();
+        BuildMissionHoopPrefab();
         BuildSensorsV2Prefab();
         BuildSamV2Prefab();
         AssetDatabase.SaveAssets();
@@ -185,6 +188,19 @@ public static class SamV2PerceptionBuilder
         compPub.frequency = CamCompressedPubFrequency;
     }
 
+    static void BuildMissionHoopPrefab()
+    {
+        // Standalone, scene-draggable: shows the current WP of RobotName's mission as a
+        // hula hoop (diameter = 2x goal tolerance), fed by the VM's mission/last_wp.
+        var go = new GameObject("MissionWPHoop");
+        var sub = go.AddComponent<MissionWPHoop_Sub>();
+        sub.topic = "mission/last_wp";
+        sub.RobotName = "sam_auv_v1";
+        sub.NotARobot = true;
+        PrefabUtility.SaveAsPrefabAsset(go, MissionHoopPrefabPath);
+        Object.DestroyImmediate(go);
+    }
+
     static void BuildSensorsV2Prefab()
     {
         var src = AssetDatabase.LoadAssetAtPath<GameObject>(PKG + "/Components/SAMSensors.prefab");
@@ -231,14 +247,25 @@ public static class SamV2PerceptionBuilder
         var sbgGO = FindDeep(root.transform, "IMU SBG");
         if (sbgGO != null && sbgGO.TryGetComponent<IMU>(out var sbgSensor)) sbgSensor.yawDriftDegPerSqrtMin = 0.5f;
 
-        // Mission WP "hula hoop": subscribes to the vehicle's OWN current waypoint
-        // (mission/last_wp, republished by the dive action server per accepted goal)
-        // and renders it as a torus with diameter = 2x goal tolerance. Subscriber-driven
-        // from the VM's plan by design — no GUI mission planner involvement.
-        var hoopSubGO = new GameObject("MissionWPHoop");
-        hoopSubGO.transform.SetParent(root.transform, false);
-        var hoopSub = hoopSubGO.AddComponent<MissionWPHoop_Sub>();
-        hoopSub.topic = "mission/last_wp";
+        // (The mission WP hoop is deliberately NOT part of the vehicle — it's a
+        // standalone prefab, Components/MissionWPHoop.prefab, dragged into scenes
+        // where wanted. See BuildMissionHoopPrefab.)
+
+        // Deep Vision interferometric sidescan (DE340/DE680 family, as on the next
+        // SAM): ONE transducer, switchable 340/680 kHz. The DeepVisionSSS component
+        // owns the mode presets (range/bins/rays/ping rate) and forces interferometric
+        // on, so SidescanMsg's angle bytes are populated for downstream point clouds.
+        // Default HF680 (100 m/side, 5 cm bins) — right for the dry dock; flip the
+        // Mode dropdown to LF340 for wide-area work.
+        var sssT = FindDeep(root.transform, "SideScanSonar");
+        if (sssT != null)
+        {
+            sssT.gameObject.name = "SideScanSonar DeepVision";
+            var dv = sssT.gameObject.AddComponent<DeepVisionSSS>();
+            dv.Mode = DeepVisionSSS.FrequencyMode.HF680;
+            dv.Apply();
+        }
+        else Debug.LogWarning("[SamV2] SideScanSonar not found; DeepVision config skipped.");
 
         // New nose package, as nested prefab instances.
         foreach (var path in new[] { SonarPrefabPath, RealSensePrefabPath })
@@ -318,6 +345,26 @@ public static class SamV2PerceptionBuilder
         go.transform.SetParent(parent, false);
         go.transform.localPosition = localPos;
         go.transform.localRotation = Quaternion.Euler(pitchDeg, 0f, 0f);
+    }
+
+    /// <summary>
+    /// On one GameObject: find the publisher whose 'topic' matches oldTopic and set its
+    /// topic + frequency (SerializedObject, so internal publisher classes work).
+    /// </summary>
+    static void SetTopicAndFreqOn(GameObject go, string oldTopic, string newTopic, float freq)
+    {
+        foreach (var mb in go.GetComponents<MonoBehaviour>())
+        {
+            if (mb == null) continue;
+            var so = new SerializedObject(mb);
+            var topicProp = so.FindProperty("topic");
+            if (topicProp == null || topicProp.propertyType != SerializedPropertyType.String) continue;
+            if (topicProp.stringValue != oldTopic) continue;
+            topicProp.stringValue = newTopic;
+            var freqProp = so.FindProperty("frequency");
+            if (freqProp != null) freqProp.floatValue = freq;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
     }
 
     /// <summary>
