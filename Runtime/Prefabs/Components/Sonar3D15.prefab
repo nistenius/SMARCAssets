@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5491631988698881221
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1137514456739427110}
+  - component: {fileID: 6739974035726264940}
+  - component: {fileID: 4019353620594348815}
+  - component: {fileID: 1926568910191298438}
+  m_Layer: 0
+  m_Name: Sonar3D15
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1137514456739427110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5491631988698881221}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6739974035726264940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5491631988698881221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3b6288b40e80267dbb708af626d7c9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SMARC.SMARCAssets::VehicleComponents.Sensors.Sonar
+  linkName: sonar3d_link
+  retryUntilSuccess: 1
+  rotateForROSCamera: 0
+  roll: 0
+  pitch: 0
+  yaw: 0
+  FixedRotation: 0
+  frequency: 5
+  hasNewData: 0
+  Type: 0
+  NumRaysPerBeam: 41
+  BeamBreadthDeg: 40
+  NumBeams: 91
+  MaxRange: 15
+  BeamBreadth3DecibelsDeg: 60
+  TiltAngleDeg: -20
+  FLSFOVDeg: 90
+  NumBucketsPerBeam: 1000
+  isInterferometric: 0
+  MultGain: 4
+  UseAdditiveNoise: 1
+  AddNoiseStd: 1
+  AddNoiseMean: 0
+  Buckets: 
+  BucketsAngleHigh: 
+  BucketsAngleLow: 
+  HitsMinHeight: Infinity
+  HitsMaxHeight: 0
+  TimeShareInFixedUpdate: 0
+  BeamProfile: []
+--- !u!114 &4019353620594348815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5491631988698881221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c404bcc3ca14f048dbe0147fad1cebc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.SonarPointCloud_Pub
+  topic: payload/sonar3d/points
+  NotARobot: 0
+  frequency: 5
+  ignoreSensorState: 0
+--- !u!114 &1926568910191298438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5491631988698881221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 435e0ca92f45ace5794321756f92eaef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SMARC.SMARCAssets::Visualizers.RayViewer
+  DrawRays: 0
+  RayMaterial: {fileID: 0}
+  RayThickness: 0.05
+  DrawHits: 1
+  DrawEveryNthFrame: 10
+  UseRainbow: 1
+  HitsSize: 0.1
+  HitsLifetime: 3
+  MaxParticlesMultiplier: 10

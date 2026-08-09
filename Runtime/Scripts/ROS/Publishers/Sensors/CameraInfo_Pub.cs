@@ -11,7 +11,7 @@ namespace ROS.Publishers
     [AddComponentMenu("Smarc/ROS/CameraInfo_Pub")]
     [RequireComponent(typeof(CameraImageSensor))]
     [RequireComponent(typeof(Camera))]
-    class CameraInfo_Pub: ROSSensorPublisher<CameraInfoMsg, CameraImageSensor>
+    public class CameraInfo_Pub: ROSSensorPublisher<CameraInfoMsg, CameraImageSensor>
     {
         [Header("Camera Info")]
         [Header("Camera distortion model params for plumb_bob")]

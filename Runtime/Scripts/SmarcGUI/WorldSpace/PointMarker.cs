@@ -32,6 +32,11 @@ namespace SmarcGUI.WorldSpace
         LineRenderer toleranceCircleRenderer;
         public Transform toleranceMarker;
 
+        // "Hula hoop" showing the WP acceptance region in 3D: diameter = 2x tolerance.
+        // Oriented along the path leg so the vehicle passes through it.
+        WaypointHoop hoop;
+        PointMarker hoopPrevMarker, hoopNextMarker;
+
         GUIState guiState;
         bool isSelected = false;    
         bool isFar = false;
@@ -67,6 +72,11 @@ namespace SmarcGUI.WorldSpace
             toleranceCircleRenderer.endColor = Color.yellow;
             toleranceCircleRenderer.positionCount = 50;
 
+
+            var hoopGO = new GameObject("WaypointHoop");
+            hoopGO.transform.SetParent(transform, false);
+            hoop = hoopGO.AddComponent<WaypointHoop>();
+            hoopGO.SetActive(false);
 
             var overlayGO = Instantiate(PointMarkerOverlayPrefab);
             overlay = overlayGO.GetComponent<PointMarkerOverlay>();
@@ -163,6 +173,12 @@ namespace SmarcGUI.WorldSpace
                 lineToShadow.SetPosition(1, shadowMarker.position);
             }
 
+            if (hoop != null && paramTolerance != null)
+            {
+                hoop.SetRadius(paramTolerance.GetTolerance());
+                UpdateHoopDirection();
+            }
+
             if (toleranceMarker != null && paramTolerance != null)
             {
                 float tolerance = paramTolerance.GetTolerance();
@@ -174,6 +190,29 @@ namespace SmarcGUI.WorldSpace
                     toleranceCircleRenderer.SetPosition(i, pos + transform.position);
                 }
             }
+        }
+
+        /// <summary>
+        /// Give this marker its neighbors in the task path, so the hoop can be
+        /// oriented along the leg of travel. Either may be null.
+        /// </summary>
+        public void SetHoopNeighbors(PointMarker prev, PointMarker next)
+        {
+            hoopPrevMarker = prev;
+            hoopNextMarker = next;
+            UpdateHoopDirection();
+        }
+
+        void UpdateHoopDirection()
+        {
+            if (hoop == null) return;
+            Vector3 dir = Vector3.zero;
+            if (hoopPrevMarker != null) dir = transform.position - hoopPrevMarker.transform.position;
+            else if (hoopNextMarker != null) dir = hoopNextMarker.transform.position - transform.position;
+            if (dir.sqrMagnitude < 1e-6f) dir = GetHeadingVec();
+            if (dir.sqrMagnitude < 1e-6f) return; // solo WP without heading: keep last/default orientation
+            dir.y = 0; // hoops are vertical rings; vehicle passes through horizontally
+            hoop.SetDirection(dir);
         }
 
         public List<Vector3> GetWorldPath()
@@ -210,6 +249,7 @@ namespace SmarcGUI.WorldSpace
 
             toleranceMarker.gameObject.SetActive(paramTolerance != null);
             toleranceCircleRenderer.enabled = paramTolerance != null;
+            if (hoop != null) hoop.gameObject.SetActive(paramTolerance != null);
 
             FloatingNameCanvas.gameObject.SetActive(draw3Dwidgets);
             FloatingNameCanvas.transform.rotation = guiState.CurrentCam.transform.rotation;
@@ -236,6 +276,7 @@ namespace SmarcGUI.WorldSpace
             var camDiff = transform.position - guiState.CurrentCam.transform.position;
             isFar = camDiff.sqrMagnitude > farAwayDistSq;
             UpdateWidgets();
+            UpdateHoopDirection(); // neighbors may have been dragged this frame
         }
 
         void OnDisable()

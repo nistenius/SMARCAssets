@@ -10,7 +10,7 @@ namespace ROS.Publishers
 {
     [AddComponentMenu("Smarc/ROS/CameraImage_Pub")]
     [RequireComponent(typeof(CameraImageSensor))]
-    class CameraImage_Pub : ROSSensorPublisher<ImageMsg, CameraImageSensor>
+    public class CameraImage_Pub : ROSSensorPublisher<ImageMsg, CameraImageSensor>
     {
         
         // Thank chat for this whole new version lol

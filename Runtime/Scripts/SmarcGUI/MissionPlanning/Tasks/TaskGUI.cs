@@ -154,7 +154,22 @@ namespace SmarcGUI.MissionPlanning.Tasks
                 }
                 else AddPointMarker(paramgui);
             }
+            UpdateHoopNeighbors();
             UpdateHeight();
+        }
+
+        /// <summary>
+        /// Tell each marker who its path neighbors are, so the waypoint hoops
+        /// can face along the leg of travel.
+        /// </summary>
+        void UpdateHoopNeighbors()
+        {
+            for (int i = 0; i < pointmarkers.Count; i++)
+            {
+                var prev = i > 0 ? pointmarkers[i - 1] : null;
+                var next = i < pointmarkers.Count - 1 ? pointmarkers[i + 1] : null;
+                pointmarkers[i].SetHoopNeighbors(prev, next);
+            }
         }
 
         ParamGUI InstantiateParamGui(Transform parent, Dictionary<string, object> taskParams, string paramKey)

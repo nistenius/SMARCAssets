@@ -9,7 +9,7 @@ namespace ROS.Publishers
 {
     [AddComponentMenu("Smarc/ROS/CameraImageCompressed_Pub")]
     [RequireComponent(typeof(CameraImageSensor))]
-    class CameraImageCompressed_Pub: ROSSensorPublisher<CompressedImageMsg, CameraImageSensor>
+    public class CameraImageCompressed_Pub: ROSSensorPublisher<CompressedImageMsg, CameraImageSensor>
     {
         [Header("Compressed Image")]
         [Tooltip("Jpg compression quality. 1=lowest quality")]
