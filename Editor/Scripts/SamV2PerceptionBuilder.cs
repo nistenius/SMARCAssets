@@ -42,7 +42,14 @@ public static class SamV2PerceptionBuilder
     const float CamFocalLength_mm = 1.93f;
     const float CamHFOV = 87f;
     const float Baseline = 0.05f;
+    // Sensor render rate. Publishers are slower: two raw 848x480 rgb8 streams at 10 Hz
+    // saturated the ROS TCP bridge ("Queue full! Messages are getting dropped") in the
+    // 2026-08-09 test — and bridge overload both sheds core sensor messages (health
+    // checker sees rate faults) and can shut the socket (see live-sim-runbook traps).
     const float CamFrequency = 10f;
+    const float CamRawPubFrequency = 2f;         // raw stream is for stereo dev, not for streaming
+    const float CamCompressedPubFrequency = 5f;  // human/preview stream
+    const float CamInfoPubFrequency = 5f;
 
     // ---- Mounting (base_link frame, Unity axes: x right, y up, z forward)
     // SAM nose is around z=0.70 (URDF x). Sonar on the centerline at the nose,
@@ -157,11 +164,11 @@ public static class SamV2PerceptionBuilder
 
         var imgPub = go.AddComponent<CameraImage_Pub>();
         imgPub.topic = $"{topicBase}/image_raw";
-        imgPub.frequency = CamFrequency;
+        imgPub.frequency = CamRawPubFrequency;
 
         var infoPub = go.AddComponent<CameraInfo_Pub>();
         infoPub.topic = $"{topicBase}/camera_info";
-        infoPub.frequency = CamFrequency;
+        infoPub.frequency = CamInfoPubFrequency;
         // K is computed live from the Camera by CameraInfo_Pub; P we fill here.
         // Stereo: right camera P has Tx = -fx * baseline.
         infoPub.k1 = 0; infoPub.k2 = 0; infoPub.t1 = 0; infoPub.t2 = 0; infoPub.k3 = 0;
@@ -172,7 +179,7 @@ public static class SamV2PerceptionBuilder
 
         var compPub = go.AddComponent<CameraImageCompressed_Pub>();
         compPub.topic = $"{topicBase}/image_raw/compressed";
-        compPub.frequency = CamFrequency;
+        compPub.frequency = CamCompressedPubFrequency;
     }
 
     static void BuildSensorsV2Prefab()

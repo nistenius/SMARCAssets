@@ -130,7 +130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.CameraImage_Pub
   topic: payload/realsense/right/image_raw
   NotARobot: 0
-  frequency: 10
+  frequency: 2
   ignoreSensorState: 0
   flipVertically: 1
   flipHorizontally: 0
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.CameraInfo_Pub
   topic: payload/realsense/right/camera_info
   NotARobot: 0
-  frequency: 10
+  frequency: 5
   ignoreSensorState: 0
   k1: 0
   k2: 0
@@ -180,7 +180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.CameraImageCompressed_Pub
   topic: payload/realsense/right/image_raw/compressed
   NotARobot: 0
-  frequency: 10
+  frequency: 5
   ignoreSensorState: 0
   quality: 75
 --- !u!1 &6969303659177247019
@@ -313,7 +313,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.CameraImage_Pub
   topic: payload/realsense/left/image_raw
   NotARobot: 0
-  frequency: 10
+  frequency: 2
   ignoreSensorState: 0
   flipVertically: 1
   flipHorizontally: 0
@@ -332,7 +332,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.CameraInfo_Pub
   topic: payload/realsense/left/camera_info
   NotARobot: 0
-  frequency: 10
+  frequency: 5
   ignoreSensorState: 0
   k1: 0
   k2: 0
@@ -363,7 +363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Publishers.CameraImageCompressed_Pub
   topic: payload/realsense/left/image_raw/compressed
   NotARobot: 0
-  frequency: 10
+  frequency: 5
   ignoreSensorState: 0
   quality: 75
 --- !u!1 &7283831324390443975
