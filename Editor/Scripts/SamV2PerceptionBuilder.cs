@@ -2,8 +2,10 @@ using UnityEngine;
 using UnityEditor;
 
 using VehicleComponents.Sensors;
+using VehicleComponents.Actuators;
 using ROS.Publishers;
 using ROS.Publishers.GroundTruth;
+using ROS.Subscribers;
 using Visualizers;
 
 /// <summary>
@@ -215,6 +217,29 @@ public static class SamV2PerceptionBuilder
                 treePub.tf_suffix = "_gt";
         }
 
+        // Estimator-session (2026-08-09 morning) Unity-side fixes that lived as SCENE
+        // OVERRIDES on the old sam_auv_v1 instance and were therefore lost by building
+        // from the prefab (found the hard way: 37 m DR divergence on the first
+        // estimator-in-the-loop flight):
+        //  - core/imu at 50 Hz = one message per physics step. At lower rates sim.yaml's
+        //    assumed dt makes IMU preintegration accrue fake time (retraction #2 in
+        //    2026-08-09-estimator-session-closure.md). Prefab had pub 20 Hz.
+        var imuGO = FindDeep(root.transform, "IMU");
+        if (imuGO != null && imuGO.TryGetComponent<IMU>(out var imuSensor)) imuSensor.frequency = 50f;
+        SetPubFrequencyByTopic(root.transform, "core/imu", 50f);
+        //  - SBG yaw random walk 0.5 deg/sqrt(min) (scene override; prefab had 0).
+        var sbgGO = FindDeep(root.transform, "IMU SBG");
+        if (sbgGO != null && sbgGO.TryGetComponent<IMU>(out var sbgSensor)) sbgSensor.yawDriftDegPerSqrtMin = 0.5f;
+
+        // Mission WP "hula hoop": subscribes to the vehicle's OWN current waypoint
+        // (mission/last_wp, republished by the dive action server per accepted goal)
+        // and renders it as a torus with diameter = 2x goal tolerance. Subscriber-driven
+        // from the VM's plan by design — no GUI mission planner involvement.
+        var hoopSubGO = new GameObject("MissionWPHoop");
+        hoopSubGO.transform.SetParent(root.transform, false);
+        var hoopSub = hoopSubGO.AddComponent<MissionWPHoop_Sub>();
+        hoopSub.topic = "mission/last_wp";
+
         // New nose package, as nested prefab instances.
         foreach (var path in new[] { SonarPrefabPath, RealSensePrefabPath })
         {
@@ -260,6 +285,15 @@ public static class SamV2PerceptionBuilder
         foreach (var gtOdom in root.GetComponentsInChildren<GT_Odom_Pub>(true))
             gtOdom.tf_suffix = "_gt";
 
+        // 2b) VBS neutral trim 42% — also a scene override on the old instance
+        // (prefab default 50 makes the vehicle heavy; the dive controller fights it).
+        var vbsGO = FindDeep(root.transform, "VBS");
+        if (vbsGO != null && vbsGO.TryGetComponent<VBS>(out var vbs))
+        {
+            vbs.percentage = 42f;
+            vbs.resetValue = 42f;
+        }
+
         // 3) Add the new nose links under base_link.
         var baseLink = FindDeep(root.transform, "base_link");
         if (baseLink == null)
@@ -284,6 +318,26 @@ public static class SamV2PerceptionBuilder
         go.transform.SetParent(parent, false);
         go.transform.localPosition = localPos;
         go.transform.localRotation = Quaternion.Euler(pitchDeg, 0f, 0f);
+    }
+
+    /// <summary>
+    /// Set the 'frequency' field of any publisher whose 'topic' field matches, via
+    /// SerializedObject so internal publisher classes don't need visibility changes.
+    /// </summary>
+    static void SetPubFrequencyByTopic(Transform root, string topic, float freq)
+    {
+        foreach (var mb in root.GetComponentsInChildren<MonoBehaviour>(true))
+        {
+            if (mb == null) continue;
+            var so = new SerializedObject(mb);
+            var topicProp = so.FindProperty("topic");
+            if (topicProp == null || topicProp.propertyType != SerializedPropertyType.String) continue;
+            if (topicProp.stringValue != topic) continue;
+            var freqProp = so.FindProperty("frequency");
+            if (freqProp == null) continue;
+            freqProp.floatValue = freq;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
     }
 
     static Transform FindDeep(Transform parent, string name)
