@@ -66,6 +66,8 @@ namespace SmarcGUI
         RobotGhost ghost;
         GameObject simRobotGO;
         Transform simRobotBaseLinkTF;
+        public GameObject SimRobotGO => simRobotGO;
+        public Transform SimRobotBaseLinkTF => simRobotBaseLinkTF;
 
 
         public InfoSource InfoSource { get; private set; }

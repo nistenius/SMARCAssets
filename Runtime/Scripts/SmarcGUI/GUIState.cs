@@ -39,6 +39,10 @@ namespace SmarcGUI
         public RectTransform RobotsScrollContent;
         public Button ToggleWaterRenderButton;
         public TMP_Text ComapssText;
+        [Tooltip("Readouts for the selected (or camera-attached) robot. Optional; left empty they are simply not updated.")]
+        public TMP_Text AltitudeText;
+        public TMP_Text DepthText;
+        public TMP_Text SpeedText;
 
         [Header("Prefabs")]
         public GameObject RobotGuiPrefab;
@@ -78,6 +82,7 @@ namespace SmarcGUI
 
 
         GlobalReferencePoint globalReferencePoint;
+        DefaultNamespace.Water.WaterQueryModel waterQueryModel;
 
         string CameraTextFromCamera(Camera c)
         {
@@ -290,6 +295,7 @@ namespace SmarcGUI
                 }
             });
             globalReferencePoint = FindFirstObjectByType<GlobalReferencePoint>();
+            waterQueryModel = FindFirstObjectByType<DefaultNamespace.Water.WaterQueryModel>();
 
         }
 
@@ -310,13 +316,22 @@ namespace SmarcGUI
             else
             {
                 Vector3 camForward = CurrentCam.transform.forward;
-                // check if camera is looking straight up or down
-                // if camForward.y is 0, then the camera is looking straight up or down
+                // Camera looking (nearly) straight up or down: forward has no useful
+                // horizontal component, but the screen still has an orientation — the
+                // world direction at the top of the screen is the camera's up vector
+                // (mirrored when looking up). Use that so a top-down overview camera
+                // still gets a heading instead of "UP/DOWN".
                 if(Mathf.Abs(camForward.x) < 0.1f && Mathf.Abs(camForward.z) < 0.1f)
                 {
-                    // camera looking straigh up or down...
-                    ComapssText.text = "UP/DOWN";
-                    return;
+                    Vector3 screenUp = CurrentCam.transform.up;
+                    if(camForward.y > 0) screenUp = -screenUp;
+                    camForward = screenUp;
+                    if(Mathf.Abs(camForward.x) < 1e-3f && Mathf.Abs(camForward.z) < 1e-3f)
+                    {
+                        // pathological (camera rolled exactly onto its axis)
+                        ComapssText.text = "UP/DOWN";
+                        return;
+                    }
                 }
                 // calculate the angle the camera is looking towards
                 // and turn it into a compass direction
@@ -331,9 +346,87 @@ namespace SmarcGUI
             }
         }
 
+        GameObject GetReadoutRobot()
+        {
+            // Prefer the selected robot (if it exists in the sim), fall back to
+            // whatever robot the current camera is attached to.
+            foreach(var rg in SelectedRobotGUIs)
+            {
+                if(rg.SimRobotGO != null) return rg.SimRobotGO;
+            }
+            if(CurrentCam != null)
+            {
+                var robot = Utils.FindParentWithTag(CurrentCam.gameObject, "robot", false);
+                if(robot != null) return robot;
+            }
+            // Nothing selected and a free camera: single-vehicle case, show the only sim robot.
+            foreach(var rg in RobotGuis.Values)
+            {
+                if(rg.SimRobotGO != null) return rg.SimRobotGO;
+            }
+            return null;
+        }
+
+        void UpdateVehicleReadouts()
+        {
+            if(AltitudeText == null && DepthText == null && SpeedText == null) return;
+
+            var robot = GetReadoutRobot();
+            if(robot == null)
+            {
+                if(AltitudeText != null) AltitudeText.text = "-";
+                if(DepthText != null) DepthText.text = "-";
+                if(SpeedText != null) SpeedText.text = "-";
+                return;
+            }
+
+            var baseLinkGO = Utils.FindDeepChildWithName(robot, "base_link");
+            var poseTF = baseLinkGO != null ? baseLinkGO.transform : robot.transform;
+            var pos = poseTF.position;
+
+            // Depth: water surface minus vehicle position. Truth, not the pressure sensor,
+            // so it works for every vehicle regardless of sensor fit (and of sensor noise).
+            if(DepthText != null)
+            {
+                if(waterQueryModel != null)
+                {
+                    float depth = waterQueryModel.GetWaterLevelAt(pos) - pos.y;
+                    DepthText.text = depth > 0.05f ? $"{depth:F1} m" : "surf.";
+                }
+                else DepthText.text = "-";
+            }
+
+            // Altitude: raycast straight down, same trick the DVL uses for its altitude.
+            // RaycastAll + nearest non-self hit, since the ray starts inside the vehicle
+            // and would otherwise report its own hull.
+            if(AltitudeText != null)
+            {
+                float alt = -1f;
+                foreach(var hit in Physics.RaycastAll(pos, Vector3.down, 200f))
+                {
+                    if(hit.collider.transform.IsChildOf(robot.transform)) continue;
+                    if(alt < 0 || hit.distance < alt) alt = hit.distance;
+                }
+                AltitudeText.text = alt >= 0 ? $"{alt:F1} m" : "-";
+            }
+
+            // Speed: from the base_link body, truth.
+            if(SpeedText != null)
+            {
+                float speed = -1f;
+                if(baseLinkGO != null)
+                {
+                    if(baseLinkGO.TryGetComponent(out ArticulationBody ab)) speed = ab.linearVelocity.magnitude;
+                    else if(baseLinkGO.TryGetComponent(out Rigidbody rb)) speed = rb.linearVelocity.magnitude;
+                }
+                SpeedText.text = speed >= 0 ? $"{speed:F2} m/s" : "-";
+            }
+        }
+
         void LateUpdate()
         {
             UpdateCompass();
+            UpdateVehicleReadouts();
 
             // cant use the input system mouse events because we are after mouse-not-over-gui usage of the mouse!
             // so we have to use the old input system for this.
