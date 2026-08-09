@@ -46,6 +46,9 @@ namespace VehicleComponents.Sensors
         new void FixedUpdate()
         {
             base.FixedUpdate();
+            // Not attached yet (LinkAttachment may still be retrying): don't sample
+            // from an unattached transform / invalid mixedBody.
+            if (attachedLink == null) return;
             bool ticked = timer.ExhaustTicks(Clock.Now);
             if (!ticked) return;
             // we dont actually want to do more sensor updates per fixedupdate

@@ -69,6 +69,7 @@ namespace VehicleComponents.Actuators
         new void FixedUpdate()
         {
             base.FixedUpdate();
+            if (attachedLink == null) return; // LinkAttachment may still be retrying
             if (Physics.simulationMode == SimulationMode.FixedUpdate) DoUpdate();
         }
 

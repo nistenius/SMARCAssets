@@ -30,9 +30,32 @@ namespace VehicleComponents
         protected MixedBody mixedBody;
         protected MixedBody parentMixedBody;
 
+        // Diagnosis 2026-08-09 (silent core/sbg_imu + core/compass): a lookup failure in
+        // Attach() during Awake used to SetActive(false) the whole GameObject, which made
+        // retryUntilSuccess dead code (a disabled object never runs FixedUpdate) and killed
+        // every sensor+publisher on the object while the Inspector still showed them
+        // "enabled". Failure paths now honor retryUntilSuccess and log visibly.
+        int attachAttempts = 0;
+
         protected void Awake()
         {
             Attach();
+        }
+
+        // Returns true if we should keep the object alive and retry next FixedUpdate.
+        bool AttachFailed(string reason)
+        {
+            if (retryUntilSuccess)
+            {
+                // First failure, then roughly every 5 s at 50 Hz physics.
+                if (attachAttempts % 250 == 0)
+                    Debug.LogWarning($"[{transform.name}] Attach failed ({reason}), attempt {attachAttempts + 1}. Retrying every FixedUpdate.");
+                attachAttempts++;
+                return true;
+            }
+            Debug.LogWarning($"[{transform.name}] Attach failed ({reason}). Disabling {gameObject.name}.");
+            gameObject.SetActive(false);
+            return false;
         }
 
         protected void Attach()
@@ -49,16 +72,14 @@ namespace VehicleComponents
             var theRobot = Utils.FindParentWithTag(gameObject, "robot", false);
             if (theRobot == null)
             {
-                Debug.Log($"[{transform.name}] No robot found to attach to a part of! Disabling {gameObject.name}.");
-                gameObject.SetActive(false);
+                AttachFailed("no parent tagged [robot]");
                 return;
             }
 
             Transform[] attachableTFs = Utils.FindAllChildrenWithName(theRobot, linkName, activeOnly: true);
             if (attachableTFs.Length == 0)
             {
-                Debug.Log($"Active object with name [{linkName}] not found under parent [{theRobot.name}]. Disabling {gameObject.name}.");
-                gameObject.SetActive(false);
+                AttachFailed($"no active object named [{linkName}] under [{theRobot.name}]");
                 return;
             }
             if (attachableTFs.Length > 1)
@@ -86,6 +107,9 @@ namespace VehicleComponents
             initialRotation = transform.rotation;
 
             GetMixedBody();
+
+            if (attachAttempts > 0)
+                Debug.LogWarning($"[{transform.name}] Attached to [{linkName}] after {attachAttempts} failed attempts — link appeared late in the hierarchy.");
         }
 
 
