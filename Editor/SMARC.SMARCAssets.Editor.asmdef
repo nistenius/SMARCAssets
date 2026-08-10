@@ -6,7 +6,8 @@
         "Unity.Robotics.UrdfImporter",
         "Unity.Robotics.ROSTCPConnector",
         "Unity.Robotics.ROSTCPConnector.Messages",
-        "Unity.Robotics.ROSTCPConnector.MessageGeneration"
+        "Unity.Robotics.ROSTCPConnector.MessageGeneration",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"
