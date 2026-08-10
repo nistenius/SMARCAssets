@@ -47,6 +47,8 @@ namespace SmarcGUI
         float obstacleRange = -1; float obstacleTime = -999f;
         bool obstacleStop;
         string obstacleStatus = ""; float obstacleStatusTime = -999f;
+        // Live setpoints from ctrl/setpoints ("depth,u,yaw_deg").
+        float spDepth, spSurge, spYawDeg; float spTime = -999f;
 
         void Start()
         {
@@ -59,6 +61,15 @@ namespace SmarcGUI
             ros.Subscribe<Float32Msg>($"{ns}/perception/obstacle/nearest_range", m => { obstacleRange = m.data; obstacleTime = Time.time; });
             ros.Subscribe<BoolMsg>($"{ns}/perception/obstacle/stop", m => obstacleStop = m.data);
             ros.Subscribe<StringMsg>($"{ns}/ctrl/obstacle_status", m => { obstacleStatus = m.data; obstacleStatusTime = Time.time; });
+            ros.Subscribe<StringMsg>($"{ns}/ctrl/setpoints", m =>
+            {
+                var p = m.data.Split(',');
+                if (p.Length == 3
+                    && float.TryParse(p[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spDepth)
+                    && float.TryParse(p[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spSurge)
+                    && float.TryParse(p[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out spYawDeg))
+                    spTime = Time.time;
+            });
         }
 
         string HealthStr()
@@ -85,15 +96,24 @@ namespace SmarcGUI
         string ActionStr(bool active)
         {
             bool haveStatus = Time.time - obstacleStatusTime < 5f;
-            if (haveStatus && obstacleStatus == "ABORT")
-                return "<color=#D9534F>ABORTED (obstacle) — surfacing, VBS empty</color>";
+            if (haveStatus && obstacleStatus.StartsWith("ABORT"))
+                return "<color=#D9534F>ABORTED (obstacle)</color> — surfacing, VBS empty, mission ended";
             if (haveStatus && obstacleStatus.StartsWith("STOP"))
-                return $"<color=#D9534F>OBSTACLE {obstacleStatus}</color> — holding depth, retry pending";
+                // e.g. "STOP 1/3 abort in 12s"
+                return $"<color=#D9534F>OBSTACLE {obstacleStatus}</color> — holding depth, waiting for clearance";
             if (!haveStatus && obstacleStop)
                 return "<color=#D9534F>OBSTACLE STOP</color> — holding depth";
             if (active && err != null)
                 return $"<color=#4CBB6C>driving to wp</color> — {err.distance:F1} m to go";
             return "<color=#888888>idle — waiting for a mission</color>";
+        }
+
+        // Controller yaw refs run in (-180, 180]; the banner compass reads 0-360.
+        static float NormDeg(float d)
+        {
+            d %= 360f;
+            if (d < 0f) d += 360f;
+            return d;
         }
 
         void Update()
@@ -114,20 +134,19 @@ namespace SmarcGUI
                     $"action: {ActionStr(active)}";
             }
 
-            // Small banner annotations: only while the controller stream is live,
-            // so a parked sim shows the stock banner untouched.
+            // Small banner annotations = the controller's LIVE SETPOINTS, shown
+            // above the measured value in each field. Blank when no controller is
+            // running, so a parked sim shows the stock banner untouched.
+            bool haveSp = Time.time - spTime < ActionStaleSec;
             if (SmallCompassText != null)
-                SmallCompassText.text = (active && err != null)
-                    ? $"yaw err {err.yaw * Mathf.Rad2Deg:+0.0;-0.0}°" : "";
+                SmallCompassText.text = haveSp ? $"set {NormDeg(spYawDeg):F1}°" : "";
             if (SmallAltText != null)
                 SmallAltText.text = (Time.time - obstacleTime < ObstacleStaleSec && obstacleRange >= 0f)
                     ? $"obst {obstacleRange:F1} m" : "";
             if (SmallDepthText != null)
-                SmallDepthText.text = (active && err != null && wp != null)
-                    ? $"ref {wp.travel_depth:F1}m  err {err.z:+0.00;-0.00}m" : "";
+                SmallDepthText.text = haveSp ? $"set {spDepth:F1} m" : "";
             if (SmallSpeedText != null)
-                SmallSpeedText.text = (active && input != null)
-                    ? $"rpm {input.thrusterrpm1:F0}  vbs {input.vbs:F0}%" : "";
+                SmallSpeedText.text = haveSp ? $"set {spSurge:F2} m/s" : "";
         }
     }
 }
