@@ -116,7 +116,7 @@ public static class DashboardBuilder
 
         var tmp = go.AddComponent<TextMeshProUGUI>();
         tmp.fontSize = 10f;
-        tmp.color = new Color(0.62f, 0.77f, 0.9f, 0.95f);
+        tmp.color = Color.white;
         tmp.alignment = TextAlignmentOptions.TopRight;
         tmp.margin = new Vector4(2f, 1f, 4f, 0f);
         tmp.raycastTarget = false;

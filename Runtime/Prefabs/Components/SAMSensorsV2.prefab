@@ -361,6 +361,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: SMARC.SMARCAssets::VehicleComponents.Sensors.DeepVisionSSS
   Mode: 1
+  Interferometric: 1
 --- !u!1 &3680131770725555474
 GameObject:
   m_ObjectHideFlags: 0

@@ -47,6 +47,13 @@ namespace SmarcGUI
         float obstacleRange = -1; float obstacleTime = -999f;
         bool obstacleStop;
         string obstacleStatus = ""; float obstacleStatusTime = -999f;
+        // An abort is a MISSION-ENDING event, not a momentary condition, so it latches.
+        // ctrl/obstacle_status announces ABORT and then either goes quiet or reverts to STOP
+        // (the obstacle is usually still in front of us — a boat on the dock floor, 2026-08-11).
+        // Reading it through a 5 s freshness window therefore dropped the banner back to
+        // "OBSTACLE STOP — holding depth", which says the vehicle is still flying the mission
+        // and waiting for clearance. It is not: the BT has ended and nothing is coming.
+        bool aborted; float abortedTime = -999f;
         // Live setpoints from ctrl/setpoints ("depth,u,yaw_deg").
         float spDepth, spSurge, spYawDeg; float spTime = -999f;
 
@@ -60,7 +67,11 @@ namespace SmarcGUI
             ros.Subscribe<Int8Msg>($"{ns}/smarc/vehicle_health", m => { health = m.data; healthTime = Time.time; });
             ros.Subscribe<Float32Msg>($"{ns}/perception/obstacle/nearest_range", m => { obstacleRange = m.data; obstacleTime = Time.time; });
             ros.Subscribe<BoolMsg>($"{ns}/perception/obstacle/stop", m => obstacleStop = m.data);
-            ros.Subscribe<StringMsg>($"{ns}/ctrl/obstacle_status", m => { obstacleStatus = m.data; obstacleStatusTime = Time.time; });
+            ros.Subscribe<StringMsg>($"{ns}/ctrl/obstacle_status", m =>
+            {
+                obstacleStatus = m.data; obstacleStatusTime = Time.time;
+                if (m.data.StartsWith("ABORT")) { aborted = true; abortedTime = Time.time; }
+            });
             ros.Subscribe<StringMsg>($"{ns}/ctrl/setpoints", m =>
             {
                 var p = m.data.Split(',');
@@ -88,23 +99,32 @@ namespace SmarcGUI
         {
             if (Time.time - obstacleTime > ObstacleStaleSec) return "<color=#888888>no data</color>";
             string range = obstacleRange >= 0f ? $"{obstacleRange:F1} m" : "clear";
-            if (obstacleStop) return $"<color=#D9534F>STOP  {range}</color>";
-            if (obstacleRange >= 0f && obstacleRange < 6f) return $"<color=#D9A62E>{range}</color>";
-            return $"<color=#4CBB6C>{range}</color>";
+            // Colours are read against bright photogrammetry, not a dark scene: the old
+            // #D9534F was too dark/desaturated to pick out. Brighter + bold reads at a glance.
+            if (obstacleStop) return $"<b><color=#FF3B30>STOP  {range}</color></b>";
+            if (obstacleRange >= 0f && obstacleRange < 6f) return $"<b><color=#FFB300>{range}</color></b>";
+            return $"<color=#3DDC6B>{range}</color>";
         }
 
         string ActionStr(bool active)
         {
             bool haveStatus = Time.time - obstacleStatusTime < 5f;
-            if (haveStatus && obstacleStatus.StartsWith("ABORT"))
-                return "<color=#D9534F>ABORTED (obstacle)</color> — surfacing, VBS empty, mission ended";
+            // Latched abort wins over everything: the mission is over regardless of what the
+            // detector still reports. Which PHASE of the shutdown we are in is read from the
+            // controller itself rather than a hardcoded timer — while ctrl/setpoints is still
+            // live the controller is driving the surfacing; once it goes quiet, nothing is.
+            if (aborted)
+                return Time.time - spTime < ActionStaleSec
+                    ? "<b><color=#FF3B30>ABORTED (obstacle)</color></b> — mission ended, surfacing (VBS empty)"
+                    : "<b><color=#FF3B30>ABORTED (obstacle)</color></b> — mission ended, idle. "
+                      + "Re-arm with reset_mission_state.sh";
             if (haveStatus && obstacleStatus.StartsWith("STOP"))
                 // e.g. "STOP 1/3 abort in 12s"
-                return $"<color=#D9534F>OBSTACLE {obstacleStatus}</color> — holding depth, waiting for clearance";
+                return $"<b><color=#FF3B30>OBSTACLE {obstacleStatus}</color></b> — holding depth, waiting for clearance";
             if (!haveStatus && obstacleStop)
-                return "<color=#D9534F>OBSTACLE STOP</color> — holding depth";
+                return "<b><color=#FF3B30>OBSTACLE STOP</color></b> — holding depth";
             if (active && err != null)
-                return $"<color=#4CBB6C>driving to wp</color> — {err.distance:F1} m to go";
+                return $"<color=#3DDC6B>driving to wp</color> — {err.distance:F1} m to go";
             return "<color=#888888>idle — waiting for a mission</color>";
         }
 
@@ -119,6 +139,9 @@ namespace SmarcGUI
         void Update()
         {
             bool active = Time.time - errTime < ActionStaleSec;
+            // Clear the latch only when a NEW mission is actually driving: control errors keep
+            // arriving for a moment during the abort itself, so require them to be well after it.
+            if (aborted && errTime > abortedTime + 3f) aborted = false;
 
             if (DashboardText != null)
             {
