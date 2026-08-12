@@ -1,0 +1,17 @@
+# Git LFS — large binary assets (set up 2026-08-12 for the Beckholmen hi-res model).
+# NOTE: requires `git lfs install` on every machine that clones this repo, or the
+# .dae/.png files arrive as small text pointer files and Unity shows an empty mesh.
+#
+# Quota watch: GitHub's free tier is 1 GB LFS storage AND 1 GB/month bandwidth.
+# DrydockHiRes is ~629 MB; every new revision of beckholmen_hires_dropin.dae
+# costs another ~490 MB. If quota gets tight, the big .dae files are
+# REGENERABLE from data-cube/scripts/beckholmen-hires/ — see that pipeline and
+# Runtime/Models/DrydockHiRes/README.md before re-committing a new version.
+
+*.dae   filter=lfs diff=lfs merge=lfs -text
+
+# Only the oversized texture atlases — keep ordinary small PNGs in normal git
+Runtime/Models/DrydockHiRes/*.png   filter=lfs diff=lfs merge=lfs -text
+
+# Unity .meta files must stay as normal text (they are tiny and must diff)
+*.meta  -filter -diff -merge text
