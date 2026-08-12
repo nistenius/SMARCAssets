@@ -174,6 +174,20 @@ namespace SmarcGUI
             return "<color=#888888>idle — waiting for a mission</color>";
         }
 
+        /// <summary>Roll/pitch from the estimator, with setpoints when a controller
+        /// publishes them. Amber past 20 deg: SAM is hydrobatic, but in a confined
+        /// dock a large attitude means the sonar fan is pointing somewhere other
+        /// than where the margin belief assumes.</summary>
+        string AttStr()
+        {
+            if (Time.time - attTime > 3f) return "<color=#888888>no data</color>";
+            string col = (Mathf.Abs(rollDeg) > 20f || Mathf.Abs(pitchDeg) > 20f)
+                ? "#FFB300" : "#3DDC6B";
+            string sp = Time.time - spAttTime < ActionStaleSec
+                ? $"   <size=80%>set r{spRollDeg:F0}° p{spPitchDeg:F0}°</size>" : "";
+            return $"<color={col}>roll {rollDeg:+0.0;-0.0}°   pitch {pitchDeg:+0.0;-0.0}°</color>{sp}";
+        }
+
         /// <summary>GPS fix quality per sensor_msgs/NavSatStatus, coloured like the
         /// obstacle field: green good, amber degraded, grey/none.</summary>
         string GpsStr()
@@ -227,13 +241,16 @@ namespace SmarcGUI
                     string name = string.IsNullOrEmpty(wp.name) ? "wp" : wp.name;
                     wpLine = $"{name}  d{wp.travel_depth:F1}m rpm{wp.travel_rpm:F0} tol{wp.goal_tolerance:F1}m";
                 }
-                // Attitude goes in the top bar when those fields exist; otherwise it
-                // rides along here so the information is never simply unavailable.
-                string attInline = (RollText == null && PitchText == null && Time.time - attTime < 3f)
-                    ? $"   att r{rollDeg:+0.0;-0.0}° p{pitchDeg:+0.0;-0.0}°" : "";
+                // Attitude: its own row while the top-bar Roll/Pitch fields are not
+                // assigned in the scene. It prints "no data" rather than vanishing —
+                // a field that disappears looks like a missing feature, when in fact
+                // it means the estimator is down (2026-08-12: exactly that confusion).
+                string attRow = (RollText == null && PitchText == null)
+                    ? "att: " + AttStr() + "\n" : "";
                 DashboardText.text =
-                    $"<b>{RobotName}</b>   health {HealthStr()}   obst {ObstacleStr()}{attInline}\n" +
+                    $"<b>{RobotName}</b>   health {HealthStr()}   obst {ObstacleStr()}\n" +
                     $"wp: {wpLine}\n" +
+                    attRow +
                     $"nav: {GpsStr()}   {DrStr()}\n" +
                     $"action: {ActionStr(active)}";
             }
