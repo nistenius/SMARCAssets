@@ -4,6 +4,8 @@ using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.SmarcMission;   // GotoWaypointMsg
 using RosMessageTypes.SmarcControl;   // ControlErrorMsg, ControlInputMsg (hand-generated)
 using RosMessageTypes.Std;            // Int8Msg, Float32Msg, BoolMsg, StringMsg
+using RosMessageTypes.Nav;            // OdometryMsg  (attitude + pose covariance)
+using RosMessageTypes.Sensor;         // NavSatFixMsg (GPS fix + accuracy)
 
 namespace SmarcGUI
 {
@@ -32,6 +34,16 @@ namespace SmarcGUI
         public TMP_Text SmallDepthText;     // depth ref + error
         public TMP_Text SmallSpeedText;     // rpm command
 
+        [Header("Attitude fields (optional — leave empty to show attitude in the dashboard text instead)")]
+        [Tooltip("Big roll value in the top bar. Duplicate the Compass field in the scene and assign here.")]
+        public TMP_Text RollText;
+        [Tooltip("Small setpoint line above roll. Blank while no roll setpoint is published.")]
+        public TMP_Text SmallRollText;
+        [Tooltip("Big pitch value in the top bar.")]
+        public TMP_Text PitchText;
+        [Tooltip("Small setpoint line above pitch. Blank while no pitch setpoint is published.")]
+        public TMP_Text SmallPitchText;
+
         [Tooltip("Seconds without a controller message before the action reads idle.")]
         public float ActionStaleSec = 2.0f;
 
@@ -56,6 +68,16 @@ namespace SmarcGUI
         bool aborted; float abortedTime = -999f;
         // Live setpoints from ctrl/setpoints ("depth,u,yaw_deg").
         float spDepth, spSurge, spYawDeg; float spTime = -999f;
+        // Attitude + nav quality, from the ESTIMATOR's own output (dr/odom) and the
+        // GPS driver. Deliberately the estimator's belief, not ground truth: this is
+        // what the vehicle acts on, and it is the same on hardware.
+        float rollDeg, pitchDeg; float attTime = -999f;
+        float drSigma = -1f;              // 1-sigma horizontal position uncertainty [m]
+        double gpsLat, gpsLon; sbyte gpsFix = -1; float gpsAcc = -1f; float gpsTime = -999f;
+        // Roll/pitch setpoints: no controller publishes them today (ctrl/setpoints
+        // carries depth,u,yaw only), so these stay blank — the hook is here so the
+        // small line lights up automatically once an attitude controller does.
+        float spRollDeg, spPitchDeg; float spAttTime = -999f;
 
         void Start()
         {
@@ -71,6 +93,30 @@ namespace SmarcGUI
             {
                 obstacleStatus = m.data; obstacleStatusTime = Time.time;
                 if (m.data.StartsWith("ABORT")) { aborted = true; abortedTime = Time.time; }
+            });
+            ros.Subscribe<OdometryMsg>($"{ns}/dr/odom", m =>
+            {
+                var q = m.pose.pose.orientation;
+                // ROS quaternion -> roll/pitch (ENU/FLU, radians -> degrees)
+                double sinr = 2.0 * (q.w * q.x + q.y * q.z);
+                double cosr = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+                rollDeg = (float)(Mathf.Rad2Deg * System.Math.Atan2(sinr, cosr));
+                double sinp = 2.0 * (q.w * q.y - q.z * q.x);
+                sinp = System.Math.Max(-1.0, System.Math.Min(1.0, sinp));
+                pitchDeg = (float)(Mathf.Rad2Deg * System.Math.Asin(sinp));
+                attTime = Time.time;
+                // pose.covariance is row-major 6x6; [0]=xx, [7]=yy
+                var c = m.pose.covariance;
+                if (c != null && c.Length >= 8 && c[0] > 0.0 && c[7] > 0.0)
+                    drSigma = Mathf.Sqrt((float)(c[0] + c[7]));   // 1-sigma horizontal
+            });
+            ros.Subscribe<NavSatFixMsg>($"{ns}/core/gps", m =>
+            {
+                gpsLat = m.latitude; gpsLon = m.longitude;
+                gpsFix = m.status.status; gpsTime = Time.time;
+                var c = m.position_covariance;
+                gpsAcc = (c != null && c.Length >= 5 && c[0] > 0.0)
+                    ? Mathf.Sqrt((float)(c[0] + c[4])) : -1f;
             });
             ros.Subscribe<StringMsg>($"{ns}/ctrl/setpoints", m =>
             {
@@ -128,6 +174,36 @@ namespace SmarcGUI
             return "<color=#888888>idle — waiting for a mission</color>";
         }
 
+        /// <summary>GPS fix quality per sensor_msgs/NavSatStatus, coloured like the
+        /// obstacle field: green good, amber degraded, grey/none.</summary>
+        string GpsStr()
+        {
+            if (Time.time - gpsTime > 5f) return "<color=#888888>GPS no data</color>";
+            string fix = gpsFix switch
+            {
+                2 => "RTK",       // STATUS_GBAS_FIX
+                1 => "SBAS",      // STATUS_SBAS_FIX
+                0 => "fix",       // STATUS_FIX
+                _ => "NO FIX",    // -1 STATUS_NO_FIX (normal underwater)
+            };
+            string acc = gpsAcc >= 0f ? $" ±{gpsAcc:F1} m" : "";
+            string pos = gpsFix >= 0 ? $" {gpsLat:F6},{gpsLon:F6}" : "";
+            string col = gpsFix >= 1 ? "#3DDC6B" : gpsFix == 0 ? "#FFB300" : "#888888";
+            return $"<color={col}>{fix}{acc}</color>{pos}";
+        }
+
+        /// <summary>The estimator's OWN uncertainty (dr/odom pose covariance), not a
+        /// ground-truth comparison — so it reads the same in sim and on hardware.
+        /// Amber past 1 m, red past 2.5 m: that is where Part V's margins start to
+        /// be eaten by navigation error rather than by geometry.</summary>
+        string DrStr()
+        {
+            if (Time.time - attTime > 3f) return "<color=#888888>DR no data</color>";
+            if (drSigma < 0f) return "<color=#888888>DR σ n/a</color>";
+            string col = drSigma > 2.5f ? "#FF3B30" : drSigma > 1.0f ? "#FFB300" : "#3DDC6B";
+            return $"DR <color={col}>σ {drSigma:F2} m</color>";
+        }
+
         // Controller yaw refs run in (-180, 180]; the banner compass reads 0-360.
         static float NormDeg(float d)
         {
@@ -151,9 +227,14 @@ namespace SmarcGUI
                     string name = string.IsNullOrEmpty(wp.name) ? "wp" : wp.name;
                     wpLine = $"{name}  d{wp.travel_depth:F1}m rpm{wp.travel_rpm:F0} tol{wp.goal_tolerance:F1}m";
                 }
+                // Attitude goes in the top bar when those fields exist; otherwise it
+                // rides along here so the information is never simply unavailable.
+                string attInline = (RollText == null && PitchText == null && Time.time - attTime < 3f)
+                    ? $"   att r{rollDeg:+0.0;-0.0}° p{pitchDeg:+0.0;-0.0}°" : "";
                 DashboardText.text =
-                    $"<b>{RobotName}</b>   health {HealthStr()}   obst {ObstacleStr()}\n" +
+                    $"<b>{RobotName}</b>   health {HealthStr()}   obst {ObstacleStr()}{attInline}\n" +
                     $"wp: {wpLine}\n" +
+                    $"nav: {GpsStr()}   {DrStr()}\n" +
                     $"action: {ActionStr(active)}";
             }
 
@@ -170,6 +251,16 @@ namespace SmarcGUI
                 SmallDepthText.text = haveSp ? $"set {spDepth:F1} m" : "";
             if (SmallSpeedText != null)
                 SmallSpeedText.text = haveSp ? $"set {spSurge:F2} m/s" : "";
+
+            // Roll / pitch in the top bar, same pattern: measured big, setpoint small.
+            bool haveAtt = Time.time - attTime < 3f;
+            bool haveSpAtt = Time.time - spAttTime < ActionStaleSec;
+            if (RollText != null)  RollText.text  = haveAtt ? $"{rollDeg:+0.0;-0.0}°" : "--";
+            if (PitchText != null) PitchText.text = haveAtt ? $"{pitchDeg:+0.0;-0.0}°" : "--";
+            if (SmallRollText != null)
+                SmallRollText.text = haveSpAtt ? $"set {spRollDeg:F1}°" : "";
+            if (SmallPitchText != null)
+                SmallPitchText.text = haveSpAtt ? $"set {spPitchDeg:F1}°" : "";
         }
     }
 }
