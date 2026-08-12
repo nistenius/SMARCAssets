@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6739974035726264940}
   - component: {fileID: 4019353620594348815}
   - component: {fileID: 1926568910191298438}
+  - component: {fileID: 6902906030780000630}
   m_Layer: 0
   m_Name: Sonar3D15
   m_TagString: Untagged
@@ -113,3 +114,29 @@ MonoBehaviour:
   HitsSize: 0.1
   HitsLifetime: 3
   MaxParticlesMultiplier: 10
+--- !u!114 &6902906030780000630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5491631988698881221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6109dffbeadb341ecae522139c54c31e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SMARC.SMARCAssets::VehicleComponents.Sensors.WaterLinkedSonar3DModes
+  CurrentMode: 0
+  AutoSwitch: 1
+  EnterInspectionRange: 3
+  ExitInspectionRange: 3.5
+  NoReturnFallbackSeconds: 2
+  MinSecondsBetweenSwitches: 3
+  NavRange: 15
+  NavBeams: 150
+  NavRaysPerBeam: 17
+  NavPingHz: 5
+  InsRange: 4
+  InsBeams: 150
+  InsRaysPerBeam: 17
+  InsPingHz: 10
