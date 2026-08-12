@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: SMARC.SMARCAssets::VehicleComponents.Sensors.WaterLinkedSonar3DModes
   CurrentMode: 0
-  AutoSwitch: 1
+  AutoSwitch: 0
   EnterInspectionRange: 3
   ExitInspectionRange: 3.5
   NoReturnFallbackSeconds: 2

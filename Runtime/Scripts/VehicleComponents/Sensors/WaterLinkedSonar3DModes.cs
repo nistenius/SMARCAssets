@@ -1,5 +1,8 @@
 using System.Reflection;   // publisher rate is set via reflection (see Apply)
 using UnityEngine;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Std;      // StringMsg
+using DefaultNamespace;         // Utils.FindParentWithTag
 using ROS.Core;
 
 namespace VehicleComponents.Sensors
@@ -35,9 +38,22 @@ namespace VehicleComponents.Sensors
         [Tooltip("Current operating mode. Applied at Play, and at runtime if AutoSwitch is on.")]
         public Mode CurrentMode = Mode.Navigation;
 
-        [Header("Automatic mode switching")]
-        [Tooltip("Switch to Inspection when structure comes close, back out again when it recedes.")]
-        public bool AutoSwitch = true;
+        [Header("ROS: the mode is MISSION-COMMANDED, and always announced")]
+        [Tooltip("Robot namespace for the two topics. Empty = resolve from the parent tagged 'robot'.")]
+        public string RobotName = "";
+        [Tooltip("Publish payload/sonar3d/mode as 'Mode|range_m|ping_hz'. Consumers (obstacle " +
+                 "detector, margin rose) MUST bound themselves by this range instead of assuming " +
+                 "15 m — otherwise they keep asserting a horizon the sensor no longer has.")]
+        public bool PublishMode = true;
+        [Tooltip("Accept payload/sonar3d/set_mode ('navigation' | 'inspection').")]
+        public bool AcceptModeCommands = true;
+
+        [Header("Automatic mode switching (OFF by default — see class summary)")]
+        [Tooltip("Range-triggered switching. DEFAULT OFF as of 2026-08-12: changing the sensor's " +
+                 "horizon changes the evidence base of the protective stop and the speed governor, " +
+                 "and neither of them asked for it. Inspection is a deliberate act; the mission " +
+                 "knows when it is inspecting, the sonar does not.")]
+        public bool AutoSwitch = false;
         [Tooltip("Nearest return closer than this [m] -> Inspection. Keep below the navigation-mode stop envelope so the switch happens BEFORE the vehicle is committed.")]
         public float EnterInspectionRange = 3.0f;
         [Tooltip("Nearest return beyond this [m] -> Navigation. MUST be < InsRange or the exit can never be observed (inspection mode cannot see past its own MaxRange).")]
@@ -62,6 +78,50 @@ namespace VehicleComponents.Sensors
         float lastSwitchTime = -999f;
         float noReturnSince = -1f;
         Sonar sonar;
+        ROSConnection ros;
+        string modeTopic, setModeTopic;
+        float lastAnnounce = -999f;
+
+        void Start()
+        {
+            if (!PublishMode && !AcceptModeCommands) return;
+            if (string.IsNullOrEmpty(RobotName))
+            {
+                var robot = Utils.FindParentWithTag(gameObject, "robot", false);
+                RobotName = robot != null ? robot.name : "sam_auv_v1";
+            }
+            ros = ROSConnection.GetOrCreateInstance();
+            modeTopic = $"/{RobotName}/payload/sonar3d/mode";
+            setModeTopic = $"/{RobotName}/payload/sonar3d/set_mode";
+            if (PublishMode) ros.RegisterPublisher<StringMsg>(modeTopic);
+            if (AcceptModeCommands)
+                ros.Subscribe<StringMsg>(setModeTopic, m =>
+                {
+                    var s = (m.data ?? "").Trim().ToLowerInvariant();
+                    if (s.StartsWith("nav")) Switch(Mode.Navigation);
+                    else if (s.StartsWith("ins")) Switch(Mode.Inspection);
+                    else Debug.LogWarning($"[Sonar3D-15] set_mode '{m.data}' not understood " +
+                                          "(expected 'navigation' or 'inspection') — mode unchanged.");
+                });
+            Announce();
+        }
+
+        /// <summary>Tell the world what horizon it is actually looking through.
+        ///
+        /// Range and ping rate are not cosmetic: the protective stop's envelope
+        /// R_stop(u) = margin + u*t_react + u^2/(2a) reaches 4.25 m at 0.5 m/s,
+        /// which EXCEEDS the 4 m inspection horizon. A consumer that assumes 15 m
+        /// while the sensor sees 4 m is computing a stop it cannot observe the
+        /// trigger for, and the margin rose would report free space out to 14.5 m
+        /// on a claim the sensor never made.</summary>
+        void Announce()
+        {
+            if (!PublishMode || ros == null) return;
+            bool nav = CurrentMode == Mode.Navigation;
+            ros.Publish(modeTopic, new StringMsg(
+                $"{CurrentMode}|{(nav ? NavRange : InsRange):F1}|{(nav ? NavPingHz : InsPingHz):F1}"));
+            lastAnnounce = Time.time;
+        }
 
         void OnValidate()
         {
@@ -84,6 +144,11 @@ namespace VehicleComponents.Sensors
 
         void Update()
         {
+            // Re-announce at 1 Hz, not only on change: a consumer that starts late
+            // (or restarts with the stack, which happens every arm) would otherwise
+            // never learn the horizon and would fall back to assuming 15 m.
+            if (PublishMode && Time.time - lastAnnounce > 1f) Announce();
+
             if (!AutoSwitch || sonar == null) return;
             if (Time.time - lastSwitchTime < MinSecondsBetweenSwitches) return;
 
@@ -134,6 +199,7 @@ namespace VehicleComponents.Sensors
             noReturnSince = -1f;
             CurrentMode = m;
             Apply(m, reinit: true);
+            Announce();   // the horizon just changed — say so immediately
             Debug.Log($"[Sonar3D-15] mode -> {m} " +
                       $"({(m == Mode.Navigation ? NavRange : InsRange)} m, " +
                       $"{(m == Mode.Navigation ? NavPingHz : InsPingHz)} Hz)");

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;                 // LayoutElement, VerticalLayoutGroup, ContentSizeFitter
 using TMPro;
 using Unity.Robotics.ROSTCPConnector;
 using RosMessageTypes.SmarcMission;   // GotoWaypointMsg
@@ -6,6 +7,7 @@ using RosMessageTypes.SmarcControl;   // ControlErrorMsg, ControlInputMsg (hand-
 using RosMessageTypes.Std;            // Int8Msg, Float32Msg, BoolMsg, StringMsg
 using RosMessageTypes.Nav;            // OdometryMsg  (attitude + pose covariance)
 using RosMessageTypes.Sensor;         // NavSatFixMsg (GPS fix + accuracy)
+using RosMessageTypes.Smarc;          // PercentStampedMsg (VBS fill, for the action line)
 
 namespace SmarcGUI
 {
@@ -19,6 +21,13 @@ namespace SmarcGUI
     /// The action line uses ctrl/obstacle_status ("clear"|"STOP n/N"|"ABORT")
     /// published by DiveControllerBlendPID; without it, it falls back to the
     /// detector's stop flag and stream freshness.
+    ///
+    /// v3 (2026-08-12, SLAM session 2): a PERCEPTION row, and the rule behind it —
+    /// no field on this dashboard may render an unverified claim in green. The
+    /// detector, the margin rose and the speed governor each publish their own
+    /// health state; healthy, degraded and unknown are three different colours.
+    /// The day this was written, "obst clear" sat green for half a day while the
+    /// detector received nothing at all.
     /// </summary>
     public class VehicleDashboard : MonoBehaviour
     {
@@ -41,6 +50,20 @@ namespace SmarcGUI
         public bool AutoCreatePerceptionVisuals = true;
         [Tooltip("Name of the vehicle transform the skirt follows.")]
         public string FollowLinkName = "base_link";
+
+        [Header("Panel sizing")]
+        [Tooltip("Size the dark panel to whatever the text currently is, instead of the " +
+                 "hardcoded rectangle DashboardBuilder wrote. Every row added to this " +
+                 "dashboard has silently overflowed the panel until someone noticed the " +
+                 "text sitting on bare scene; this makes that impossible. Turn off only " +
+                 "if you are laying the panel out by hand.")]
+        public bool AutoFitPanel = true;
+        [Tooltip("Panel never narrower than this, so a quiet dashboard keeps its shape.")]
+        public float MinPanelWidth = 560f;
+        [Tooltip("Longest health 'detail' string shown before it is elided. The panel now " +
+                 "grows to its widest line, so an unbounded detail string would stretch it " +
+                 "across the viewport.")]
+        public int DetailMaxChars = 38;
 
         [Header("Attitude in the top bar")]
         [Tooltip("Clone the Compass field twice at Play and insert Roll/Pitch right after it, " +
@@ -65,6 +88,10 @@ namespace SmarcGUI
 
         [Tooltip("Seconds without a detector message before obstacle reads no-data.")]
         public float ObstacleStaleSec = 3.0f;
+
+        [Tooltip("Seconds without a perception health message before the health line " +
+                 "reports the health stream itself as dead.")]
+        public float HealthStaleSec = 4.0f;
 
         ROSConnection ros;
 
@@ -94,9 +121,24 @@ namespace SmarcGUI
         // carries depth,u,yaw only), so these stay blank — the hook is here so the
         // small line lights up automatically once an attitude controller does.
         float spRollDeg, spPitchDeg; float spAttTime = -999f;
+        // Perception health (2026-08-12 session 2). The whole point of these three
+        // fields is that "the detector says clear" and "the detector cannot see"
+        // produced IDENTICAL cockpits all day on 2026-08-12. They no longer do:
+        // ObstacleStr() refuses to paint green unless detHealth says OK.
+        // Payload: STATE|rate_hz|age_s|a|b|detail (detector and rose both).
+        string detHealth = ""; float detHealthTime = -999f;
+        string roseHealth = ""; float roseHealthTime = -999f;
+        // Governor (HT3): "cap|applied|state" from the blend controller.
+        string govLine = ""; float govTime = -999f;
+        // Narrative inputs (2026-08-12, Ivan: "I liked the more action what's
+        // happening type of info"). Depth comes from dr/odom's own z, so the
+        // action line and the nav line never disagree about where the vehicle is.
+        float vbs = -1f; float vbsTime = -999f;
+        float depthNow, depthPrev; float depthPrevTime = -999f, depthRate;
 
         void Start()
         {
+            if (AutoFitPanel) FitPanelToText();
             if (AutoCreateAttitudeFields && RollText == null && PitchText == null)
                 BuildAttitudeFields();
             if (AutoCreatePerceptionVisuals) BuildPerceptionVisuals();
@@ -108,6 +150,13 @@ namespace SmarcGUI
             ros.Subscribe<Int8Msg>($"{ns}/smarc/vehicle_health", m => { health = m.data; healthTime = Time.time; });
             ros.Subscribe<Float32Msg>($"{ns}/perception/obstacle/nearest_range", m => { obstacleRange = m.data; obstacleTime = Time.time; });
             ros.Subscribe<BoolMsg>($"{ns}/perception/obstacle/stop", m => obstacleStop = m.data);
+            ros.Subscribe<StringMsg>($"{ns}/perception/obstacle/health", m => { detHealth = m.data; detHealthTime = Time.time; });
+            ros.Subscribe<StringMsg>($"{ns}/perception/rose_health", m => { roseHealth = m.data; roseHealthTime = Time.time; });
+            ros.Subscribe<StringMsg>($"{ns}/ctrl/governor", m => { govLine = m.data; govTime = Time.time; });
+            // VBS fill drives the narrative after a mission ends: the BT empties the
+            // tank and the vehicle floats up. Reading the actuator makes "emptying
+            // tank / floating to surface" an OBSERVATION rather than a guess.
+            ros.Subscribe<PercentStampedMsg>($"{ns}/core/vbs_fb", m => { vbs = m.value; vbsTime = Time.time; });
             ros.Subscribe<StringMsg>($"{ns}/ctrl/obstacle_status", m =>
             {
                 obstacleStatus = m.data; obstacleStatusTime = Time.time;
@@ -124,6 +173,18 @@ namespace SmarcGUI
                 sinp = System.Math.Max(-1.0, System.Math.Min(1.0, sinp));
                 pitchDeg = (float)(Mathf.Rad2Deg * System.Math.Asin(sinp));
                 attTime = Time.time;
+                // Depth + its rate, for the post-mission narrative. Low-passed over
+                // ~1 s: the raw difference between consecutive odom samples is noise
+                // at these speeds and would make the line flicker between "rising"
+                // and "sinking" several times a second.
+                depthNow = -(float)m.pose.pose.position.z;
+                if (Time.time - depthPrevTime > 1f)
+                {
+                    if (depthPrevTime > 0f)
+                        depthRate = Mathf.Lerp(depthRate,
+                            (depthNow - depthPrev) / (Time.time - depthPrevTime), 0.5f);
+                    depthPrev = depthNow; depthPrevTime = Time.time;
+                }
                 // pose.covariance is row-major 6x6; [0]=xx, [7]=yy
                 var c = m.pose.covariance;
                 if (c != null && c.Length >= 8 && c[0] > 0.0 && c[7] > 0.0)
@@ -160,15 +221,111 @@ namespace SmarcGUI
             }
         }
 
+        /// <summary>State word out of a "STATE|a|b|c|d|detail" health payload.</summary>
+        static string HealthState(string payload)
+        {
+            if (string.IsNullOrEmpty(payload)) return "";
+            int bar = payload.IndexOf('|');
+            return bar < 0 ? payload : payload.Substring(0, bar);
+        }
+
+        static string HealthField(string payload, int i)
+        {
+            if (string.IsNullOrEmpty(payload)) return "";
+            var p = payload.Split('|');
+            return i < p.Length ? p[i] : "";
+        }
+
+        /// <summary>Detail strings come from the nodes and are free-form; the panel now
+        /// sizes to its widest line, so an unbounded one would stretch it off-screen.</summary>
+        string Elide(string s) =>
+            string.IsNullOrEmpty(s) || s.Length <= DetailMaxChars
+                ? s : s.Substring(0, DetailMaxChars - 1) + "…";
+
+        /// <summary>The detector's own verdict on whether its range output means
+        /// anything. "" = the health topic is absent or stale, which is NOT the
+        /// same as healthy and must never be rendered as such.</summary>
+        string DetState() =>
+            Time.time - detHealthTime > HealthStaleSec ? "" : HealthState(detHealth);
+
         string ObstacleStr()
         {
-            if (Time.time - obstacleTime > ObstacleStaleSec) return "<color=#888888>no data</color>";
+            if (Time.time - obstacleTime > ObstacleStaleSec) return "<b><color=#FF3B30>NO DATA</color></b>";
             string range = obstacleRange >= 0f ? $"{obstacleRange:F1} m" : "clear";
             // Colours are read against bright photogrammetry, not a dark scene: the old
             // #D9534F was too dark/desaturated to pick out. Brighter + bold reads at a glance.
             if (obstacleStop) return $"<b><color=#FF3B30>STOP  {range}</color></b>";
             if (obstacleRange >= 0f && obstacleRange < 6f) return $"<b><color=#FFB300>{range}</color></b>";
-            return $"<color=#3DDC6B>{range}</color>";
+            // "clear" is a CLAIM, and on 2026-08-12 it was false for most of a day
+            // while this field sat green: the detector was deaf, gating discarded
+            // every point, and -1 ("nothing in the gated volume") rendered exactly
+            // like an open leg. Green now requires the detector to certify it can
+            // see; anything else is amber with the reason on the perception row.
+            string st = DetState();
+            if (st == "OK") return $"<color=#3DDC6B>{range}</color>";
+            if (st == "") return $"<color=#FFB300>{range} <size=80%>(unverified)</size></color>";
+            return $"<b><color=#FF3B30>{range} ({st})</color></b>";
+        }
+
+        /// <summary>The row that did not exist on 2026-08-12 and cost that whole day:
+        /// is perception ALIVE, and does the belief feeding the governor know anything.
+        /// Reads at a glance — green only when both streams certify themselves.</summary>
+        string PerceptionStr()
+        {
+            string detTxt;
+            if (Time.time - detHealthTime > HealthStaleSec)
+                // No health topic at all: an old detector build, or a node that died.
+                // Amber, never grey — grey is what everyone learned to ignore.
+                detTxt = "<b><color=#FFB300>det UNREPORTED</color></b>";
+            else
+            {
+                string st = HealthState(detHealth);
+                string hz = HealthField(detHealth, 1);
+                detTxt = st == "OK"
+                    ? $"<color=#3DDC6B>det {hz} Hz</color>"
+                    : $"<b><color=#FF3B30>det {st}</color></b> <size=80%>{Elide(HealthField(detHealth, 5))}</size>";
+            }
+
+            string roseTxt = "";
+            if (Time.time - roseHealthTime <= HealthStaleSec)
+            {
+                string st = HealthState(roseHealth);
+                if (st == "OFF") roseTxt = "   <color=#888888>rose off</color>";
+                else if (st == "OK")
+                {
+                    // coverage is the honest headline: the fan knows a MINORITY of
+                    // sectors (HT1 measured 14 %), and the governor is only as good
+                    // as that number. Showing it keeps the limitation in the cockpit.
+                    float cov = 0f;
+                    float.TryParse(HealthField(roseHealth, 3),
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out cov);
+                    roseTxt = $"   <color=#3DDC6B>rose {cov * 100f:F0}% known</color>";
+                }
+                else roseTxt = $"   <b><color=#FF3B30>rose {st}</color></b>";
+            }
+
+            string govTxt = "";
+            if (Time.time - govTime <= HealthStaleSec && !string.IsNullOrEmpty(govLine))
+            {
+                string gst = HealthField(govLine, 2);
+                string applied = HealthField(govLine, 1);
+                // OFF and NO_CAP are CONFIGURATION, not faults — the governor is
+                // launch-gated and off by default, so red there cries wolf on the
+                // normal case and devalues red everywhere else on this dashboard.
+                // Grey = deliberately not running. Red is reserved for STALE, which
+                // means a belief we were trusting died mid-mission.
+                string col = gst switch
+                {
+                    "CAPPING" => "#FFB300",
+                    "OK"      => "#3DDC6B",
+                    "OFF"     => "#888888",
+                    "NO_CAP"  => "#888888",
+                    _         => "#FF3B30",
+                };
+                govTxt = $"   gov <color={col}>{applied} m/s {gst}</color>";
+            }
+            return detTxt + roseTxt + govTxt;
         }
 
         string ActionStr(bool active)
@@ -188,9 +345,90 @@ namespace SmarcGUI
                 return $"<b><color=#FF3B30>OBSTACLE {obstacleStatus}</color></b> — holding depth, waiting for clearance";
             if (!haveStatus && obstacleStop)
                 return "<b><color=#FF3B30>OBSTACLE STOP</color></b> — holding depth";
+            bool driving = Time.time - spTime < ActionStaleSec;   // controller is commanding
+            bool haveVbs = Time.time - vbsTime < 5f;
+
+            // --- under way -----------------------------------------------------
             if (active && err != null)
-                return $"<color=#3DDC6B>driving to wp</color> — {err.distance:F1} m to go";
-            return "<color=#888888>idle — waiting for a mission</color>";
+            {
+                string cap = "";
+                // The governor is part of the narrative: "why am I going slowly"
+                // is the first question a creeping vehicle raises.
+                if (Time.time - govTime < ActionStaleSec && HealthField(govLine, 2) == "CAPPING")
+                    cap = $" — <color=#FFB300>creeping at {HealthField(govLine, 1)} m/s"
+                        + " (margin governor)</color>";
+                return $"<color=#3DDC6B>driving to wp</color> — {err.distance:F1} m to go{cap}";
+            }
+            // ctrl/conv/error missing but the controller is plainly commanding.
+            // Do not print "idle" — that claim was false for an entire flight on
+            // 2026-08-12, at 0.48 m/s and 1.2 m depth.
+            if (driving)
+                return $"<color=#3DDC6B>driving</color> (depth {depthNow:F1} m, "
+                     + $"set {spDepth:F1} m / {spSurge:F2} m/s) — "
+                     + "<color=#FFB300>no ctrl/conv/error, progress unknown</color>";
+
+            // --- mission over: what is it doing about it? ----------------------
+            // The BT empties the VBS and the vehicle floats up. Both are readable,
+            // so this is reporting rather than guessing.
+            if (haveVbs && vbs < 25f && depthNow > 0.4f)
+                return $"<color=#FFB300>mission ended</color> — VBS {vbs:F0} % (emptying), "
+                     + $"floating up from {depthNow:F1} m at {-depthRate:F2} m/s";
+            if (depthNow > 0.4f && depthRate < -0.02f)
+                return $"<color=#FFB300>mission ended</color> — floating to surface, "
+                     + $"{depthNow:F1} m and rising";
+            if (depthNow > 0.4f)
+                return $"<color=#888888>mission ended</color> — holding at {depthNow:F1} m"
+                     + (haveVbs ? $", VBS {vbs:F0} %" : "");
+            return "<color=#888888>surfaced, idle — waiting for a mission</color>"
+                 + (haveVbs ? $"  <size=80%>VBS {vbs:F0} %</size>" : "");
+        }
+
+        /// <summary>Make the dark panel track the text instead of a fixed rectangle.
+        ///
+        /// DashboardBuilder writes the panel as a hardcoded 560x78 with the text
+        /// stretched inside it. That is correct exactly until someone adds a row —
+        /// and every row added so far (attitude, nav, now perception) has spilled
+        /// out onto the bare scene, where white-on-photogrammetry is unreadable.
+        /// A ContentSizeFitter over a VerticalLayoutGroup removes the class of bug
+        /// rather than re-tuning the constant.
+        ///
+        /// Done at runtime, not only in the editor script, so existing scenes are
+        /// fixed without anyone re-running a menu item — the same self-installing
+        /// pattern as the attitude fields and the perception visuals.</summary>
+        void FitPanelToText()
+        {
+            if (DashboardText == null) return;
+            var panel = GetComponent<RectTransform>();
+            if (panel == null || DashboardText.transform.parent != transform) return;
+
+            // The text must not be anchor-stretched to the panel, or the panel's
+            // preferred size depends on the text's size which depends on the
+            // panel's — a layout cycle Unity resolves by collapsing to nothing.
+            var trt = DashboardText.rectTransform;
+            trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
+            trt.pivot = new Vector2(0f, 1f);
+
+            // No wrapping setting needed: TMP reports preferredWidth as the UNWRAPPED
+            // width, so the fitter always gives the panel room for the longest line —
+            // which is what "the background spans the text" means. (Deliberately not
+            // touching enableWordWrapping, which is [Obsolete] in newer TMP and would
+            // put a warning in the Console right where we tell people to check for
+            // compile errors before Play.)
+            var le = DashboardText.GetComponent<LayoutElement>();
+            if (le == null) le = DashboardText.gameObject.AddComponent<LayoutElement>();
+            le.minWidth = MinPanelWidth;
+
+            var vlg = GetComponent<VerticalLayoutGroup>();
+            if (vlg == null) vlg = gameObject.AddComponent<VerticalLayoutGroup>();
+            vlg.padding = new RectOffset(10, 10, 6, 6);
+            vlg.childAlignment = TextAnchor.UpperLeft;
+            vlg.childControlWidth = true;  vlg.childControlHeight = true;
+            vlg.childForceExpandWidth = false; vlg.childForceExpandHeight = false;
+
+            var fitter = GetComponent<ContentSizeFitter>();
+            if (fitter == null) fitter = gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
 
         /// <summary>Create the two perception visuals if they are absent, so a scene
@@ -365,6 +603,7 @@ namespace SmarcGUI
                     $"wp: {wpLine}\n" +
                     attRow +
                     $"nav: {GpsStr()}   {DrStr()}\n" +
+                    $"perc: {PerceptionStr()}\n" +
                     $"action: {ActionStr(active)}";
             }
 

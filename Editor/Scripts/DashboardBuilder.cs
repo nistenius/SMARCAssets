@@ -52,20 +52,41 @@ public static class DashboardBuilder
             rt.anchorMax = new Vector2(0f, 1f);
             rt.pivot = new Vector2(0f, 1f);
             rt.anchoredPosition = new Vector2(8f, -64f);   // just under the top banner
-            rt.sizeDelta = new Vector2(560f, 78f);
+            rt.sizeDelta = new Vector2(560f, 78f);         // starting size only — see below
             panelGO.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.55f);
+
+            // The panel SIZES ITSELF to the text (2026-08-12). It used to be a fixed
+            // 560x78 with the text stretched inside, which was correct until someone
+            // added a row — and every row added since (attitude, nav, perception) has
+            // spilled out onto the bare scene, where white-on-photogrammetry is
+            // unreadable. VehicleDashboard.FitPanelToText() installs the same thing at
+            // runtime so already-built scenes are fixed too; doing it here as well
+            // means a fresh build is never briefly wrong.
+            var vlg = panelGO.AddComponent<VerticalLayoutGroup>();
+            vlg.padding = new RectOffset(10, 10, 6, 6);
+            vlg.childAlignment = TextAnchor.UpperLeft;
+            vlg.childControlWidth = true;  vlg.childControlHeight = true;
+            vlg.childForceExpandWidth = false; vlg.childForceExpandHeight = false;
+            var fitter = panelGO.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             var textGO = new GameObject("DashboardText", typeof(RectTransform));
             textGO.transform.SetParent(panelGO.transform, false);
             var trt = textGO.GetComponent<RectTransform>();
-            trt.anchorMin = Vector2.zero;
-            trt.anchorMax = Vector2.one;
-            trt.offsetMin = new Vector2(10f, 6f);
-            trt.offsetMax = new Vector2(-10f, -6f);
+            // NOT stretched to the panel: under a ContentSizeFitter that is a layout
+            // cycle (panel size <- text size <- panel size), which Unity resolves by
+            // collapsing the panel to nothing.
+            trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
+            trt.pivot = new Vector2(0f, 1f);
+            var le = textGO.AddComponent<LayoutElement>();
+            le.minWidth = 560f;                            // keep the familiar shape when quiet
             var tmp = textGO.AddComponent<TextMeshProUGUI>();
             tmp.fontSize = 16f;
             tmp.richText = true;
             tmp.color = Color.white;
+            // No wrapping setting: TMP's preferredWidth is the UNWRAPPED width, so the
+            // fitter always leaves room for the longest line.
             tmp.text = "dashboard: waiting for data...";
 
             var dash = panelGO.AddComponent<VehicleDashboard>();
