@@ -34,6 +34,14 @@ namespace SmarcGUI
         public TMP_Text SmallDepthText;     // depth ref + error
         public TMP_Text SmallSpeedText;     // rpm command
 
+        [Header("Attitude in the top bar")]
+        [Tooltip("Clone the Compass field twice at Play and insert Roll/Pitch right after it, " +
+                 "so the top bar reads Compass | Roll | Pitch | Alt | Depth | Speed with no manual " +
+                 "UI work. Turn off if you have wired the fields by hand below.")]
+        public bool AutoCreateAttitudeFields = true;
+        [Tooltip("Name of the existing top-bar field to clone (must contain the big value text).")]
+        public string CompassFieldName = "Compass";
+
         [Header("Attitude fields (optional — leave empty to show attitude in the dashboard text instead)")]
         [Tooltip("Big roll value in the top bar. Duplicate the Compass field in the scene and assign here.")]
         public TMP_Text RollText;
@@ -81,6 +89,8 @@ namespace SmarcGUI
 
         void Start()
         {
+            if (AutoCreateAttitudeFields && RollText == null && PitchText == null)
+                BuildAttitudeFields();
             ros = ROSConnection.GetOrCreateInstance();
             string ns = $"/{RobotName}";
             ros.Subscribe<GotoWaypointMsg>($"{ns}/mission/last_wp", m => wp = m);
@@ -172,6 +182,59 @@ namespace SmarcGUI
             if (active && err != null)
                 return $"<color=#3DDC6B>driving to wp</color> — {err.distance:F1} m to go";
             return "<color=#888888>idle — waiting for a mission</color>";
+        }
+
+        /// <summary>Insert Roll and Pitch into the top bar by cloning the Compass
+        /// field — same background, font, size and layout, sitting right after
+        /// Compass, so the bar reads Compass | Roll | Pitch | Alt | Depth | Speed.
+        /// Done in code rather than by hand so the fields exist in every scene that
+        /// already has a top bar, and so the theme/layout stay in one place.
+        /// Falls back silently to the dashboard 'att:' row if the bar cannot be
+        /// found — a missing HUD field must never take the data with it.</summary>
+        void BuildAttitudeFields()
+        {
+            var compass = FindFieldByName(CompassFieldName);
+            if (compass == null)
+            {
+                Debug.LogWarning($"[VehicleDashboard] top-bar field '{CompassFieldName}' not " +
+                                 "found — attitude will show in the dashboard text instead.");
+                return;
+            }
+            int idx = compass.transform.GetSiblingIndex();
+            RollText  = CloneField(compass, "Roll",  "Roll:",  idx + 1, out SmallRollText);
+            PitchText = CloneField(compass, "Pitch", "Pitch:", idx + 2, out SmallPitchText);
+        }
+
+        GameObject FindFieldByName(string name)
+        {
+            foreach (var t in FindObjectsByType<RectTransform>(FindObjectsSortMode.None))
+                if (t.name == name) return t.gameObject;
+            return null;
+        }
+
+        /// <summary>Clone one top-bar field. The clone's texts are identified the
+        /// same way a human would: the one whose object name matches the wired
+        /// SmallCompassText is the small annotation, the one whose text mentions the
+        /// source field is the label, whatever remains is the value.</summary>
+        TMP_Text CloneField(GameObject src, string objName, string label,
+                            int siblingIndex, out TMP_Text smallText)
+        {
+            smallText = null;
+            var go = Instantiate(src, src.transform.parent);
+            go.name = objName;
+            go.transform.SetSiblingIndex(siblingIndex);
+
+            string smallName = SmallCompassText != null ? SmallCompassText.gameObject.name : null;
+            TMP_Text value = null, labelText = null;
+            foreach (var t in go.GetComponentsInChildren<TMP_Text>(true))
+            {
+                if (smallName != null && t.gameObject.name == smallName) { smallText = t; t.text = ""; continue; }
+                if (t.text != null && t.text.Contains(CompassFieldName)) { labelText = t; continue; }
+                if (value == null) value = t;
+            }
+            if (labelText != null) labelText.text = label;
+            if (value != null) value.text = "--";
+            return value;
         }
 
         /// <summary>Roll/pitch from the estimator, with setpoints when a controller
