@@ -34,6 +34,14 @@ namespace SmarcGUI
         public TMP_Text SmallDepthText;     // depth ref + error
         public TMP_Text SmallSpeedText;     // rpm command
 
+        [Header("Perception visuals (created at Play — no manual scene wiring)")]
+        [Tooltip("Spawn the ProximitySkirt (margin rose around the hull) and the TunnelViewer " +
+                 "(planned corridor ahead) if they are not already in the scene. Turn off if " +
+                 "you place and configure them by hand.")]
+        public bool AutoCreatePerceptionVisuals = true;
+        [Tooltip("Name of the vehicle transform the skirt follows.")]
+        public string FollowLinkName = "base_link";
+
         [Header("Attitude in the top bar")]
         [Tooltip("Clone the Compass field twice at Play and insert Roll/Pitch right after it, " +
                  "so the top bar reads Compass | Roll | Pitch | Alt | Depth | Speed with no manual " +
@@ -91,6 +99,7 @@ namespace SmarcGUI
         {
             if (AutoCreateAttitudeFields && RollText == null && PitchText == null)
                 BuildAttitudeFields();
+            if (AutoCreatePerceptionVisuals) BuildPerceptionVisuals();
             ros = ROSConnection.GetOrCreateInstance();
             string ns = $"/{RobotName}";
             ros.Subscribe<GotoWaypointMsg>($"{ns}/mission/last_wp", m => wp = m);
@@ -182,6 +191,47 @@ namespace SmarcGUI
             if (active && err != null)
                 return $"<color=#3DDC6B>driving to wp</color> — {err.distance:F1} m to go";
             return "<color=#888888>idle — waiting for a mission</color>";
+        }
+
+        /// <summary>Create the two perception visuals if they are absent, so a scene
+        /// needs no manual wiring to show them: the skirt is parented to nothing and
+        /// follows the vehicle's base_link, the tunnel viewer stays at the scene root
+        /// because it anchors the ROS odom frame (parenting it to the vehicle would
+        /// make the corridor drag along with the hull — the one wiring mistake that
+        /// silently produces a plausible-looking lie).</summary>
+        void BuildPerceptionVisuals()
+        {
+            if (FindFirstObjectByType<WorldSpace.ProximitySkirt>() == null)
+            {
+                var go = new GameObject("ProximitySkirt");
+                var skirt = go.AddComponent<WorldSpace.ProximitySkirt>();
+                skirt.RobotName = RobotName;
+                skirt.Follow = FindVehicleLink(FollowLinkName);
+                if (skirt.Follow == null)
+                    Debug.LogWarning($"[VehicleDashboard] '{FollowLinkName}' not found for " +
+                                     "the proximity skirt — it will sit at the origin. " +
+                                     "Assign Follow by hand or check FollowLinkName.");
+            }
+            if (FindFirstObjectByType<WorldSpace.TunnelViewer>() == null)
+            {
+                var go = new GameObject("TunnelViewer");   // scene root on purpose
+                go.AddComponent<WorldSpace.TunnelViewer>().RobotName = RobotName;
+            }
+        }
+
+        /// <summary>Find <RobotName>/.../<linkName>, preferring a link that actually
+        /// sits under this robot — a scene can hold several vehicles and a GT twin.</summary>
+        Transform FindVehicleLink(string linkName)
+        {
+            Transform fallback = null;
+            foreach (var t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
+            {
+                if (t.name != linkName) continue;
+                fallback ??= t;
+                for (var p = t.parent; p != null; p = p.parent)
+                    if (p.name == RobotName) return t;      // the right robot's link
+            }
+            return fallback;
         }
 
         /// <summary>Insert Roll and Pitch into the top bar by cloning the Compass
