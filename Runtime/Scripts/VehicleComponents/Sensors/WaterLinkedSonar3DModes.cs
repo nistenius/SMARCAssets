@@ -1,4 +1,3 @@
-using System.Reflection;
 using UnityEngine;
 using ROS.Core;
 
@@ -13,18 +12,17 @@ namespace VehicleComponents.Sensors
     /// Field of view stays 90 deg x 40 deg in both; what changes is range, ping rate
     /// and angular resolution.
     ///
-    /// SIM DERATING (read before trusting inspection-mode numbers): the literal spec
-    /// would be 300 x 33 = 9900 rays at 20 Hz — about 16x the navigation-mode load,
-    /// which the 2-core rig VM cannot carry. The inspection defaults below are
-    /// deliberately derated (200 x 25 at 10 Hz ~ 4x nav load) and are marked in the
-    /// inspector. Raise them on the Orin, not on the VM, and never quote
-    /// inspection-mode resolution as if it were spec-faithful.
+    /// WHAT THE SIM SWITCH ACTUALLY CHANGES: range and ping rate only. Ray counts
+    /// are fixed at Awake — see Apply() for why (live re-allocation crashes every
+    /// consumer holding a sized buffer, RayViewer first). At 4 m the same 2550 rays
+    /// land ~4x denser on target, which is the detail inspection mode is for; the
+    /// spec's finer beams (0.3 x 1.2 deg) are NOT modelled, so do not quote sim
+    /// inspection resolution as spec-faithful.
     ///
     /// AutoSwitch: drop to inspection when the nearest return comes inside
     /// EnterInspectionRange, return to navigation only past ExitInspectionRange
-    /// (hysteresis, so a wall at the boundary does not flap the sensor). Mode changes
-    /// re-allocate the sonar's ray/bucket arrays, so they are rate-limited by
-    /// MinSecondsBetweenSwitches.
+    /// (hysteresis, so a wall at the boundary does not flap the sensor), rate-limited
+    /// by MinSecondsBetweenSwitches.
     /// </summary>
     [DefaultExecutionOrder(-100)] // apply before Sonar.Awake sizes its arrays
     [RequireComponent(typeof(Sonar))]
@@ -45,7 +43,7 @@ namespace VehicleComponents.Sensors
         public float ExitInspectionRange = 3.5f;
         [Tooltip("Seconds with NO returns at all in inspection mode before falling back to navigation. Empty water is the normal way an inspection ends.")]
         public float NoReturnFallbackSeconds = 2f;
-        [Tooltip("Minimum seconds between mode changes; each change re-allocates arrays.")]
+        [Tooltip("Minimum seconds between mode changes (hysteresis in time as well as range).")]
         public float MinSecondsBetweenSwitches = 3f;
 
         [Header("Navigation preset (1.2 MHz, WL spec)")]
@@ -54,10 +52,10 @@ namespace VehicleComponents.Sensors
         public int NavRaysPerBeam = 17;   // 40 / 17  = 2.35 deg V
         public float NavPingHz = 5f;
 
-        [Header("Inspection preset (2.4 MHz, SIM-DERATED — see class summary)")]
+        [Header("Inspection preset (2.4 MHz — range/rate only, see class summary)")]
         public float InsRange = 4f;
-        public int InsBeams = 200;        // 0.45 deg H  (spec would be 300 = 0.30)
-        public int InsRaysPerBeam = 25;   // 1.60 deg V  (spec would be  33 = 1.21)
+        public int InsBeams = 150;        // keep == NavBeams: see Apply()
+        public int InsRaysPerBeam = 17;   // keep == NavRaysPerBeam: see Apply()
         public float InsPingHz = 10f;     // spec 20 Hz
 
         float lastSwitchTime = -999f;
@@ -147,9 +145,20 @@ namespace VehicleComponents.Sensors
 
             bool nav = m == Mode.Navigation;
             sonar.MaxRange = nav ? NavRange : InsRange;
-            sonar.NumBeams = nav ? NavBeams : InsBeams;
-            sonar.NumRaysPerBeam = nav ? NavRaysPerBeam : InsRaysPerBeam;
             sonar.frequency = nav ? NavPingHz : InsPingHz;
+            // RAY COUNTS ARE SET ONCE, AT AWAKE — never at runtime.
+            // Changing them live re-allocates Sonar.SonarHits, but RayViewer (and
+            // anything else holding a sized buffer) allocated ITS arrays at startup
+            // for the old count: the result is a per-frame IndexOutOfRangeException
+            // storm out of RayViewer.UpdateHits (seen on the rig 2026-08-12).
+            // The physically meaningful part of inspection mode is the shorter
+            // range and faster ping anyway — at 4 m the SAME 2550 rays land ~4x
+            // denser on target, which is the detail the mode is for.
+            if (!Application.isPlaying)
+            {
+                sonar.NumBeams = nav ? NavBeams : InsBeams;
+                sonar.NumRaysPerBeam = nav ? NavRaysPerBeam : InsRaysPerBeam;
+            }
 
             // keep the point-cloud publisher in step with the ping rate
             foreach (var mb in GetComponents<MonoBehaviour>())
@@ -161,20 +170,8 @@ namespace VehicleComponents.Sensors
                     f.SetValue(mb, nav ? NavPingHz : InsPingHz);
             }
 
-            if (!reinit || !Application.isPlaying) return;
-
-            // Re-allocate the ray/profile arrays for the new beam counts. These are
-            // private in Sonar (they are called from its Awake), so reflection —
-            // same pattern DeepVisionSSS already uses for the publisher rate.
-            var t = sonar.GetType();
-            foreach (var name in new[] { "InitHits", "InitBeamProfileSimple" })
-            {
-                var mi = t.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance);
-                if (mi != null) mi.Invoke(sonar, null);
-                else Debug.LogWarning($"[Sonar3D-15] could not re-init '{name}' — " +
-                                      "mode change may leave stale arrays; " +
-                                      "restart Play if the cloud looks wrong.");
-            }
+            // No array re-allocation, so nothing to re-init: the switch is now
+            // just two scalars and is safe mid-flight.
         }
     }
 }
