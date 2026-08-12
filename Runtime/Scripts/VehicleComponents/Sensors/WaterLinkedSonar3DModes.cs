@@ -41,8 +41,10 @@ namespace VehicleComponents.Sensors
         public bool AutoSwitch = true;
         [Tooltip("Nearest return closer than this [m] -> Inspection. Keep below the navigation-mode stop envelope so the switch happens BEFORE the vehicle is committed.")]
         public float EnterInspectionRange = 3.0f;
-        [Tooltip("Nearest return beyond this [m] -> Navigation. Must exceed EnterInspectionRange (hysteresis).")]
-        public float ExitInspectionRange = 4.5f;
+        [Tooltip("Nearest return beyond this [m] -> Navigation. MUST be < InsRange or the exit can never be observed (inspection mode cannot see past its own MaxRange).")]
+        public float ExitInspectionRange = 3.5f;
+        [Tooltip("Seconds with NO returns at all in inspection mode before falling back to navigation. Empty water is the normal way an inspection ends.")]
+        public float NoReturnFallbackSeconds = 2f;
         [Tooltip("Minimum seconds between mode changes; each change re-allocates arrays.")]
         public float MinSecondsBetweenSwitches = 3f;
 
@@ -59,12 +61,19 @@ namespace VehicleComponents.Sensors
         public float InsPingHz = 10f;     // spec 20 Hz
 
         float lastSwitchTime = -999f;
+        float noReturnSince = -1f;
         Sonar sonar;
 
         void OnValidate()
         {
+            // Exit must be observable FROM inspection mode: its MaxRange is the
+            // horizon there. A threshold beyond InsRange deadlocks the sensor in
+            // inspection forever (found on the rig 2026-08-12 — the vehicle passed
+            // a wreck, switched in, then reported "no data" for the rest of the run).
+            float maxObservable = InsRange - 0.5f;
+            if (ExitInspectionRange > maxObservable) ExitInspectionRange = maxObservable;
             if (ExitInspectionRange <= EnterInspectionRange)
-                ExitInspectionRange = EnterInspectionRange + 1.0f;
+                EnterInspectionRange = Mathf.Max(0.5f, ExitInspectionRange - 0.5f);
             Apply(CurrentMode, reinit: false);
         }
 
@@ -80,7 +89,25 @@ namespace VehicleComponents.Sensors
             if (Time.time - lastSwitchTime < MinSecondsBetweenSwitches) return;
 
             float nearest = NearestHitRange();
-            if (float.IsInfinity(nearest)) return;      // no returns: keep current mode
+
+            if (float.IsInfinity(nearest))
+            {
+                // NO RETURNS. In navigation mode that is just open water — stay put.
+                // In inspection mode it is the normal END of an inspection: the
+                // sensor's 4 m horizon means "nothing in range" is the ONLY way to
+                // observe that we have moved away. Treating infinity as "no
+                // information" here deadlocked the sonar in inspection mode for a
+                // whole mission (rig, 2026-08-12) — the exit threshold sat beyond
+                // the mode's own MaxRange and could never be seen.
+                if (CurrentMode == Mode.Inspection)
+                {
+                    if (noReturnSince < 0f) noReturnSince = Time.time;
+                    if (Time.time - noReturnSince >= NoReturnFallbackSeconds)
+                        Switch(Mode.Navigation);
+                }
+                return;
+            }
+            noReturnSince = -1f;
 
             if (CurrentMode == Mode.Navigation && nearest < EnterInspectionRange)
                 Switch(Mode.Inspection);
@@ -105,6 +132,7 @@ namespace VehicleComponents.Sensors
         void Switch(Mode m)
         {
             lastSwitchTime = Time.time;
+            noReturnSince = -1f;
             CurrentMode = m;
             Apply(m, reinit: true);
             Debug.Log($"[Sonar3D-15] mode -> {m} " +
