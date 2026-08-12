@@ -38,10 +38,26 @@ namespace VehicleComponents.Sensors
         public bool enableNoise = true;
         [Tooltip("0 = new random seed every run. Any other value = repeatable noise sequence.")]
         public int noiseSeed = 0;
-        [Tooltip("Horizontal sigma per axis (east/north), m, once settled. ~1.5 m standalone; ~0.02 m if you want to pretend RTK.")]
+        [Tooltip("Horizontal sigma per axis (east/north), m, once settled, STANDALONE (no RTK corrections). ZED-F9P autonomous ~1.5 m CEP.")]
         public double sigmaHorizontal = 1.5;
-        [Tooltip("Vertical sigma, m, once settled.")]
+        [Tooltip("Vertical sigma, m, once settled, standalone.")]
         public double sigmaVertical = 2.0;
+
+        [Header("RTK (SparkFun GPS-RTK2 / u-blox ZED-F9P, as fitted to SAM)")]
+        [Tooltip("Receiver is RTK-capable AND a correction stream is configured. Turn OFF to model a plain GNSS receiver or a dead NTRIP link.")]
+        public bool rtkEnabled = true;
+        [Tooltip("Corrections are actually arriving right now. Drop this to watch the solution fall back to float, then standalone — that is what a lost link looks like.")]
+        public bool rtkCorrectionsAvailable = true;
+        [Tooltip("Horizontal sigma with an RTK FIXED solution [m]. Spec is 10 mm + 1 ppm of baseline; 0.014 m ~ 10 mm at a few km from the base.")]
+        public double sigmaHorizontalRtkFixed = 0.014;
+        [Tooltip("Vertical sigma with RTK FIXED [m] — roughly 1.5-2x horizontal, as usual for GNSS.")]
+        public double sigmaVerticalRtkFixed = 0.025;
+        [Tooltip("Horizontal sigma while the ambiguities are still FLOAT [m].")]
+        public double sigmaHorizontalRtkFloat = 0.35;
+        [Tooltip("Vertical sigma while FLOAT [m].")]
+        public double sigmaVerticalRtkFloat = 0.6;
+        [Tooltip("Seconds of continuous corrections after the first fix before the solution goes FIXED. Short baselines converge in seconds; this is the honest 'RTK is not instant' term.")]
+        public float rtkFixSeconds = 12f;
 
         [Header("Re-acquisition after surfacing")]
         [Tooltip("Model time-to-first-fix and settling. Disable for the old instant-perfect-fix behaviour.")]
@@ -63,8 +79,15 @@ namespace VehicleComponents.Sensors
         [Tooltip("Stop reporting Settling once the inflation has decayed below this factor.")]
         public float settledThreshold = 1.15f;
 
+        /// <summary>Which solution the receiver is currently producing. Exposed so the
+        /// HUD and the estimator can tell a 1.5 m fix from a 1.4 cm one — they are the
+        /// same message type and wildly different information.</summary>
+        public enum RtkSolution { Standalone, RtkFloat, RtkFixed }
+
         [Header("Current receiver state")]
         public GPSFixState state = GPSFixState.Submerged;
+        [Tooltip("Current RTK solution quality (read-only).")]
+        public RtkSolution rtkSolution = RtkSolution.Standalone;
         [Tooltip("Seconds the antenna has been continuously underwater (drives hot/warm/cold start).")]
         public float blackoutSeconds;
         [Tooltip("Seconds since the receiver started acquiring.")]
@@ -122,10 +145,38 @@ namespace VehicleComponents.Sensors
             return _gpsRef.GetUTMLatLonOfObject(gameObject);
         }
 
+        /// <summary>Settled sigmas for the CURRENT solution type. RTK does not merely
+        /// scale the standalone error — it is a different measurement, cm instead of
+        /// metres, which is why the estimator's GPS gate must see the covariance and
+        /// not a hardcoded number.</summary>
+        public (double h, double v) SettledSigmas() => rtkSolution switch
+        {
+            RtkSolution.RtkFixed => (sigmaHorizontalRtkFixed, sigmaVerticalRtkFixed),
+            RtkSolution.RtkFloat => (sigmaHorizontalRtkFloat, sigmaVerticalRtkFloat),
+            _                    => (sigmaHorizontal, sigmaVertical),
+        };
+
+        /// <summary>Advance the RTK solution. Corrections must be flowing AND the
+        /// receiver must already have a fix; losing corrections drops straight back
+        /// to standalone, which is the failure mode that actually bites on the water
+        /// (NTRIP over a flaky link, or out of range of the base).</summary>
+        void UpdateRtkSolution(float dt)
+        {
+            if (!rtkEnabled || !rtkCorrectionsAvailable || !fix)
+            {
+                rtkSolution = RtkSolution.Standalone;
+                return;
+            }
+            // settlingSeconds counts from the first fix of this surfacing
+            rtkSolution = settlingSeconds >= rtkFixSeconds
+                ? RtkSolution.RtkFixed : RtkSolution.RtkFloat;
+        }
+
         void UpdateCovariance()
         {
-            double h = sigmaHorizontal * currentInflation;
-            double v = sigmaVertical * currentInflation;
+            var (sh, sv) = SettledSigmas();
+            double h = sh * currentInflation;
+            double v = sv * currentInflation;
             positionCovariance[0] = h * h;
             positionCovariance[4] = h * h;
             positionCovariance[8] = v * v;
@@ -238,6 +289,7 @@ namespace VehicleComponents.Sensors
                 state = antennaDry ? GPSFixState.Tracking : GPSFixState.Submerged;
             }
 
+            UpdateRtkSolution((float)deltaTime);
             UpdateCovariance();
 
             if(fix)
@@ -247,8 +299,9 @@ namespace VehicleComponents.Sensors
 
                 if (enableNoise)
                 {
-                    double sh = sigmaHorizontal * currentInflation;
-                    double sv = sigmaVertical * currentInflation;
+                    var (sh0, sv0) = SettledSigmas();
+                    double sh = sh0 * currentInflation;
+                    double sv = sv0 * currentInflation;
                     double nE = noise.Sample(sh);
                     double nN = noise.Sample(sh);
                     easting += nE;

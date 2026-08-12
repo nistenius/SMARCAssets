@@ -22,7 +22,13 @@ namespace ROS.Publishers
             ROSMsg.header.stamp = new TimeStamp(Clock.time);
             if(DataSource.fix)
             {
-                ROSMsg.status.status = NavSatStatusMsg.STATUS_FIX;
+                // An RTK solution is GBAS-augmented, and consumers MUST be able to tell:
+                // a 1.4 cm fix and a 1.5 m fix arrive in the same message type, and the
+                // estimator's sigma gate / the HUD both branch on this.
+                ROSMsg.status.status =
+                    DataSource.rtkSolution == SensorGPS.RtkSolution.Standalone
+                        ? NavSatStatusMsg.STATUS_FIX
+                        : NavSatStatusMsg.STATUS_GBAS_FIX;
                 ROSMsg.latitude = DataSource.lat;
                 ROSMsg.longitude = DataSource.lon;
                 ROSMsg.altitude = DataSource.alt;
