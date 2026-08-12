@@ -292,11 +292,11 @@ MonoBehaviour:
   hasNewData: 0
   Type: 1
   NumRaysPerBeam: 512
-  BeamBreadthDeg: 45
+  BeamBreadthDeg: 60
   NumBeams: 2
   MaxRange: 100
   BeamBreadth3DecibelsDeg: 60
-  TiltAngleDeg: 45
+  TiltAngleDeg: 0
   FLSFOVDeg: 30
   NumBucketsPerBeam: 2000
   isInterferometric: 1

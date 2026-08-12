@@ -56,9 +56,9 @@ MonoBehaviour:
   frequency: 5
   hasNewData: 0
   Type: 0
-  NumRaysPerBeam: 41
+  NumRaysPerBeam: 17
   BeamBreadthDeg: 40
-  NumBeams: 91
+  NumBeams: 150
   MaxRange: 15
   BeamBreadth3DecibelsDeg: 60
   TiltAngleDeg: -20
