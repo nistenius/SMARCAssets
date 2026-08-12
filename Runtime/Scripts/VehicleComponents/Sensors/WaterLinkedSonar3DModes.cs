@@ -1,3 +1,4 @@
+using System.Reflection;   // publisher rate is set via reflection (see Apply)
 using UnityEngine;
 using ROS.Core;
 
