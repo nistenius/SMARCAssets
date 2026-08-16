@@ -1,0 +1,96 @@
+{
+  "generator": "data-cube/scripts/kristineberg-site/build_splatmap.py",
+  "control_map": "kristineberg_control.bin",
+  "control_format": "raw uint8, [row][col][layer], row 0 = SOUTH edge",
+  "control_resolution": 1024,
+  "tile_size_m": 12.0,
+  "terrain_collider_limitation": "A TerrainCollider has ONE physics material, so sand/mud/rock here is VISUAL only. The sonar reads the whole terrain as that single material (Mud, 0.20). Hard-bottom returns come from the scattered rock objects, not the terrain surface.",
+  "layers": [
+    {
+      "index": 0,
+      "name": "sand",
+      "texture": "textures/kristineberg_sand.png",
+      "base_rgb": [
+        0.66,
+        0.6,
+        0.47
+      ],
+      "style": "ripple",
+      "coverage": 0.1235085143495148,
+      "dominant_fraction": 0.14074230194091797
+    },
+    {
+      "index": 1,
+      "name": "mud",
+      "texture": "textures/kristineberg_mud.png",
+      "base_rgb": [
+        0.3,
+        0.29,
+        0.22
+      ],
+      "style": "mottle",
+      "coverage": 0.416866359149253,
+      "dominant_fraction": 0.41924285888671875
+    },
+    {
+      "index": 2,
+      "name": "seabed_rock",
+      "texture": "textures/kristineberg_seabed_rock.png",
+      "base_rgb": [
+        0.34,
+        0.37,
+        0.32
+      ],
+      "style": "speckle",
+      "coverage": 0.023631633335709838,
+      "dominant_fraction": 0.018007278442382812
+    },
+    {
+      "index": 3,
+      "name": "shore",
+      "texture": "textures/kristineberg_shore.png",
+      "base_rgb": [
+        0.62,
+        0.6,
+        0.55
+      ],
+      "style": "speckle",
+      "coverage": 0.07399248555240603,
+      "dominant_fraction": 0.05872344970703125
+    },
+    {
+      "index": 4,
+      "name": "rock",
+      "texture": "textures/kristineberg_rock.png",
+      "base_rgb": [
+        0.66,
+        0.63,
+        0.6
+      ],
+      "style": "speckle",
+      "coverage": 0.17029763868923525,
+      "dominant_fraction": 0.1619577407836914
+    },
+    {
+      "index": 5,
+      "name": "grass",
+      "texture": "textures/kristineberg_grass.png",
+      "base_rgb": [
+        0.33,
+        0.42,
+        0.22
+      ],
+      "style": "mottle",
+      "coverage": 0.19170336892388154,
+      "dominant_fraction": 0.2013263702392578
+    }
+  ],
+  "rules": {
+    "sand": "underwater, slope < 6-16 deg, fading out between 5 and 10 m depth",
+    "mud": "underwater, slope < 8-20 deg, taking over below 5-11 m depth",
+    "seabed_rock": "underwater, slope >= 8-20 deg",
+    "shore": "gaussian about the waterline, sigma 1.6 m",
+    "rock": "land, slope >= 10 deg or above 12 m",
+    "grass": "land above 0.5 m, slope < 8 deg, thinning above 25 m"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "generated_utc": "2026-08-16T11:25:35+00:00",
+  "generator": "data-cube/scripts/kristineberg-site/build_heightmap.py",
+  "site": "Kristineberg",
+  "provenance_doc": "_test_sites/Kristineberg/KRISTINEBERG_SITE.md",
+  "anchor": {
+    "lat": 58.249721,
+    "lon": 11.44624,
+    "utm_epsg": "EPSG:32632",
+    "utm_easting": 643567.8263458617,
+    "utm_northing": 6459119.696972671,
+    "sweref_epsg": "EPSG:3006",
+    "sweref_easting": 291464.14789640525,
+    "sweref_northing": 6462015.047108001,
+    "note": "Unity +X = UTM32 easting, +Z = UTM32 northing, origin at this point"
+  },
+  "heightmap": {
+    "file": "kristineberg_heightmap.r16",
+    "format": "uint16 little-endian, no header",
+    "resolution": 2049,
+    "row_order": "row 0 = SOUTH edge (+Z increases with row index)",
+    "col_order": "col 0 = WEST edge (+X increases with column index)",
+    "terrain_size_x_m": 2048.0,
+    "terrain_size_z_m": 2048.0,
+    "terrain_size_y_m": 113.0,
+    "terrain_base_y_m": -59.0,
+    "spacing_m": 1.0,
+    "unity_position": {
+      "x": -1024.0,
+      "y": -59.0,
+      "z": -1024.0
+    },
+    "height_from_sample": "y_metres = base + (sample / 65535) * size_y"
+  },
+  "vertical_datum": {
+    "water_plane_m": 0.0,
+    "evidence": "Mark.tif median +0.054 m along kustlinje.shp; depth raster median -0.001 m on the same line; 1mHeight contours start at +1 and 1mDepth at -1, so zero is the shared boundary",
+    "absolute_datum": "assumed RH2000-compatible; internally consistent, not independently tied"
+  },
+  "sources": {
+    "seabed": {
+      "path": "_test_sites/Kristineberg/Fr\u00e5n Per Fransson ARCH/P3/DepthMap_TIN_BSplineInterpolation_updated.tif",
+      "crs": "EPSG:3006",
+      "bounds": [
+        288536.0,
+        6460160.0,
+        293540.0,
+        6465164.0
+      ],
+      "sha256": "213cb745a8f19d1bed059c49250955cafbbabfc808355db9310e86437d6a5354",
+      "validated": "RMS 0.086 m vs 60k vertices of 1mDepth.shp"
+    },
+    "land": {
+      "path": "_test_sites/Kristineberg/Fr\u00e5n Per Fransson ARCH/P3/Mark.tif",
+      "crs": "EPSG:3006",
+      "bounds": [
+        288536.0,
+        6460162.0,
+        293538.0,
+        6465164.0
+      ],
+      "sha256": "f409737b0a1bededd9d025255bdabc25bbcd3945daf4891683d7a89b020c2123",
+      "validated": "RMS 0.377 m vs 1mHeight.shp vertices"
+    }
+  },
+  "merge_rule": {
+    "expression": "depth where (depth_weight >= 0.5 and land <= 0.5) else land",
+    "depth_weight_min": 0.5,
+    "land_is_water_threshold_m": 0.5,
+    "water_fraction": 0.6116666797668922
+  },
+  "harbour_carve": {
+    "source": "_test_sites/Kristineberg/Fr\u00e5n Per Fransson ARCH/P3/kustlinje.shp",
+    "rule": "cells the surveyed coastline calls water but the merge made land are lowered to the depth of the NEAREST REAL SOUNDING, clamped to <= -0.3 m, then feathered over 1.5 cells",
+    "why": "the 2 m contour-derived grid cannot resolve the harbour basin and the land model treats the quay as ground; before this, 33.5% of chart-water within 80 m of the station was land, so nothing could launch from the quay",
+    "cells_carved": 47869,
+    "fraction_of_grid": 0.011401721750733196,
+    "IS_INFERRED_NOT_SURVEYED": true,
+    "inferred_mask": "kristineberg_inferred.png",
+    "cells_reinstated_real_soundings": 44163,
+    "cells_truly_inferred": 3706,
+    "coastline_polarity": "as drawn (rings enclose water)",
+    "coastline_agreement_with_terrain": 0.9873106451718167,
+    "cells_coastline_calls_land_but_dem_submerges": 5475
+  },
+  "statistics": {
+    "min_m": -56.076095879651554,
+    "max_m": 51.068934724445256,
+    "deepest_m": -56.076095879651554,
+    "highest_land_m": 51.068934724445256
+  },
+  "verification_targets_unity_xz": {
+    "C0_bottom_center": [
+      248.1736541383434,
+      110.3030273290351
+    ],
+    "C1_bottom_right": [
+      264.1736541383434,
+      105.3030273290351
+    ],
+    "C2_bottom_left": [
+      238.1736541383434,
+      108.3030273290351
+    ],
+    "C3_top_right": [
+      262.1736541383434,
+      137.3030273290351
+    ],
+    "C4_top_left": [
+      247.1736541383434,
+      138.3030273290351
+    ]
+  }
+}

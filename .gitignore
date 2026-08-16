@@ -1,1 +1,35 @@
 .vscode
+
+# ---------------------------------------------------------------------------
+# Kristineberg: GENERATED Unity assets (decision, Ivan 2026-08-17)
+#
+# These are Unity's import of the site build outputs, ~134 MB in total:
+#   kristineberg_buildings.asset        57 MB
+#   kristineberg_buildings_col0.asset   43 MB
+#   KristinebergTerrain.asset           19 MB
+#   kristineberg_buildings_col1.asset   14 MB
+#   kristineberg_control.bin             6 MB
+#
+# The SOURCES are committed (LFS): kristineberg_heightmap.r16 and the .smesh
+# meshes, ~38 MB. Everything above is derived from them by
+#   SMARC -> Build Kristineberg Site
+# so committing both would store the same geometry twice, and 134 MB of binary
+# in normal git is permanent — every clone pays for it forever. DrydockHiRes
+# already uses ~629 MB of GitHub's 1 GB free LFS tier, so LFS-tracking these was
+# not a safe alternative either.
+#
+# THE COST, STATED PLAINLY: a fresh clone must run the builder menu item once
+# before KristinebergEmpty.unity is usable. The builder regenerates the terrain,
+# the meshes AND KristinebergWorld.prefab together, so the GUID references
+# between them are rebuilt consistently in the same pass — which is why the
+# .meta files are ignored alongside their assets rather than kept for GUID
+# stability. A .meta without its asset is not stability, it is an orphan.
+# ---------------------------------------------------------------------------
+Runtime/Terrain/Kristineberg/KristinebergTerrain.asset
+Runtime/Terrain/Kristineberg/KristinebergTerrain.asset.meta
+Runtime/Terrain/Kristineberg/kristineberg_buildings*.asset
+Runtime/Terrain/Kristineberg/kristineberg_buildings*.asset.meta
+Runtime/Terrain/Kristineberg/kristineberg_dock*.asset
+Runtime/Terrain/Kristineberg/kristineberg_dock*.asset.meta
+Runtime/Terrain/Kristineberg/kristineberg_control.bin
+Runtime/Terrain/Kristineberg/kristineberg_control.bin.meta

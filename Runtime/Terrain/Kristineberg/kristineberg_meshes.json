@@ -1,0 +1,73 @@
+{
+  "generated_utc": "2026-08-16T15:47:02+00:00",
+  "generator": "data-cube/scripts/kristineberg-site/export_meshes.py",
+  "frame": "Unity scene metres; +X = UTM32 easting, +Z = UTM32 northing, origin = K-berg origo",
+  "format": "v2: magic 'SMSH', uint32 version, uint32 nameLen, name, uint32 vertCount, uint32 triCount, 6*float32 bounds(min,max), uint32 subCount, subCount*(uint32 nameLen, name, uint32 start, uint32 count), vertCount*3 float32 xyz, triCount*3 uint32 indices \u2014 all little-endian. Winding is already Unity-correct (see fix_winding).",
+  "elevation_offset_applied_m": 1.522,
+  "meshes": {
+    "dock": {
+      "file": "kristineberg_dock.smesh",
+      "source": "_test_sites/Kristineberg/Ivans stuff/dock_(0,0).stl",
+      "source_frame": "STL X=E,Y=N,Z=up",
+      "verts": 326,
+      "tris": 216,
+      "bytes": 6571,
+      "bounds_min": [
+        -94.09888307901565,
+        -0.9993000000000001,
+        -66.69745925907046
+      ],
+      "bounds_max": [
+        41.94018959917594,
+        2.417809,
+        35.91498623788357
+      ],
+      "collider": "mesh",
+      "colliderChunks": [],
+      "submeshes": [
+        {
+          "name": "all",
+          "start": 0,
+          "count": 216
+        }
+      ],
+      "signed_volume_m3": 18166.67450865564
+    },
+    "buildings": {
+      "file": "kristineberg_buildings.smesh",
+      "source": "_test_sites/Kristineberg/Ivans stuff/buildings_(0,0).obj",
+      "source_frame": "OBJ X=E,Y=up,Z=-N",
+      "verts": 854714,
+      "tris": 733325,
+      "bytes": 19056557,
+      "bounds_min": [
+        -107.77271243534051,
+        0.0007000417709350781,
+        -66.10028790775687
+      ],
+      "bounds_max": [
+        40.72890333738178,
+        18.517975494384764,
+        33.87558452039957
+      ],
+      "collider": "chunked",
+      "colliderChunks": [
+        "kristineberg_buildings_col0.smesh",
+        "kristineberg_buildings_col1.smesh"
+      ],
+      "submeshes": [
+        {
+          "name": "roof",
+          "start": 0,
+          "count": 137247
+        },
+        {
+          "name": "wall",
+          "start": 137247,
+          "count": 596078
+        }
+      ],
+      "signed_volume_m3": 30078.447651416154
+    }
+  }
+}

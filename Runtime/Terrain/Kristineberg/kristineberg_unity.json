@@ -1,0 +1,203 @@
+{
+  "generatedUtc": "2026-08-16T18:35:08+00:00",
+  "site": "Kristineberg",
+  "anchorLat": 58.249721,
+  "anchorLon": 11.44624,
+  "utmZone": 32,
+  "utmBand": "V",
+  "anchorUtmEasting": 643567.8263458617,
+  "anchorUtmNorthing": 6459119.696972671,
+  "heightmapFile": "kristineberg_heightmap.r16",
+  "heightmapRes": 2049,
+  "sizeX": 2048.0,
+  "sizeY": 113.0,
+  "sizeZ": 2048.0,
+  "posX": -1024.0,
+  "posY": -59.0,
+  "posZ": -1024.0,
+  "waterPlaneY": 0.0,
+  "meshes": [
+    {
+      "name": "buildings",
+      "file": "kristineberg_buildings.smesh",
+      "verts": 854714,
+      "tris": 733325,
+      "collider": "chunked",
+      "colliderChunks": [
+        "kristineberg_buildings_col0.smesh",
+        "kristineberg_buildings_col1.smesh"
+      ]
+    },
+    {
+      "name": "dock",
+      "file": "kristineberg_dock.smesh",
+      "verts": 326,
+      "tris": 216,
+      "collider": "mesh",
+      "colliderChunks": []
+    }
+  ],
+  "buoys": [
+    {
+      "name": "C0_bottom_center",
+      "x": 248.1736541383434,
+      "z": 110.3030273290351
+    },
+    {
+      "name": "C1_bottom_right",
+      "x": 264.1736541383434,
+      "z": 105.3030273290351
+    },
+    {
+      "name": "C2_bottom_left",
+      "x": 238.1736541383434,
+      "z": 108.3030273290351
+    },
+    {
+      "name": "C3_top_right",
+      "x": 262.1736541383434,
+      "z": 137.3030273290351
+    },
+    {
+      "name": "C4_top_left",
+      "x": 247.1736541383434,
+      "z": 138.3030273290351
+    }
+  ],
+  "farm": {
+    "ropeDepth": -2.0,
+    "bladeLength": 2.5,
+    "bladesPerMetre": 3.0,
+    "buoys": [
+      {
+        "name": "C2_corner_SW",
+        "x": 238.17,
+        "z": 108.3,
+        "seabed": -9.99,
+        "moored": true,
+        "intermediate": false
+      },
+      {
+        "name": "C0_south_mid",
+        "x": 248.17,
+        "z": 110.3,
+        "seabed": -9.661,
+        "moored": false,
+        "intermediate": false
+      },
+      {
+        "name": "C1_corner_SE",
+        "x": 264.17,
+        "z": 105.3,
+        "seabed": -8.207,
+        "moored": true,
+        "intermediate": false
+      },
+      {
+        "name": "M2_east_mid",
+        "x": 263.17,
+        "z": 121.3,
+        "seabed": -9.906,
+        "moored": false,
+        "intermediate": true
+      },
+      {
+        "name": "M1_west_mid",
+        "x": 242.67,
+        "z": 123.3,
+        "seabed": -9.922,
+        "moored": false,
+        "intermediate": true
+      },
+      {
+        "name": "C4_corner_NW",
+        "x": 247.17,
+        "z": 138.3,
+        "seabed": -9.45,
+        "moored": true,
+        "intermediate": false
+      },
+      {
+        "name": "C3_corner_NE",
+        "x": 262.17,
+        "z": 137.3,
+        "seabed": -8.665,
+        "moored": true,
+        "intermediate": false
+      }
+    ],
+    "cultureLines": [
+      {
+        "nodes": [
+          "C2_corner_SW",
+          "M1_west_mid",
+          "C4_corner_NW"
+        ]
+      },
+      {
+        "nodes": [
+          "C1_corner_SE",
+          "M2_east_mid",
+          "C3_corner_NE"
+        ]
+      }
+    ],
+    "crossLines": [
+      {
+        "nodes": [
+          "C2_corner_SW",
+          "C0_south_mid",
+          "C1_corner_SE"
+        ]
+      },
+      {
+        "nodes": [
+          "C4_corner_NW",
+          "C3_corner_NE"
+        ]
+      }
+    ]
+  },
+  "sss": {
+    "topic": "payload/sidescan",
+    "requireInterferometric": true,
+    "ropeDepth": 2.0,
+    "laneStandoff": 2.0,
+    "minScanDepth": 0.5,
+    "depthControlError": 0.3,
+    "beamMargin": 0.5,
+    "maxOffNadirMinDeg": 64.359,
+    "minOffNadirMaxDeg": 39.806,
+    "asShippedFlyable": true,
+    "asShippedNote": "standoff at the preferred 2.0 m"
+  },
+  "cameras": [
+    {
+      "name": "Cam5m",
+      "x": 128.0,
+      "y": -3.2,
+      "z": 496.0,
+      "seabed": -4.4,
+      "namedDepth": -5.0,
+      "note": "in the gap south of the main islet"
+    },
+    {
+      "name": "Cam22m",
+      "x": 132.0,
+      "y": -20.23,
+      "z": 689.0,
+      "seabed": -21.43,
+      "namedDepth": -22.0,
+      "note": "off the islet's NE face"
+    }
+  ],
+  "launch": {
+    "x": 80.0,
+    "y": 0.0,
+    "z": -56.0,
+    "depth_m": -4.7,
+    "vehicle_prefab": "Packages/com.smarc.assets/Runtime/Prefabs/sam2.2.prefab",
+    "vehicle_name": "sam_auv_v1",
+    "gui_prefab": "Packages/com.smarc.assets/Runtime/Prefabs/SmarcGUI/GUI.prefab"
+  }
+}

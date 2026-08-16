@@ -524,7 +524,21 @@ namespace VehicleComponents.Sensors
                 }
                 
                 // and finally, cast dem rays boi.
-                Commands[i] = new RaycastCommand(SonarPosition, direction, QueryParameters.Default, MaxRange);
+                // A TRIGGER IS NOT A SONAR TARGET. QueryParameters.Default leaves hitTriggers at
+                // UseGlobal, and Physics.queriesHitTriggers defaults to TRUE — so every trigger
+                // volume in the scene returns an echo. Found 2026-08-16 at Kristineberg: a
+                // 600 x 60 x 500 m current-field trigger produced returns across the whole
+                // algae farm at the 0.5 default reflectivity and material label 0, i.e. a wall
+                // of "unidentified" bottom where the farm should be. Triggers are by definition
+                // non-physical volumes (force fields, mission zones, water bodies), so ignoring
+                // them is strictly correct for an acoustic sensor.
+                Commands[i] = new RaycastCommand(
+                    SonarPosition, direction,
+                    new QueryParameters(layerMask: ~0,
+                                        hitMultipleFaces: false,
+                                        hitTriggers: QueryTriggerInteraction.Ignore,
+                                        hitBackfaces: false),
+                    MaxRange);
             }
         }
     }
