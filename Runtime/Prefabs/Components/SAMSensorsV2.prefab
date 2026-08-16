@@ -1255,6 +1255,13 @@ MonoBehaviour:
   noiseSeed: 0
   sigmaHorizontal: 1.5
   sigmaVertical: 2
+  rtkEnabled: 1
+  rtkCorrectionsAvailable: 1
+  sigmaHorizontalRtkFixed: 0.014
+  sigmaVerticalRtkFixed: 0.025
+  sigmaHorizontalRtkFloat: 0.35
+  sigmaVerticalRtkFloat: 0.6
+  rtkFixSeconds: 12
   modelReacquisition: 1
   hotStartSeconds: 2
   hotStartMaxBlackout: 120
@@ -1265,6 +1272,7 @@ MonoBehaviour:
   settleSigmaMultiplier: 6
   settledThreshold: 1.15
   state: 0
+  rtkSolution: 0
   blackoutSeconds: 0
   acquiringSeconds: 0
   settlingSeconds: 0
