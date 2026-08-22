@@ -431,7 +431,15 @@ public static class KristinebergSiteBuilder
         // Force the UTM fields to populate; OnValidate does this in the editor.
         var so = new SerializedObject(grp);
         so.ApplyModifiedProperties();
-        grp.SendMessage("OnValidate", SendMessageOptions.DontRequireReceiver);
+        // Invoke OnValidate directly rather than via SendMessage: SendMessage on a component
+        // added moments ago trips Unity's internal `ShouldRunBehaviour()` assertion, which
+        // logs as a red ERROR with no message of its own and has twice been mistaken for a
+        // real failure while reading this Console. Reflection because OnValidate is private.
+        var onValidate = typeof(GlobalReferencePoint).GetMethod("OnValidate",
+            System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.NonPublic);
+        if (onValidate != null) onValidate.Invoke(grp, null);
         // Askö drapes orthophoto tiles over its terrain through this; same component, same
         // settings. The WMS URL/layer come from the per-machine WMSSettings.yaml the
         // component writes on first run, so nothing site-specific is baked into the prefab.

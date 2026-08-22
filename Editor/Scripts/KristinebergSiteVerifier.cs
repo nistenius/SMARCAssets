@@ -26,6 +26,12 @@ public static class KristinebergSiteVerifier
     [MenuItem("SMARC/Verify Kristineberg Site")]
     public static void Verify()
     {
+        // A verifier that can produce NO output is worse than one that fails: silence reads
+        // as "nothing to report" when it may mean "never ran" (2026-08-17 — a Verify press
+        // that printed nothing cost a round of guessing). Say hello before anything can
+        // return early, so the absence of this line is itself the diagnosis.
+        Debug.Log("[Kristineberg] Verify started — every check below is logged, PASS as info " +
+                  "and FAIL as error. If you see this line and nothing after it, the run threw.");
         int fails = 0;
         void Check(string name, bool ok, string measured, string tol)
         {

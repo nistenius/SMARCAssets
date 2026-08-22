@@ -64,19 +64,66 @@ namespace VehicleComponents.Comms
         /// bandwidth — and the reason submerged interaction is fire-and-forget, never RPC.</summary>
         public virtual float OneWayLatencyS => 0f;
 
-        /// <summary>Is the modem's own antenna/transducer in the water right now?</summary>
+        /// <summary>
+        /// Is the modem's own antenna/transducer in the water right now?
+        ///
+        /// TWO PATHS, AND WHICH ONE IS USED IS NOT A PREFERENCE (2026-08-21). A modem hanging off a
+        /// <see cref="DeployedTransducer"/> — the base station's fish on its cable — asks that
+        /// component, which reads the STILL-WATER PLANE off the WaterSurface transform. It must
+        /// never reach `GetWaterLevelAt`: `HDRPWaterQueryModel` is one shared instance that seeds
+        /// each search from the previous caller's result, so a station querying from tens of metres
+        /// away poisons the vehicle's ForcePoints on their next query — the measured mechanism that
+        /// launches SAM to 67 m/s (SETTLED §3s). Everything on a hull keeps the wave-following
+        /// query, because for a surfacing vehicle the wave IS the thing being modelled.
+        /// </summary>
         protected bool IsSubmerged()
         {
+            var deployed = FindDeployment();
+            if (deployed != null) return deployed.IsWet(transform.position);
+
             var water = FindWater();
             if (water == null) return false;
             return transform.position.y < water.GetWaterLevelAt(transform.position);
+        }
+
+        DeployedTransducer _deployment;
+        bool _deploymentSearched;
+        /// <summary>The deployment rig this modem hangs from, if any. Searched UP the hierarchy, so
+        /// it governs only modems actually on the cable — the station's WiFi and cellular modems sit
+        /// on `base_link`, above it, and keep the ordinary surface test.</summary>
+        protected DeployedTransducer FindDeployment()
+        {
+            if (_deploymentSearched) return _deployment;
+            _deploymentSearched = true;
+            _deployment = GetComponentInParent<DeployedTransducer>();
+            return _deployment;
+        }
+
+        /// <summary>
+        /// Why this modem is dry, said in the vocabulary of whatever it is fitted to. A SURFACED
+        /// VEHICLE and an UNDEPLOYED STATION TRANSDUCER are different situations needing opposite
+        /// actions — dive, versus go and drop the fish in the water — and a single string covering
+        /// both is a refusal reason that refuses to be acted on. ADR-007 §5: the modem must still
+        /// name its reason, and now it can name a real one.
+        /// </summary>
+        protected string DryReason(string vehicleWording)
+        {
+            var d = FindDeployment();
+            if (d == null) return vehicleWording;
+            return string.IsNullOrEmpty(d.RefusalReason)
+                ? "transducer above the water line — not deployed"
+                : d.RefusalReason;
         }
 
         WaterQueryModel _water;
         protected WaterQueryModel FindWater()
         {
             if (_water != null) return _water;
-            _water = FindObjectOfType<WaterQueryModel>();
+            // FindObjectOfType<T>() is [Obsolete] since Unity 2023: use the explicit
+            // FindObjectsByType with a sort mode. FindFirstObjectByType is the direct
+            // replacement for "any one of them" and does not pay for a sort — the same
+            // call GPS.cs and VehicleDashboard.cs already use for their scene lookups.
+            _water = FindFirstObjectByType<WaterQueryModel>();
             return _water;
         }
 

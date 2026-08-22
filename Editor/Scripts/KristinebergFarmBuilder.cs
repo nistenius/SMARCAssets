@@ -39,7 +39,11 @@ public static class KristinebergFarmBuilder
     const float RopeRadius = 0.025f;
     const float MooringRadius = 0.04f;
     const float RopeSegmentLen = 2.0f;     // one collider per 2 m of rope
-    const float BuoyRadius = 0.30f;
+    // Buoy radius is NOT a constant here any more (2026-08-17). It is how far below the
+    // water line a buoy reaches, which is the only part of it a side scan can ever see, so
+    // the mission planner needs the same number — and two copies of a number that decides
+    // whether the survey detects anything is exactly the single-source failure this project
+    // keeps paying for. It now arrives in the manifest from site_frame.FARM_BUOY_RADIUS_M.
 
     [Serializable] public class FarmBuoy { public string name; public float x, z, seabed; public bool moored, intermediate; }
     [Serializable] public class FarmLine { public string[] nodes; }
@@ -47,6 +51,7 @@ public static class KristinebergFarmBuilder
     public class Farm
     {
         public float ropeDepth, bladeLength, bladesPerMetre;
+        public float buoyRadius, intermediateRadiusFactor;
         public FarmBuoy[] buoys;
         public FarmLine[] cultureLines, crossLines;
     }
@@ -61,6 +66,17 @@ public static class KristinebergFarmBuilder
         var farm = JsonUtility.FromJson<Root>(File.ReadAllText(path)).farm;
         if (farm == null || farm.buoys == null || farm.buoys.Length == 0)
         { Debug.LogError("[Farm] manifest has no farm block — regenerate it"); return; }
+        // Refuse rather than default. A zero here means an old manifest, and quietly
+        // substituting the previous 0.30 f would rebuild the farm against a number the
+        // mission planner is no longer reading from the same place.
+        if (farm.buoyRadius <= 0f || farm.intermediateRadiusFactor <= 0f)
+        {
+            Debug.LogError("[Farm] manifest carries no buoyRadius/intermediateRadiusFactor — "
+                         + "re-run make_unity_manifest.py. The buoy radius is how far below "
+                         + "the surface a buoy reaches, which is what decides whether the "
+                         + "encircle can see it at all; it is not guessed here.");
+            return;
+        }
 
         var physBuoy = LoadPhys("Buoy");
         var physRope = LoadPhys("Rope");
@@ -81,7 +97,8 @@ public static class KristinebergFarmBuilder
             go.transform.localPosition = new Vector3(b.x, 0f, b.z);
             // Intermediate buoys are visibly smaller than the mooring buoys in the papers'
             // Fig. 2 (white vs yellow) and in the 2022 nadir frame.
-            float r = b.intermediate ? BuoyRadius * 0.6f : BuoyRadius;
+            float r = b.intermediate ? farm.buoyRadius * farm.intermediateRadiusFactor
+                                     : farm.buoyRadius;
             if (buoyMesh != null)
             {
                 var vis = (GameObject)PrefabUtility.InstantiatePrefab(buoyMesh);

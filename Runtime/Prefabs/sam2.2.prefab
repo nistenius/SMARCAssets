@@ -9743,8 +9743,8 @@ MonoBehaviour:
   pitch: 0
   yaw: 0
   FixedRotation: 0
-  percentage: 42
-  resetValue: 42
+  percentage: 0
+  resetValue: 0
   maxVolume_l: 0.25
   density: 997
 --- !u!114 &2066708412483492877

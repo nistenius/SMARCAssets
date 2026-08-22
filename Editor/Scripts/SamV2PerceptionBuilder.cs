@@ -51,6 +51,9 @@ public static class SamV2PerceptionBuilder
     // checker sees rate faults) and can shut the socket (see live-sim-runbook traps).
     const float CamFrequency = 10f;
     const float CamRawPubFrequency = 2f;         // raw stream is for stereo dev, not for streaming
+    // static readonly, NOT const: a const false makes the guarded block compile-time
+    // unreachable and the compiler warns CS0162 on code that is deliberately switchable.
+    static readonly bool PublishRawStereo = false;  // see MakeStereoCamera: 83 % of the vehicle's bandwidth
     const float CamCompressedPubFrequency = 5f;  // human/preview stream
     const float CamInfoPubFrequency = 5f;
 
@@ -64,9 +67,38 @@ public static class SamV2PerceptionBuilder
 
     const string MissionHoopPrefabPath = PKG + "/Components/MissionWPHoop.prefab";
 
+    // THIS IS A SCAFFOLD, NOT A REFRESH — and it refuses to run twice for a reason
+    // (2026-08-17, after it silently destroyed three things in one press).
+    // SaveAsPrefabAsset REPLACES its output wholesale, so every refinement made to a
+    // generated prefab after the first build is discarded without a word. Measured
+    // damage from a single press: Sonar3D15 lost `WaterLinkedSonar3DModes` entirely and
+    // had its beam reset 150x17 -> 91x41; SAMSensorsV2's side-scan mount went 0/60 ->
+    // 45/45; and sam2.2 was re-serialized end to end, which invalidated every fileID the
+    // open scene's vehicle instance referred to — ForcePoints, sensors and publishers all
+    // came up null and Play produced thousands of NREs and "No registered publisher"
+    // exceptions. Two of those losses had previously been blamed on "Unity re-serializing
+    // the prefab", which made a deterministic bug in OUR code look like an editor quirk.
+    // To rebuild deliberately: flip the flag, build, and diff the result before committing.
+    const bool OverwriteExistingPrefabs = false;
+
     [MenuItem("SMARC/Build SAM v2 Perception Prefabs")]
     public static void BuildAll()
     {
+        if (!OverwriteExistingPrefabs)
+        {
+            foreach (var existingPath in new[] { SonarPrefabPath, RealSensePrefabPath,
+                                                 SensorsV2PrefabPath, SamV2PrefabPath })
+            {
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(existingPath) == null) continue;
+                Debug.LogError("[SamV2PerceptionBuilder] REFUSED: " + existingPath + " already exists, " +
+                               "and this builder replaces its outputs wholesale — it would discard every " +
+                               "change made since the first build (components, beam counts, mount angles) " +
+                               "and break the open scene's vehicle instance. Set OverwriteExistingPrefabs " +
+                               "= true only if you mean to regenerate from scratch, and diff the result.");
+                return;
+            }
+        }
+
         BuildSonarPrefab();
         BuildRealSensePrefab();
         BuildMissionHoopPrefab();
@@ -168,9 +200,21 @@ public static class SamV2PerceptionBuilder
         cam.nearClipPlane = 0.1f;
         cam.farClipPlane = 300f;
 
-        var imgPub = go.AddComponent<CameraImage_Pub>();
-        imgPub.topic = $"{topicBase}/image_raw";
-        imgPub.frequency = CamRawPubFrequency;
+        // RAW STEREO IS OFF BY DEFAULT — measured 2026-08-17: two 848x480 rgb8 streams at
+        // 2 Hz are 4.88 MB/s, which is ~83 % of everything this vehicle publishes and the
+        // reason for the standing "Queue full! Messages are getting dropped!" warning. The
+        // drop is indiscriminate, so a payload flood sheds core/* and the health checker
+        // reads rate faults on healthy nodes (the 2026-08-09 finding, and the likely cause
+        // of health flapping READY<->ERROR). Unchecking the component by hand does not
+        // survive the next press of this menu item — this prefab is GENERATED — which is
+        // the same trap that lost the side-scan mount, so the switch lives here.
+        // Flip to true only for stereo development, and expect the bridge to saturate.
+        if (PublishRawStereo)
+        {
+            var imgPub = go.AddComponent<CameraImage_Pub>();
+            imgPub.topic = $"{topicBase}/image_raw";
+            imgPub.frequency = CamRawPubFrequency;
+        }
 
         var infoPub = go.AddComponent<CameraInfo_Pub>();
         infoPub.topic = $"{topicBase}/camera_info";

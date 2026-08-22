@@ -41,7 +41,10 @@ namespace VehicleComponents.Sensors
         [Header("Current values")]
         public bool bottomLock;
         public Vector3 velocity;
-        public float altitude;
+        [Tooltip("Height above the seabed, m. -1 while the measurement is invalid (dropout / no lock), " +
+                 "per the same smarc_msgs/DVL convention as velocityCovariance. NEVER leave a stale " +
+                 "reading here on lost lock: a consumer cannot tell a stale altitude from a live one.")]
+        public float altitude = -1f;
         public float[] ranges;
         public int numHits;
         [Tooltip("Row-major xyz. Diagonal set from the noise model; all -1 while measurement is invalid (dropout / no lock), per smarc_msgs/DVL convention.")]
@@ -86,6 +89,7 @@ namespace VehicleComponents.Sensors
             {
                 bottomLock = false;
                 velocity = Vector3.zero;
+                altitude = -1f;
                 SetCovarianceInvalid();
                 return false;
             }
@@ -133,6 +137,7 @@ namespace VehicleComponents.Sensors
             // If not enough hits, no velocity or altitude or anything...
             if(!bottomLock)
             {
+                altitude = -1f;
                 SetCovarianceInvalid();
                 return false;
             }
@@ -156,6 +161,13 @@ namespace VehicleComponents.Sensors
             {
                 altitude = altHit.distance;
                 if (enableNoise) altitude += noise.Samplef(altitudeSigma);
+            }
+            else
+            {
+                // Beams found the bottom but the straight-down ray did not (steep attitude, a hole
+                // in the mesh, bottom beyond maxRange). Report invalid rather than the previous
+                // ping's value -- a stale altitude is indistinguishable from a live one downstream.
+                altitude = -1f;
             }
 
             return true;

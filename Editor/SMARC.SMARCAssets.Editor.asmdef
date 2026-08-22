@@ -7,7 +7,11 @@
         "Unity.Robotics.ROSTCPConnector",
         "Unity.Robotics.ROSTCPConnector.Messages",
         "Unity.Robotics.ROSTCPConnector.MessageGeneration",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
+        "Unity.RenderPipelines.HighDefinition.Runtime",
+        "Unity.RenderPipelines.HighDefinition.Config.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [
         "Editor"

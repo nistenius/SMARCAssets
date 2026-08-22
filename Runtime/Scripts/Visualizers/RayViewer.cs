@@ -73,63 +73,104 @@ namespace Visualizers
             }
         }
 
+        /// <summary>
+        /// Turn the hit particles on or off AT RUNTIME, building the drawer if Start() did not.
+        ///
+        /// WHY THIS EXISTS (2026-08-21): `Start()` only creates `HitsDrawer`/`RayDrawer` when the
+        /// corresponding bool was already true, so flipping `DrawHits` in the Inspector mid-Play
+        /// used to do nothing at all and looked like the toggle was ignored. The CinematicDirector
+        /// turns the beams on per shot — that is what "the beams drape the dock" means on camera —
+        /// so the toggle has to be real.
+        ///
+        /// Nothing here creates a collider. A visualisation must never be a sonar target (§3o/§3g),
+        /// and these are ParticleSystem particles and a LineRenderer: no physics at all.
+        /// </summary>
+        public void SetHitsVisible(bool on)
+        {
+            DrawHits = on;
+            if (on && HitsParticleSystem == null) BuildHitsDrawer();
+            if (HitsDrawer != null) HitsDrawer.SetActive(on);
+            if (!on && HitsParticleSystem != null)
+                HitsParticleSystem.Clear(true);
+        }
+
+        /// <summary>Same for the ray lines. Off by default: 2550 lines is a wall, not a beam.</summary>
+        public void SetRaysVisible(bool on)
+        {
+            DrawRays = on;
+            if (on && RaysLR == null) BuildRayDrawer();
+            if (RaysLR != null) RaysLR.enabled = on;
+        }
+
+        void BuildRayDrawer()
+        {
+            if (RayDrawer != null) return;
+            RayDrawer = new GameObject("RayDrawer");
+            RayDrawer.transform.SetParent(transform);
+            RaysLR = RayDrawer.AddComponent<LineRenderer>();
+            RaysLR.material = RayMaterial;
+            RaysLR.startWidth = RayThickness;
+            RaysLR.endWidth = RayThickness;
+            RaysLR.receiveShadows = false;
+            RaysLR.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+
+        void BuildHitsDrawer()
+        {
+            if (HitsDrawer != null) return;
+            if (sonar == null) sonar = GetComponent<Sonar>();
+            if (sonar == null)
+            {
+                Debug.LogWarning($"[RayViewer] {name} has no Sonar on the same GameObject — nothing to draw.");
+                return;
+            }
+
+            HitsDrawer = new GameObject("HitsDrawer");
+            HitsDrawer.transform.SetParent(transform);
+            HitsParticleSystem = HitsDrawer.AddComponent<ParticleSystem>();
+
+            var rendererModule = HitsDrawer.GetComponent<ParticleSystemRenderer>();
+            var mat = Shader.Find("Particles/Standard Unlit");
+            if(mat == null)
+            {
+                DrawHits = false;
+                Debug.Log($"Material 'Particles/Standard Unlit' not found, sonar hits wont be drawn. Found: {mat}");
+                HitsDrawer.SetActive(false);
+                return;
+            }
+
+            rendererModule.material = new Material(mat);
+            rendererModule.alignment = ParticleSystemRenderSpace.World;
+            rendererModule.sortMode = ParticleSystemSortMode.YoungestInFront;
+            rendererModule.renderMode = ParticleSystemRenderMode.Mesh;
+            rendererModule.mesh = Resources.GetBuiltinResource<Mesh>("Quad.fbx");
+
+            var mainModule = HitsParticleSystem.main;
+            mainModule.startSpeed = 0f;
+            mainModule.playOnAwake = false;
+            mainModule.maxParticles = sonar.TotalRayCount * MaxParticlesMultiplier;
+            mainModule.startColor = Color.red;
+            mainModule.startSize = HitsSize;
+            mainModule.startLifetime = HitsLifetime;
+            mainModule.simulationSpace = ParticleSystemSimulationSpace.World;
+            mainModule.ringBufferMode = ParticleSystemRingBufferMode.PauseUntilReplaced;
+
+            var emissionModule = HitsParticleSystem.emission;
+            emissionModule.enabled = false;
+            var shapeModule = HitsParticleSystem.shape;
+            shapeModule.enabled = false;
+
+            HitsEmitParams = new ParticleSystem.EmitParams[sonar.TotalRayCount];
+        }
+
         void Start()
         {
+            // ONE construction path, called from here and from the runtime toggles. The previous
+            // version had the whole ParticleSystem setup written out twice-over-time (Start built
+            // it, nothing else could) which is how a toggle ends up silently doing nothing.
             sonar = GetComponent<Sonar>();
-            if(DrawRays)
-            {
-                RayDrawer = new GameObject("RayDrawer");
-                RayDrawer.transform.SetParent(transform);
-                RaysLR = RayDrawer.AddComponent<LineRenderer>();
-                RaysLR.material = RayMaterial;
-                RaysLR.startWidth = RayThickness;
-                RaysLR.endWidth = RayThickness;
-                RaysLR.receiveShadows = false;
-                RaysLR.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            }
-
-            if(DrawHits)
-            {
-                HitsDrawer = new GameObject("HitsDrawer");
-                HitsDrawer.transform.SetParent(transform);
-                HitsParticleSystem = HitsDrawer.AddComponent<ParticleSystem>();
-                
-                var rendererModule = HitsDrawer.GetComponent<ParticleSystemRenderer>();
-                var mat = Shader.Find("Particles/Standard Unlit");
-                if(mat == null) 
-                {
-                    DrawHits = false;
-                    Debug.Log($"Material 'Particles/Standard Unlit' not found, sonar hits wont be drawn. Found: {mat}");
-                    HitsDrawer.SetActive(false);
-                }
-                else
-                {
-                    rendererModule.material = new Material(mat);
-                    rendererModule.alignment = ParticleSystemRenderSpace.World;
-                    rendererModule.sortMode = ParticleSystemSortMode.YoungestInFront;
-                    rendererModule.renderMode = ParticleSystemRenderMode.Mesh;
-                    rendererModule.mesh = Resources.GetBuiltinResource<Mesh>("Quad.fbx");
-
-                    
-                    var mainModule = HitsParticleSystem.main;
-                    mainModule.startSpeed = 0f;
-                    mainModule.playOnAwake = false;
-                    mainModule.maxParticles = sonar.TotalRayCount * MaxParticlesMultiplier;
-                    mainModule.startColor = Color.red;
-                    mainModule.startSize = HitsSize;
-                    mainModule.startLifetime = HitsLifetime;
-                    mainModule.simulationSpace = ParticleSystemSimulationSpace.World;
-                    mainModule.ringBufferMode = ParticleSystemRingBufferMode.PauseUntilReplaced;
-
-                    var emissionModule = HitsParticleSystem.emission;
-                    emissionModule.enabled = false;
-                    var shapeModule = HitsParticleSystem.shape;
-                    shapeModule.enabled = false;  
-                    
-                    HitsEmitParams = new ParticleSystem.EmitParams[sonar.TotalRayCount];
-                }
-
-            }
+            if(DrawRays) BuildRayDrawer();
+            if(DrawHits) BuildHitsDrawer();
         }
 
         void UpdateRays()
@@ -192,8 +233,15 @@ namespace Visualizers
         void Update()
         {
             UpdateRays();
-            if(HitsSkipped == 0) UpdateHits();
-            else HitsSkipped = (HitsSkipped+1)%DrawEveryNthFrame;
+
+            // FIXED 2026-08-21: `HitsSkipped` started at 0 and the `else` branch was the only thing
+            // that ever advanced it, so the counter was pinned at 0 and the hits were emitted EVERY
+            // frame — DrawEveryNthFrame did nothing. With 2550 rays, a 3 s lifetime and
+            // ringBufferMode = PauseUntilReplaced, the buffer filled in ten frames and the display
+            // then stopped updating, which is the opposite of what the field is for.
+            int every = Mathf.Max(1, DrawEveryNthFrame);
+            if (HitsSkipped == 0) UpdateHits();
+            HitsSkipped = (HitsSkipped + 1) % every;
         }
 
         

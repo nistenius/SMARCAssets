@@ -48,4 +48,4 @@ MonoBehaviour:
   NotARobot: 1
   RobotName: sam_auv_v1
   TubeRadius: 0.1
-  Collidable: 1
+  Collidable: 0

@@ -40,6 +40,15 @@ namespace VehicleComponents.Comms
     /// The transducer works wet. A surfaced vehicle whose transducer is still in the water keeps
     /// an acoustic link, which is correct and occasionally useful — it is the fallback when the
     /// hull is up but out of WiFi range and outside cellular coverage.
+    ///
+    /// WHERE THE RANGE IS MEASURED FROM IS PART OF THE MEASUREMENT (2026-08-21). `rangeM` is the
+    /// distance between this component's transform and the peer's, so a wrong transducer position
+    /// is a standing bias on every range this modem ever reports. That matters beyond realism:
+    /// Ivan's falsifier for the fleet position estimate (2026-08-18) is *measured acoustic range
+    /// versus the range implied by the two reported positions*, and a constant offset would give
+    /// that cross-check a permanent, plausible-looking error in the one place built to catch
+    /// position errors. The station's transducer is positioned by `DeployedTransducer`, from the
+    /// water plane, for exactly this reason.
     /// </summary>
     [AddComponentMenu("Smarc/Comms/Acoustic Modem (Succorfish Delphis)")]
     public class AcousticModem : CommsModem
@@ -65,7 +74,7 @@ namespace VehicleComponents.Comms
         [Header("Channel")]
         [Tooltip("Speed of sound [m/s]. 1500 is the usual working value; the Star-Oddi CTD is the real source of this on the hull.")]
         public float soundVelocity = 1500f;
-        [Tooltip("Require the transducer to be in the water. A Delphis in air transmits nothing useful.")]
+        [Tooltip("Require the transducer to be in the water. A Delphis in air transmits nothing useful. Leave this ON for the base station too: its transducer hangs off the side on a DeployedTransducer and is genuinely wet, so the test is real rather than an obstacle to work around.")]
         public bool requireWet = true;
 
         public override string LinkName => "acoustic";
@@ -88,7 +97,17 @@ namespace VehicleComponents.Comms
             if (requireWet && !IsSubmerged())
             {
                 up = false;
-                reason = "transducer out of the water";
+                // NOT one string for two situations. On a hull this means "surfaced"; on the base
+                // station's hanging fish it means "nobody put it in the water", and those need
+                // opposite actions. `DryReason` picks the wording from what the modem is actually
+                // fitted to — see CommsModem.DryReason and DeployedTransducer.
+                //
+                // The station used to dodge this entirely: StationBuilder forced requireWet = false
+                // with the comment that the case is topside. It was true of the case and false of
+                // the transducer, and it bought a station whose acoustic link could never report a
+                // problem it definitely had — the modelled transducer was ~0.9 m in the air
+                // (2026-08-21). A link that cannot say no is not evidence when it says yes.
+                reason = DryReason("transducer out of the water");
                 return;
             }
             if (rangeM > operationalRangeM)

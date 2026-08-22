@@ -10,7 +10,11 @@ namespace ROS.Publishers
 {
     [AddComponentMenu("Smarc/ROS/GPS_Pub")]
     [RequireComponent(typeof(SensorGPS))]
-    class GPS_Pub: ROSSensorPublisher<NavSatFixMsg, SensorGPS>
+    // `public` since 2026-08-18: the Editor assembly (SMARC.SMARCAssets.Editor) builds the base
+    // station prefab and has to AddComponent<GPS_Pub>() on it. Its siblings here are already
+    // public (SonarPointCloud_Pub, DepthImage_Pub, ...); this one was internal by oversight, and
+    // widening visibility cannot change any existing behaviour.
+    public class GPS_Pub: ROSSensorPublisher<NavSatFixMsg, SensorGPS>
     { 
         protected override void InitPublisher()
         {

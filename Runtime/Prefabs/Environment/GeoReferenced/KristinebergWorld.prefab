@@ -1074,7 +1074,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   repetitionSize: 438
   largeOrientationValue: 0
-  largeWindSpeed: 12.3
+  largeWindSpeed: 4
   largeChaos: 0.85
   largeBand0Multiplier: 1
   largeBand0FadeMode: 1
@@ -1087,7 +1087,7 @@ MonoBehaviour:
   ripples: 1
   ripplesMotionMode: 0
   ripplesOrientationValue: 0
-  ripplesWindSpeed: 8
+  ripplesWindSpeed: 3
   ripplesChaos: 0.8
   ripplesFadeMode: 1
   ripplesFadeStart: 50

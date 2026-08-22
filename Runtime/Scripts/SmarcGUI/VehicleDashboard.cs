@@ -93,6 +93,11 @@ namespace SmarcGUI
                  "reports the health stream itself as dead.")]
         public float HealthStaleSec = 4.0f;
 
+        [Tooltip("Seconds without the data the ACTION line was computed from before that "
+                 + "line stops being a current claim and is shown greyed with its age. "
+                 + "3 s matches AttStr()/DrStr(), which read the same dr/odom stream.")]
+        public float ActionEvidenceStaleSec = 3.0f;
+
         ROSConnection ros;
 
         GotoWaypointMsg wp;
@@ -100,7 +105,10 @@ namespace SmarcGUI
         ControlInputMsg input;    float inputTime = -999f;
         sbyte health = -1;        float healthTime = -999f;
         float obstacleRange = -1; float obstacleTime = -999f;
-        bool obstacleStop;
+        // obstacleStop carries its own arrival time: it is a LATCHED bool otherwise, and a
+        // latched bool with no age is exactly the defect this file was fixed for on
+        // 2026-08-17 (a stale claim rendered as a current one).
+        bool obstacleStop; float obstacleStopTime = -999f;
         string obstacleStatus = ""; float obstacleStatusTime = -999f;
         // An abort is a MISSION-ENDING event, not a momentary condition, so it latches.
         // ctrl/obstacle_status announces ABORT and then either goes quiet or reverts to STOP
@@ -130,11 +138,16 @@ namespace SmarcGUI
         string roseHealth = ""; float roseHealthTime = -999f;
         // Governor (HT3): "cap|applied|state" from the blend controller.
         string govLine = ""; float govTime = -999f;
+        string timerJson = ""; float timerTime = -999f;
         // Narrative inputs (2026-08-12, Ivan: "I liked the more action what's
         // happening type of info"). Depth comes from dr/odom's own z, so the
         // action line and the nav line never disagree about where the vehicle is.
         float vbs = -1f; float vbsTime = -999f;
         float depthNow, depthPrev; float depthPrevTime = -999f, depthRate;
+        // The last action narrative computed from data that was actually arriving, and the
+        // age of that data. Kept so a dead link greys the last known claim instead of
+        // blanking the line or leaving the claim standing as current (spec §5).
+        string lastActionText = ""; float lastActionEvidenceTime = -999f;
 
         void Start()
         {
@@ -149,10 +162,18 @@ namespace SmarcGUI
             ros.Subscribe<ControlInputMsg>($"{ns}/ctrl/conv/control_input", m => { input = m; inputTime = Time.time; });
             ros.Subscribe<Int8Msg>($"{ns}/smarc/vehicle_health", m => { health = m.data; healthTime = Time.time; });
             ros.Subscribe<Float32Msg>($"{ns}/perception/obstacle/nearest_range", m => { obstacleRange = m.data; obstacleTime = Time.time; });
-            ros.Subscribe<BoolMsg>($"{ns}/perception/obstacle/stop", m => obstacleStop = m.data);
+            ros.Subscribe<BoolMsg>($"{ns}/perception/obstacle/stop", m =>
+                { obstacleStop = m.data; obstacleStopTime = Time.time; });
             ros.Subscribe<StringMsg>($"{ns}/perception/obstacle/health", m => { detHealth = m.data; detHealthTime = Time.time; });
             ros.Subscribe<StringMsg>($"{ns}/perception/rose_health", m => { roseHealth = m.data; roseHealthTime = Time.time; });
             ros.Subscribe<StringMsg>($"{ns}/ctrl/governor", m => { govLine = m.data; govTime = Time.time; });
+            // THE MISSION CLOCK (Ivan, 2026-08-18, immediately after the first mission that
+            // survived): "timer, total mission passed, countdown to end". A hidden 300 s limit
+            // had been aborting a 130 m plan at 301 s for weeks and reading as a vehicle fault
+            // every time; with this row it would have been obvious in five seconds. Published
+            // by wasp_bt's waraps_task_handler every tick, idle included.
+            ros.Subscribe<StringMsg>($"{ns}/ctrl/mission_timer",
+                                     m => { timerJson = m.data; timerTime = Time.time; });
             // VBS fill drives the narrative after a mission ends: the BT empties the
             // tank and the vehicle floats up. Reading the actuator makes "emptying
             // tank / floating to surface" an OBSERVATION rather than a guess.
@@ -328,7 +349,47 @@ namespace SmarcGUI
             return detTxt + roseTxt + govTxt;
         }
 
-        string ActionStr(bool active)
+        /// <summary>The action line as the operator reads it: the live narrative while the
+        /// data it is computed from is arriving, and the LAST narrative — greyed, with its
+        /// age — once that data stops (spec §5: "greyed, not blanked ... an empty box is a
+        /// question", and never a stale claim rendered as a current one).
+        ///
+        /// Why this exists (2026-08-17, observed on the rig): the line read
+        /// *"mission ended — floating to surface, 0.5 m and rising"* while the vehicle was
+        /// holding at depth with the link down. Every other field on this dashboard already
+        /// degrades — AttStr, DrStr, GpsStr, ObstacleStr, PerceptionStr all check an age
+        /// first — and this one, the most narrative and therefore the most believed, did
+        /// not: depthNow/depthRate/vbs are latched values with no freshness gate, so the
+        /// sentence stood forever on whatever was last heard.
+        ///
+        /// The branch decides what evidence it rests on and hands back that timestamp; this
+        /// wrapper decides whether the claim is still current. A branch that forgets to name
+        /// its evidence gets `-999f` and reads stale immediately, which is the safe way round.
+        /// </summary>
+        string ActionLine(bool active)
+        {
+            float evidenceTime;
+            string live = ActionStr(active, out evidenceTime);
+            if (Time.time - evidenceTime <= ActionEvidenceStaleSec)
+            {
+                lastActionText = live;
+                lastActionEvidenceTime = evidenceTime;
+                return live;
+            }
+            if (string.IsNullOrEmpty(lastActionText))
+                return "<color=#888888>no data — nothing has been heard from this vehicle</color>";
+            // Tags are stripped rather than wrapped: TMP lets an inner <color> win, so a
+            // green "driving to wp" wrapped in grey would still render green — the exact
+            // failure this is fixing, one layer down.
+            return $"<color=#888888>{StripRichText(lastActionText)}"
+                 + $"  <size=80%>(last seen {Time.time - lastActionEvidenceTime:F0} s ago)</size></color>";
+        }
+
+        static readonly System.Text.RegularExpressions.Regex RichTag =
+            new System.Text.RegularExpressions.Regex("<[^>]*>");
+        static string StripRichText(string s) => RichTag.Replace(s, "");
+
+        string ActionStr(bool active, out float evidenceTime)
         {
             bool haveStatus = Time.time - obstacleStatusTime < 5f;
             // Latched abort wins over everything: the mission is over regardless of what the
@@ -336,21 +397,33 @@ namespace SmarcGUI
             // controller itself rather than a hardcoded timer — while ctrl/setpoints is still
             // live the controller is driving the surfacing; once it goes quiet, nothing is.
             if (aborted)
+            {
+                // The abort itself latches (see the field comment), but "surfacing" vs "idle"
+                // is a claim about NOW, so it rests on the vehicle still being audible at all.
+                evidenceTime = Mathf.Max(attTime, Mathf.Max(spTime, obstacleStatusTime));
                 return Time.time - spTime < ActionStaleSec
                     ? "<b><color=#FF3B30>ABORTED (obstacle)</color></b> — mission ended, surfacing (VBS empty)"
                     : "<b><color=#FF3B30>ABORTED (obstacle)</color></b> — mission ended, idle. "
                       + "Re-arm with reset_mission_state.sh";
+            }
             if (haveStatus && obstacleStatus.StartsWith("STOP"))
+            {
                 // e.g. "STOP 1/3 abort in 12s"
+                evidenceTime = obstacleStatusTime;
                 return $"<b><color=#FF3B30>OBSTACLE {obstacleStatus}</color></b> — holding depth, waiting for clearance";
+            }
             if (!haveStatus && obstacleStop)
+            {
+                evidenceTime = obstacleStopTime;
                 return "<b><color=#FF3B30>OBSTACLE STOP</color></b> — holding depth";
+            }
             bool driving = Time.time - spTime < ActionStaleSec;   // controller is commanding
             bool haveVbs = Time.time - vbsTime < 5f;
 
             // --- under way -----------------------------------------------------
             if (active && err != null)
             {
+                evidenceTime = errTime;
                 string cap = "";
                 // The governor is part of the narrative: "why am I going slowly"
                 // is the first question a creeping vehicle raises.
@@ -363,13 +436,20 @@ namespace SmarcGUI
             // Do not print "idle" — that claim was false for an entire flight on
             // 2026-08-12, at 0.48 m/s and 1.2 m depth.
             if (driving)
+            {
+                evidenceTime = spTime;
                 return $"<color=#3DDC6B>driving</color> (depth {depthNow:F1} m, "
                      + $"set {spDepth:F1} m / {spSurge:F2} m/s) — "
                      + "<color=#FFB300>no ctrl/conv/error, progress unknown</color>";
+            }
 
             // --- mission over: what is it doing about it? ----------------------
             // The BT empties the VBS and the vehicle floats up. Both are readable,
-            // so this is reporting rather than guessing.
+            // so this is reporting rather than guessing — but ONLY while they are
+            // still being read. depthNow, depthRate and vbs are latched values;
+            // every sentence below is founded on dr/odom (attTime) and is a claim
+            // about the present, so the wrapper greys it once dr/odom goes quiet.
+            evidenceTime = attTime;
             if (haveVbs && vbs < 25f && depthNow > 0.4f)
                 return $"<color=#FFB300>mission ended</color> — VBS {vbs:F0} % (emptying), "
                      + $"floating up from {depthNow:F1} m at {-depthRate:F2} m/s";
@@ -381,6 +461,122 @@ namespace SmarcGUI
                      + (haveVbs ? $", VBS {vbs:F0} %" : "");
             return "<color=#888888>surfaced, idle — waiting for a mission</color>"
                  + (haveVbs ? $"  <size=80%>VBS {vbs:F0} %</size>" : "");
+        }
+
+        /// <summary>The mission clock: elapsed, what is left, and how much of the budget is gone.
+        ///
+        /// WHY IT SAYS SO MUCH. A 130 m mission was aborted at 301 s against a hidden 300 s
+        /// limit, eight times over several weeks, and every one of them was read as a vehicle
+        /// fault. The number that killed them was in nobody's field of view. So this row shows
+        /// the limit as well as the remaining time, and a FRACTION — "600 s left of 1188" is the
+        /// reading that catches a doomed plan; "600 s left" on its own is not.
+        ///
+        /// Three states, mirrored from the publisher rather than re-derived, because "no
+        /// mission" and "a mission with no limit" are different facts and a countdown is wrong
+        /// for both. Absent (the topic silent) is a fourth, and is never drawn as zero.</summary>
+        string TimerStr()
+        {
+            if (Time.time - timerTime > 5f || string.IsNullOrEmpty(timerJson))
+                return "<color=#888888>timer</color> <size=80%>not reported by this vehicle</size>";
+            string state = JsonField(timerJson, "state");
+
+            // THE ROW STAYS WHEN IDLE (Ivan, 2026-08-18): "we could keep the row there even in
+            // idling, perhaps just with previous mission data or empty". A row that vanishes
+            // between missions is indistinguishable from a feature that was never built, and it
+            // takes the summary of the run that just finished with it.
+            if (state == "idle")
+            {
+                float lastEl = JsonNum(timerJson, "last_elapsed_s");
+                if (float.IsNaN(lastEl))
+                    return "<color=#888888>timer</color> <size=80%>idle — nothing flown yet</size>";
+                float lastLim = JsonNum(timerJson, "last_limit_s");
+                float lastDone = JsonNum(timerJson, "last_wp_done");
+                float lastTot = JsonNum(timerJson, "last_wp_total");
+                string wpBit = (float.IsNaN(lastDone) || float.IsNaN(lastTot))
+                    ? "" : $", {lastDone:F0}/{lastTot:F0} wp";
+                return $"<color=#888888>timer</color> <size=80%>idle — last run {Clock(lastEl)}"
+                     + wpBit + (float.IsNaN(lastLim) ? "" : $" (max {Clock(lastLim)})") + "</size>";
+            }
+
+            float elapsed = JsonNum(timerJson, "elapsed_s");
+            string wpNow = WpProgressStr();
+            if (state == "untimed")
+                return $"timer {Clock(elapsed)} ran{wpNow}  <color=#888888><size=80%>(no limit set)</size></color>";
+
+            float remaining = JsonNum(timerJson, "remaining_s");
+            float limit = JsonNum(timerJson, "limit_s");
+            float frac = limit > 0f ? elapsed / limit : 0f;
+
+            // TIME TO FINISH is the PACE ESTIMATE, and the TIMEOUT is the hard limit. They are
+            // printed differently on purpose -- "~" and parentheses -- because today's whole
+            // 300 s hunt was one kind of number being read as the other. If no leg has
+            // completed yet there is no pace, and it says "--" rather than guessing.
+            float etaFinish = JsonNum(timerJson, "eta_finish_s");
+            string finishBit = float.IsNaN(etaFinish) ? "--" : "~" + Clock(etaFinish);
+
+            // Amber past 75 % of the BUDGET, red once overrun -- the colour tracks the hard
+            // limit, never the estimate, because only the limit can stop the mission.
+            string col = remaining < 0f ? "#FF5252" : (frac > 0.75f ? "#FFB300" : "#8BC34A");
+            string maxBit = remaining < 0f
+                ? $"<color={col}>(OVER max {Clock(limit)} by {Clock(-remaining)})</color>"
+                : $"<color={col}><size=80%>(max {Clock(limit)}, {Clock(remaining)} left)</size></color>";
+
+            return $"timer {Clock(elapsed)} ran / {finishBit} to finish{wpNow}  {maxBit}";
+        }
+
+        /// <summary>"  wp 2/3, next ~1:40" — the waypoint the vehicle is on and the pace estimate
+        /// for reaching it. Both halves are optional: a plan whose size the vehicle never
+        /// reported prints nothing rather than a fabricated "wp 1/1".</summary>
+        string WpProgressStr()
+        {
+            float cur = JsonNum(timerJson, "wp_current");
+            float tot = JsonNum(timerJson, "wp_total");
+            if (float.IsNaN(cur) || float.IsNaN(tot) || tot <= 0f) return "";
+            float etaNext = JsonNum(timerJson, "eta_next_s");
+            string next = float.IsNaN(etaNext) ? "" : $", next ~{Clock(etaNext)}";
+            return $"  <size=90%>wp {cur:F0}/{tot:F0}{next}</size>";
+        }
+
+        /// <summary>m:ss for anything under an hour, h:mm:ss above it. A farm survey is an hour
+        /// long, so a bare seconds count stops being readable exactly when it matters most.</summary>
+        static string Clock(float s)
+        {
+            if (float.IsNaN(s)) return "--";
+            int t = Mathf.Abs(Mathf.RoundToInt(s));
+            return t >= 3600 ? $"{t / 3600}:{(t % 3600) / 60:00}:{t % 60:00}"
+                             : $"{t / 60}:{t % 60:00}";
+        }
+
+        /// <summary>Minimal JSON scraping, deliberately: JsonUtility needs a [Serializable]
+        /// mirror class per payload and silently yields defaults when a field is missing, which
+        /// is how "no data" becomes "zero" — the failure this whole dashboard is written against.
+        /// Returning "" / NaN for absent keeps absent distinguishable from measured.</summary>
+        static string JsonField(string json, string key)
+        {
+            int i = json.IndexOf($"\"{key}\"");
+            if (i < 0) return "";
+            int c = json.IndexOf(':', i);
+            if (c < 0) return "";
+            int q1 = json.IndexOf('"', c);
+            if (q1 < 0) return "";
+            int q2 = json.IndexOf('"', q1 + 1);
+            return q2 < 0 ? "" : json.Substring(q1 + 1, q2 - q1 - 1);
+        }
+
+        static float JsonNum(string json, string key)
+        {
+            int i = json.IndexOf($"\"{key}\"");
+            if (i < 0) return float.NaN;
+            int c = json.IndexOf(':', i);
+            if (c < 0) return float.NaN;
+            int e = c + 1;
+            while (e < json.Length && json[e] != ',' && json[e] != '}') e++;
+            string raw = json.Substring(c + 1, e - c - 1).Trim();
+            // "null" is the publisher's way of saying the number does not apply. NaN, not 0 —
+            // a zero here would render as a mission with no time left.
+            return float.TryParse(raw, System.Globalization.NumberStyles.Float,
+                                  System.Globalization.CultureInfo.InvariantCulture, out float v)
+                   ? v : float.NaN;
         }
 
         /// <summary>Make the dark panel track the text instead of a fixed rectangle.
@@ -598,13 +794,19 @@ namespace SmarcGUI
                 // it means the estimator is down (2026-08-12: exactly that confusion).
                 string attRow = (RollText == null && PitchText == null)
                     ? "att: " + AttStr() + "\n" : "";
+                // The clock row is ALWAYS drawn now (Ivan, 2026-08-18) -- idle included, where
+                // it carries the previous run's summary. TimerStr() returns "" only if it has
+                // nothing true to say at all, which cannot currently happen.
+                string t = TimerStr();
+                string timerRow = string.IsNullOrEmpty(t) ? "" : t + "\n";
                 DashboardText.text =
                     $"<b>{RobotName}</b>   health {HealthStr()}   obst {ObstacleStr()}\n" +
                     $"wp: {wpLine}\n" +
                     attRow +
+                    timerRow +
                     $"nav: {GpsStr()}   {DrStr()}\n" +
                     $"perc: {PerceptionStr()}\n" +
-                    $"action: {ActionStr(active)}";
+                    $"action: {ActionLine(active)}";
             }
 
             // Small banner annotations = the controller's LIVE SETPOINTS, shown

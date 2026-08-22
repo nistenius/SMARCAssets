@@ -79,6 +79,24 @@ namespace VehicleComponents.Sensors
         [Tooltip("Stop reporting Settling once the inflation has decayed below this factor.")]
         public float settledThreshold = 1.15f;
 
+        [Header("Splash tolerance (the receiver debounce)")]
+        [Tooltip("The antenna must be CONTINUOUSLY wet for longer than this before the receiver "
+                 + "declares a blackout and resets its state machine. Splashes shorter than this "
+                 + "hold the current state and keep the settling clocks running. "
+                 + "0 = the old behaviour: any wet frame is a blackout. "
+                 + "THE VALUE IS THE PI'S CALL — 0.5 s is a placeholder, not a measurement.")]
+        public float wetGraceSeconds = 0.5f;
+        // Why this exists at all (2026-08-17): the antenna sits 0.071 m above base_link and
+        // pitch dunks it at the surface, so the fix flickers in any sea state. A real receiver
+        // does not lose carrier-phase continuity over a sub-second splash — it keeps tracking
+        // and the solution survives. Without the grace, every dunk sent the state machine back
+        // to Submerged, which restarts acquisition and zeroes settlingSeconds — and
+        // settlingSeconds is what rtkFixSeconds (12 s) counts, so RTK FIXED (the +-0.1 m the
+        // nav_ready latch wants) would be UNREACHABLE in any sea state, for a reason nothing
+        // in the model would name. Splashes longer than the grace are still real blackouts and
+        // the submerged time already counted is carried into blackoutSeconds, so the hot/warm/
+        // cold start choice is not made cheaper by the debounce.
+
         /// <summary>Which solution the receiver is currently producing. Exposed so the
         /// HUD and the estimator can tell a 1.5 m fix from a 1.4 cm one — they are the
         /// same message type and wildly different information.</summary>
@@ -98,6 +116,9 @@ namespace VehicleComponents.Sensors
         public float currentInflation = 1f;
         [Tooltip("TTFF chosen for this surfacing, from the blackout duration.")]
         public float currentTTFF;
+        [Tooltip("Seconds the antenna has been continuously wet WITHOUT a blackout being declared "
+                 + "yet. Non-zero here with state != Submerged is a splash being ridden out.")]
+        public float wetSeconds;
 
         [Tooltip("ENU diagonal, m^2, for NavSatFix.position_covariance. Reflects the inflation while settling.")]
         public double[] positionCovariance = new double[9];
@@ -193,12 +214,20 @@ namespace VehicleComponents.Sensors
         {
             float dt = (float)deltaTime;
 
+            // The debounce. A wet antenna is not yet a blackout: it has to STAY wet longer
+            // than wetGraceSeconds. Once a blackout is declared it holds until the antenna is
+            // dry again (state == Submerged is the latch), so this cannot chatter.
+            if (antennaDry) wetSeconds = 0f;
+            else wetSeconds += dt;
+            bool blackedOut = !antennaDry
+                && (state == GPSFixState.Submerged || wetSeconds > wetGraceSeconds);
+
             // A commanded restart always sends us back to acquiring, but with hot-start
             // timing: the receiver keeps its ephemeris, it just drops the bad solution.
             if (restartRequested)
             {
                 restartRequested = false;
-                if (antennaDry)
+                if (!blackedOut)
                 {
                     state = GPSFixState.Acquiring;
                     acquiringSeconds = 0f;
@@ -213,15 +242,29 @@ namespace VehicleComponents.Sensors
                 }
             }
 
-            if (!antennaDry)
+            if (blackedOut)
             {
-                blackoutSeconds += dt;
-                state = GPSFixState.Submerged;
+                if (state != GPSFixState.Submerged)
+                {
+                    // First frame of a REAL blackout. The grace period was underwater too, so
+                    // it counts towards the blackout — the debounce must not make a hot start
+                    // out of a warm one.
+                    blackoutSeconds += wetSeconds;
+                    state = GPSFixState.Submerged;
+                    if (wetGraceSeconds > 0f)
+                        Debug.Log($"[{transform.name}] GPS antenna wet for {wetSeconds:F2}s "
+                                  + $"(> {wetGraceSeconds:F2}s grace): blackout");
+                }
+                else blackoutSeconds += dt;
+                wetSeconds = 0f;
                 acquiringSeconds = 0f;
                 settlingSeconds = 0f;
                 currentInflation = settleSigmaMultiplier;
                 return;
             }
+            // Not blacked out. Either the antenna is dry, or it is wet and inside the grace —
+            // in which case the receiver holds its state and every clock below keeps running,
+            // which is the whole point of the grace.
 
             switch (state)
             {
@@ -263,6 +306,11 @@ namespace VehicleComponents.Sensors
 
                 case GPSFixState.Tracking:
                     currentInflation = 1f;
+                    // FIX 2026-08-21: keep counting. `settlingSeconds` is "seconds since the
+                    // first fix of this surfacing", which UpdateRtkSolution compares against
+                    // rtkFixSeconds — freezing it here means a receiver that settles in under
+                    // rtkFixSeconds could never be promoted to RTK FIXED afterwards.
+                    settlingSeconds += dt;
                     break;
             }
         }
@@ -287,6 +335,15 @@ namespace VehicleComponents.Sensors
                 fix = antennaDry;
                 currentInflation = 1f;
                 state = antennaDry ? GPSFixState.Tracking : GPSFixState.Submerged;
+                // FIX 2026-08-21 — the answer to SETTLED §3s "why does the station never reach
+                // RTK FIXED". With reacquisition modelling OFF, nothing ever advanced
+                // `settlingSeconds`, so UpdateRtkSolution's `settlingSeconds >= rtkFixSeconds`
+                // was 0 >= 12 forever and the solution was pinned at RTK FLOAT (sigma 0.35) by
+                // construction. station_agent then — correctly — withheld the position forever
+                // ("not accurate enough to arm on, limit 0.15"). A steady dry antenna must still
+                // EARN the fix: count continuous dry seconds, reset on a wet antenna, exactly
+                // the "~14 s continuously dry" arithmetic the modelled path implements.
+                settlingSeconds = antennaDry ? settlingSeconds + (float)deltaTime : 0f;
             }
 
             UpdateRtkSolution((float)deltaTime);
