@@ -378,7 +378,14 @@ namespace Diagnostics
             // mass_live is NOT the case-start audit: VBS rewrites vbs_link's mass every step, so the
             // only weight that can be compared with B_sum is the one summed on the same step.
             // MEASURED 2026-09-13: without it, "felt weight exceeds counted mass" is unreadable.
-            cols.AddRange(new[] { "eta_cb", "B_sum", "f_mean", "f_min", "f_max", "F_hold", "vbs_pct", "lcg_pct", "mass_live" });
+            // B_call is the force actually handed to AddForceAtPosition THIS step, summed over the
+            // cloud. B_sum is the same sum taken from ForcePoint.AppliedBuoyancyForce, which is
+            // STICKY -- it keeps its last value on a step where nothing was applied. If the two
+            // differ, the reported buoyancy is not the buoyancy the solver got. drag_lin is the
+            // articulation's own linear damping, which the ForcePoints WRITE at runtime
+            // (UnderwaterDrag), so it is live even with SAMHydrodynamics disabled.
+            cols.AddRange(new[] { "eta_cb", "B_sum", "f_mean", "f_min", "f_max", "F_hold", "vbs_pct", "lcg_pct",
+                                  "mass_live", "B_call", "drag_lin", "adrag_lin" });
             _w.WriteLine(string.Join(",", cols));
         }
 
@@ -403,6 +410,7 @@ namespace Diagnostics
                               (first ? "  [this is what every depth case below is trimmed against]" : ""));
                 }
             }
+            WriteStripAudit(_w, CultureInfo.InvariantCulture);
             _w.WriteLine("# felt_weight_N," + (float.IsNaN(_feltWeightN) ? "unmeasured" : _feltWeightN.ToString("R", CultureInfo.InvariantCulture))
                          + ",float_samples," + _floatN + ",non_finite_point_samples," + _nonFinite);
             var hqc = _water as HDRPWaterQueryModel;
@@ -572,6 +580,27 @@ namespace Diagnostics
                 }
         }
 
+        /// One line per ForcePoint at the END of a case: its station on the hull, what it computed
+        /// this step, what it handed to the solver this step, and how many of its DoUpdate calls
+        /// actually applied a force. This is what answers "is the loss before or after the call,
+        /// and is it symmetric fore-and-aft" without another Play session.
+        void WriteStripAudit(StreamWriter w, CultureInfo ci)
+        {
+            w.WriteLine("# strip,index,local_z,radius,volume_L,computed_N,applied_N,clamped_off_N," +
+                        "scaled_off_N,apply_steps,steps,underwater");
+            var baseT = _root.transform;
+            for (int i = 0; i < _points.Length; ++i)
+            {
+                var p = _points[i];
+                Vector3 loc = baseT.InverseTransformPoint(p.transform.position);
+                w.WriteLine($"# strip,{i},{loc.z.ToString("F5", ci)},{p.SectionRadius.ToString("F5", ci)}," +
+                            $"{(p.Volume * 1000f).ToString("F4", ci)},{p.ComputedBuoyancyN.ToString("F5", ci)}," +
+                            $"{p.AppliedBuoyancyThisStep.y.ToString("F5", ci)}," +
+                            $"{p.ClampedOffN.ToString("F5", ci)},{p.ScaledOffN.ToString("F5", ci)}," +
+                            $"{p.BuoyancyApplyCount},{p.StepCount},{(p.IsUnderwater ? 1 : 0)}");
+            }
+        }
+
         /// One line per link: what the scene says it weighs and whether gravity is on for it.
         /// Written into every case header so a draft can always be reconciled against a mass.
         void WriteMassAudit(StreamWriter w, CultureInfo ci)
@@ -667,9 +696,11 @@ namespace Diagnostics
             for (int i = 0; i < _points.Length; ++i) { cb += _points[i].transform.position * _points[i].Volume; vsum += _points[i].Volume; }
             cb /= Mathf.Max(vsum, 1e-9f);
 
-            float bsum = 0f, fmin = 1f, fmax = 0f, fsum = 0f;
+            float bsum = 0f, fmin = 1f, fmax = 0f, fsum = 0f, bcall = 0f;
             for (int i = 0; i < _points.Length; ++i)
             {
+                float bc = _points[i].AppliedBuoyancyThisStep.y;
+                if (!float.IsNaN(bc) && !float.IsInfinity(bc)) bcall += bc;
                 float b = _points[i].IsUnderwater ? _points[i].AppliedBuoyancyForce.y : 0f;
                 if (float.IsNaN(b) || float.IsInfinity(b)) b = 0f;   // see LastBuoyancySum
                 bsum += b;
@@ -704,6 +735,9 @@ namespace Diagnostics
                .Append(',').Append(VbsActualPercent().ToString("F1", ci))
                .Append(',').Append((_lcg != null ? _lcg.percentage : float.NaN).ToString("F1", ci))
                .Append(',').Append(LiveTotalMassKg().ToString("F5", ci))
+               .Append(',').Append(bcall.ToString("F4", ci))
+               .Append(',').Append(_root.linearDamping.ToString("F4", ci))
+               .Append(',').Append(_root.angularDamping.ToString("F4", ci))
                .Append('\n');
 
             if (++_rows % 250 == 0) { _w.Write(_sb.ToString()); _sb.Clear(); _w.Flush(); }

@@ -85,6 +85,20 @@ namespace Force
 
         [Header("Debug")] public bool DrawForces = false;
         public Vector3 AppliedBuoyancyForce, AppliedGravityForce;
+
+        [Header("Instrumentation")]
+        [Tooltip("The buoyancy force handed to AddForceAtPosition on THIS physics step, zero on a step " +
+                 "where none was. AppliedBuoyancyForce is sticky -- it keeps the last value applied and " +
+                 "a reader cannot tell a fresh application from a repeat of an old one, which is why a " +
+                 "whole evening went into a 0.47 N that the log said was being applied every step. " +
+                 "2026-09-14.")]
+        public Vector3 AppliedBuoyancyThisStep;
+        [Tooltip("DoUpdate calls, and the subset of them on which buoyancy was actually handed to the " +
+                 "solver. If these differ, the reported force is not the time-average applied force.")]
+        public int StepCount, BuoyancyApplyCount;
+        [Tooltip("Buoyancy this point COMPUTED this step, before the MaxBuoyancyForce clamp and before " +
+                 "the willSurfaceSoon scale -- so 'computed vs applied' can be differenced per point.")]
+        public float ComputedBuoyancyN, ClampedOffN, ScaledOffN;
         public bool ApplyCustomForce = false;
         public Vector3 CustomForce = Vector3.zero;
 
@@ -212,6 +226,9 @@ namespace Force
 
         public void DoUpdate()
         {
+            StepCount++;
+            AppliedBuoyancyThisStep = Vector3.zero;
+            ComputedBuoyancyN = ClampedOffN = ScaledOffN = 0f;
             var forcePointPosition = transform.position;
             if (AddGravity)
             {
@@ -250,12 +267,17 @@ namespace Force
                         ? SubmergedSectionFraction(CurrentDepth + SectionRadius, SectionRadius)
                         : Mathf.Clamp01(CurrentDepth / DepthBeforeSubmerged);
                     var buoyancyForceMag = Volume * WaterDensity * Math.Abs(Physics.gravity.y) * displacementMultiplier;
+                    ComputedBuoyancyN = buoyancyForceMag;
                     buoyancyForceMag = Mathf.Min(MaxBuoyancyForce, buoyancyForceMag);
+                    ClampedOffN = ComputedBuoyancyN - buoyancyForceMag;
+                    ScaledOffN = buoyancyForceMag * (1f - waterForceScale);
                     var buoyancyForce = new Vector3(0, buoyancyForceMag, 0);
 
                     AppliedBuoyancyForce = VolumeIsPerPoint
                         ? ApplyForceUndivided(waterForceScale * buoyancyForce)
                         : ApplyForce(waterForceScale * buoyancyForce, onlyUnderWater: true);
+                    AppliedBuoyancyThisStep = AppliedBuoyancyForce;
+                    BuoyancyApplyCount++;
 
                     if (DrawForces) Debug.DrawLine(forcePointPosition, forcePointPosition + AppliedBuoyancyForce, Color.blue, 0.1f);
                 }

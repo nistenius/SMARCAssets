@@ -2899,8 +2899,6 @@ Transform:
   - {fileID: 3326888178657805885}
   - {fileID: 7535042536209519554}
   - {fileID: 6204473137661483632}
-  - {fileID: 3445728492935842385}
-  - {fileID: 408084325999011886}
   - {fileID: 3492179851254789734}
   - {fileID: 5011797137001652270}
   m_Father: {fileID: 8986356567178910094}
@@ -9295,7 +9293,7 @@ MonoBehaviour:
   SectionRadius: 0.03395
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -9404,7 +9402,7 @@ MonoBehaviour:
   SectionRadius: 0.05615
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -9513,7 +9511,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -9622,7 +9620,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -9731,7 +9729,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -9840,7 +9838,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -9949,7 +9947,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10058,7 +10056,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10167,7 +10165,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10276,7 +10274,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10385,7 +10383,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10494,7 +10492,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10603,7 +10601,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10712,7 +10710,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10821,7 +10819,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -10930,7 +10928,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11039,7 +11037,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11148,7 +11146,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11257,7 +11255,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11366,7 +11364,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11475,7 +11473,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11584,7 +11582,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11693,7 +11691,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11802,7 +11800,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -11911,7 +11909,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -12020,7 +12018,7 @@ MonoBehaviour:
   SectionRadius: 0.06250
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
@@ -12129,7 +12127,7 @@ MonoBehaviour:
   SectionRadius: 0.06161
   VolumeIsPerPoint: 1
   BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 1.02
+  UnderwaterDrag: 0
   UnderwaterAngularDrag: 1.5
   AirDrag: 0.1
   AirAngularDrag: 0.1
