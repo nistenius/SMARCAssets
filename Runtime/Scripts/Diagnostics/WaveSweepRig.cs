@@ -385,7 +385,7 @@ namespace Diagnostics
             // articulation's own linear damping, which the ForcePoints WRITE at runtime
             // (UnderwaterDrag), so it is live even with SAMHydrodynamics disabled.
             cols.AddRange(new[] { "eta_cb", "B_sum", "f_mean", "f_min", "f_max", "F_hold", "vbs_pct", "lcg_pct",
-                                  "mass_live", "B_call", "drag_lin", "adrag_lin" });
+                                  "mass_live", "B_call", "drag_lin", "adrag_lin", "lcg_actual" });
             _w.WriteLine(string.Join(",", cols));
         }
 
@@ -411,6 +411,7 @@ namespace Diagnostics
                 }
             }
             WriteStripAudit(_w, CultureInfo.InvariantCulture);
+            WriteCgAudit(_w, CultureInfo.InvariantCulture);
             _w.WriteLine("# felt_weight_N," + (float.IsNaN(_feltWeightN) ? "unmeasured" : _feltWeightN.ToString("R", CultureInfo.InvariantCulture))
                          + ",float_samples," + _floatN + ",non_finite_point_samples," + _nonFinite);
             var hqc = _water as HDRPWaterQueryModel;
@@ -467,11 +468,14 @@ namespace Diagnostics
                     // a commanded VBS is not an arrived VBS, and the first smoke run trimmed
                     // against a tank that was still travelling.
                     float vbsNow = VbsActualPercent();
-                    bool vbsThere = float.IsNaN(vbsNow) || Mathf.Abs(vbsNow - CaseVbsPercent()) <= VbsArrivedTolerance;
+                    float lcgNow = LcgActualPercent();
+                    bool lcgThere = float.IsNaN(lcgNow) || Mathf.Abs(lcgNow - NeutralLcgPercent) <= VbsArrivedTolerance;
+            bool vbsThere = (float.IsNaN(vbsNow) || Mathf.Abs(vbsNow - CaseVbsPercent()) <= VbsArrivedTolerance)
+                                    && lcgThere;
                     if (_tPhase >= SettleWaterSeconds && (vbsThere || _tPhase >= SettleWaterSeconds + 30f))
                     {
                         if (!vbsThere)
-                            Debug.LogWarning($"[WaveSweepRig] '{c.Label}': VBS never reached {CaseVbsPercent()}% " +
+                            Debug.LogWarning($"[WaveSweepRig] '{c.Label}': LCG at {lcgNow:F2}% (want {NeutralLcgPercent}%); VBS never reached {CaseVbsPercent()}% " +
                                              $"(stuck at {vbsNow:F1}%) — continuing anyway.");
 
                         // Analytic seed: the static imbalance the strips and the masses actually report.
@@ -601,6 +605,52 @@ namespace Diagnostics
             }
         }
 
+        /// The SOLVER's own mass distribution, link by link, at the end of a case: the CoM PhysX is
+        /// actually using, where it is in the base_link frame, and the composite it adds up to.
+        /// SAMBallastTrim computes its CG from ab.transform.TransformPoint(ab.centerOfMass) once at
+        /// Start; this is the same quantity read from the running articulation, so the two can be
+        /// differenced instead of argued about. Includes automaticCenterOfMass, because a link left
+        /// on "Automatic Center Of Mass" has its CoM derived from colliders and ignores whatever a
+        /// prefab edit or a solver wrote into it.
+        void WriteCgAudit(StreamWriter w, CultureInfo ci)
+        {
+            var baseT = _root.transform;
+            w.WriteLine("# cg,link,mass,useGravity,autoCom,com_local_x,com_local_y,com_local_z," +
+                        "world_com_in_base_x,world_com_in_base_y,world_com_in_base_z");
+            float mAll = 0f; Vector3 sAll = Vector3.zero;
+            float mGrav = 0f; Vector3 sGrav = Vector3.zero;
+            foreach (var ab in _root.GetComponentsInChildren<ArticulationBody>(true))
+            {
+                Vector3 wc = ab.worldCenterOfMass;
+                Vector3 lc = baseT.InverseTransformPoint(wc);
+                w.WriteLine($"# cg,{ab.name},{ab.mass.ToString("R", ci)},{(ab.useGravity ? 1 : 0)}," +
+                            $"{(ab.automaticCenterOfMass ? 1 : 0)}," +
+                            $"{ab.centerOfMass.x.ToString("F6", ci)},{ab.centerOfMass.y.ToString("F6", ci)}," +
+                            $"{ab.centerOfMass.z.ToString("F6", ci)}," +
+                            $"{lc.x.ToString("F6", ci)},{lc.y.ToString("F6", ci)},{lc.z.ToString("F6", ci)}");
+                if (ab.mass < 1e-5f) continue;
+                mAll += ab.mass; sAll += ab.mass * lc;
+                if (ab.useGravity) { mGrav += ab.mass; sGrav += ab.mass * lc; }
+            }
+            Vector3 cgAll = mAll > 0f ? sAll / mAll : Vector3.zero;
+            Vector3 cgGrav = mGrav > 0f ? sGrav / mGrav : Vector3.zero;
+            w.WriteLine($"# cg_composite_all,{mAll.ToString("R", ci)},{cgAll.x.ToString("F6", ci)}," +
+                        $"{cgAll.y.ToString("F6", ci)},{cgAll.z.ToString("F6", ci)}");
+            w.WriteLine($"# cg_composite_gravity_only,{mGrav.ToString("R", ci)},{cgGrav.x.ToString("F6", ci)}," +
+                        $"{cgGrav.y.ToString("F6", ci)},{cgGrav.z.ToString("F6", ci)}");
+            // the cloud's CB in the same frame, so CB-CG is one subtraction and not a second tool
+            Vector3 cb = Vector3.zero; float v = 0f;
+            for (int i = 0; i < _points.Length; ++i) { cb += _points[i].transform.position * _points[i].Volume; v += _points[i].Volume; }
+            cb = baseT.InverseTransformPoint(cb / Mathf.Max(v, 1e-9f));
+            w.WriteLine($"# cb_in_base,{cb.x.ToString("F6", ci)},{cb.y.ToString("F6", ci)},{cb.z.ToString("F6", ci)}");
+            w.WriteLine($"# cb_minus_cg_mm,long,{((cb.z - cgAll.z) * 1000f).ToString("F3", ci)}," +
+                        $"BG,{((cb.y - cgAll.y) * 1000f).ToString("F3", ci)}," +
+                        $"lat,{((cb.x - cgAll.x) * 1000f).ToString("F3", ci)}");
+            Debug.Log($"[WaveSweepRig] SOLVER composite CG in base_link: ({cgAll.x:F5}, {cgAll.y:F5}, {cgAll.z:F5}) " +
+                      $"of {mAll:F4} kg | CB ({cb.x:F5}, {cb.y:F5}, {cb.z:F5}) | " +
+                      $"CB-CG long {(cb.z - cgAll.z) * 1000f:F2} mm, BG {(cb.y - cgAll.y) * 1000f:F2} mm");
+        }
+
         /// One line per link: what the scene says it weighs and whether gravity is on for it.
         /// Written into every case header so a draft can always be reconciled against a mass.
         void WriteMassAudit(StreamWriter w, CultureInfo ci)
@@ -658,6 +708,16 @@ namespace Diagnostics
         {
             if (_vbs == null) return CaseVbsPercent();
             try { return _vbs.GetCurrentValue(); } catch { return float.NaN; }
+        }
+
+        /// The LCG piston's ACTUAL position. A commanded LCG is not an arrived LCG, and this one
+        /// takes its time: MEASURED 2026-09-14, battery_link sat at z +0.0858, +0.0630 and +0.0694
+        /// in three runs that all commanded LCG 50 %. 2.7 kg over 23 mm is 3.7 mm of composite CG,
+        /// which is most of the residual pitch the trim solve was chasing.
+        float LcgActualPercent()
+        {
+            if (_lcg == null) return NeutralLcgPercent;
+            try { return _lcg.GetCurrentValue(); } catch { return float.NaN; }
         }
 
         /// A diverging articulation poisons every LATER case too, because PhysX keeps the bad
@@ -738,6 +798,7 @@ namespace Diagnostics
                .Append(',').Append(bcall.ToString("F4", ci))
                .Append(',').Append(_root.linearDamping.ToString("F4", ci))
                .Append(',').Append(_root.angularDamping.ToString("F4", ci))
+               .Append(',').Append(LcgActualPercent().ToString("F3", ci))
                .Append('\n');
 
             if (++_rows % 250 == 0) { _w.Write(_sb.ToString()); _sb.Clear(); _w.Flush(); }

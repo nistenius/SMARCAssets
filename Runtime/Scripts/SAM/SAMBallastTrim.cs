@@ -76,6 +76,19 @@ namespace Force
         [Header("Re-solve at Start instead of applying the numbers above")]
         public bool AutoSolve = false;
 
+        [Header("When the trim is EVALUATED")]
+        [Tooltip("Seconds after Start at which the report is recomputed against the LIVE articulation, " +
+                 "and the number that is written to ballast_report.txt. Start() is the wrong moment: the " +
+                 "actuators have not been commanded yet, so battery_link sits at whatever LCG the prefab " +
+                 "was serialised at rather than at the LCG the vehicle runs at. MEASURED 2026-09-14 on " +
+                 "sam2.2.strips: 8.4 mm of composite CG between the two, which is a 34.8 deg nose-up " +
+                 "hang against BG 11.2 mm -- while this component was reporting a 0.70 mm lever and " +
+                 "3.6 deg. The masses are still APPLIED at Start (they must be); only the report moves. " +
+                 "0 disables the re-report and you get the Start() numbers, which is what lied.")]
+        public float ReportAtSeconds = 3f;
+        [Tooltip("Read-only: true once the operating-pose report has been taken.")]
+        public bool ReportedAtOperatingPose;
+
         [Header("Which links")]
         public string PortLinkName = "ballast_port_link";
         public string StarboardLinkName = "ballast_stbd_link";
@@ -126,7 +139,31 @@ namespace Force
             }
         }
 
+        float _tSinceStart;
+        bool _wantReport;
+
+        /// The masses are applied in Start, but the TRIM ARITHMETIC is only meaningful once the
+        /// actuators have been commanded to the pose the vehicle runs in. Re-run the report there.
+        void FixedUpdate()
+        {
+            if (!_wantReport || ReportAtSeconds <= 0f) return;
+            _tSinceStart += Time.fixedDeltaTime;
+            if (_tSinceStart < ReportAtSeconds) return;
+            _wantReport = false;
+            ReportedAtOperatingPose = true;
+            Solve(false);              // report only: never re-apply the masses
+        }
+
         void Start()
+        {
+            Solve(true);
+            _wantReport = ReportAtSeconds > 0f;
+        }
+
+        /// <param name="apply">true = Start: set the ballast masses. false = the operating-pose
+        /// re-report: touch nothing, just read the articulation and re-derive CB, CG, BG and the
+        /// VBS sweep from it.</param>
+        void Solve(bool apply)
         {
             ReadBallastConfig();
 
@@ -196,7 +233,7 @@ namespace Force
             SolvedStationZ = Mathf.Abs(mNeeded) > 1e-4f
                 ? (cbLocal.z * (mOther + mNeeded) - sumOtherLocal.z) / mNeeded
                 : float.NaN;
-            if (AutoSolve)
+            if (AutoSolve && apply)   // the re-report must never rewrite the spec it is reporting on
             {
                 if (mNeeded <= 0f)
                     Debug.LogWarning($"{name}: the solve wants {mNeeded:F4} kg of ballast - NEGATIVE. The "
@@ -208,7 +245,7 @@ namespace Force
             // ---- apply --------------------------------------------------------------------
             float mStbd = BallastMassKg * StarboardFraction;
             float mPort = BallastMassKg - mStbd;
-            if (ApplyBallast)
+            if (ApplyBallast && apply)
             {
                 port.mass = Mathf.Max(mPort, 1e-6f);
                 stbd.mass = Mathf.Max(mStbd, 1e-6f);
@@ -243,6 +280,10 @@ namespace Force
             RollMomentNm = WeightAtNeutralN * (cbLocal.x - cgLocal.x);
 
             var sb = new StringBuilder();
+            string when = apply
+                ? "at Start (prefab pose -- the actuators have NOT been commanded yet, so this CG is NOT the one the vehicle runs with)"
+                : $"at the OPERATING pose, {ReportAtSeconds:F1} s in -- THIS is the trim that acts";
+            sb.AppendLine("[SAMBallastTrim] " + when);
             sb.AppendLine($"[SAMBallastTrim] site rho {WaterDensity:F0} kg/m3, displacement {DisplacedLitres:F3} L "
                         + $"({(perPoint ? points.Length + " strips, per-point volumes" : "legacy group cloud")}) "
                         + $"-> B = {BuoyancyN:F2} N");
