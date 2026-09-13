@@ -33,6 +33,22 @@ namespace Force
     /// The VBS takes water aboard from OUTSIDE, so it changes mass without changing displacement — that is
     /// its entire authority: 0.249 kg, 2.44 N end to end, +/- 1.22 N about a 50 % neutral point.
     ///
+    /// AMENDED 2026-09-13 (strips + ballast build session). Two things now switch this component off
+    /// piecewise instead of it fighting them:
+    ///   * PER-POINT VOLUMES. If ANY ForcePoint has VolumeIsPerPoint = true the cloud is a STRIP cloud:
+    ///     each point carries its own strip volume and its own SectionRadius, and the displacement is
+    ///     the SUM of the points, not a group total. (a) must not overwrite those volumes - doing so
+    ///     would set every one of the 27 strips to 16.90 L. In that mode this component only stamps the
+    ///     site water density and the query frequency, reads the displacement back out of the cloud,
+    ///     and takes the CB as the VOLUME-WEIGHTED centroid (the plain mean is only the CB when every
+    ///     point carries an equal share).
+    ///   * BALLAST LINKS. If the vehicle carries a link whose name starts with "ballast_", trim is done
+    ///     the way the real vehicle is trimmed - weights on the external side rails, sized per site
+    ///     because the water is per site (Ivan, 2026-09-13) - and (b), (c) and (d) must not re-solve
+    ///     base_link behind that. SAMBallastTrim owns the trim then; this component reports only.
+    /// Neither switch changes anything on a prefab that has neither, so the 2026-09-12 behaviour is
+    /// preserved exactly for the legacy cloud.
+    ///
     /// KNOWN PLACEHOLDER, NOT FIXED HERE: the two 1 kg transceiver links at +0.70 and -0.80 m carry 51 %
     /// of the vehicle's pitch inertia between them. The total is made correct by (d), but the distribution
     /// is only as good as those two masses, which nobody has weighed.
@@ -115,6 +131,14 @@ namespace Force
                 enabled = false; return;
             }
 
+            // --- which regime are we in? (2026-09-13)
+            bool perPointVolumes = false;
+            foreach (var p in points) if (p.VolumeIsPerPoint) { perPointVolumes = true; break; }
+            ArticulationBody ballast = null;
+            foreach (var ab in bodies)
+                if (ab.name.StartsWith("ballast_")) { ballast = ab; break; }
+            if (ballast != null) ApplyTrim = false;
+
             // (a) displacement, stated rather than inherited from an old mesh.
             // MEASURED 2026-09-12: ForcePoint.ApplyForce divides the force it is handed by the number of
             // points on the SAME body ("related points"), so a point's Volume field is the whole volume of
@@ -131,11 +155,20 @@ namespace Force
             }
             float vTotal = DisplacedVolumeLitres * 0.001f;
             float vEach = vTotal;               // reported value for the single-group case
+            if (perPointVolumes)
+            {
+                // STRIP CLOUD: the volumes belong to the strips, not to this component. Read, do not write.
+                float vSum = 0f;
+                foreach (var p in points) vSum += p.Volume;
+                DisplacedVolumeLitres = vSum * 1000f;
+                vTotal = vSum;
+                vEach = points.Length > 0 ? vSum / points.Length : 0f;
+            }
             foreach (var p in points)
             {
                 Object key = (Object)p.ConnectedArticulationBody ?? (Object)p.ConnectedRigidbody;
                 int n = (key != null && groupCount.TryGetValue(key, out int c)) ? c : points.Length;
-                p.Volume = vTotal * n / points.Length;
+                if (!perPointVolumes) p.Volume = vTotal * n / points.Length;
                 p.WaterDensity = WaterDensity; p.MaxBuoyancyForce = 1000f;
                 // MEASURED 2026-09-12: with WaterQueryFrequency > 0 the buoyancy is multiplied by
                 // waterForceScale = 1/dt/freq to compensate for being applied only on query ticks - but the
@@ -143,7 +176,7 @@ namespace Force
                 // straight ~12 % buoyancy surplus (a constant +19.6 N, seen identically at the surface and at
                 // depth) that gravity never gets. Querying every step makes the scale exactly 1.
                 p.WaterQueryFrequency = -1f;
-                vEach = p.Volume;
+                if (!perPointVolumes) vEach = p.Volume;
             }
             if (groupCount.Count > 1)
                 Debug.Log($"{name}: the {points.Length} ForcePoints sit on {groupCount.Count} bodies - volume split by group so the total displacement is {DisplacedVolumeLitres:F2} L.");
@@ -174,9 +207,20 @@ namespace Force
             // longitudinal CG-CB offset and the vehicle pitched up at 0.7 deg/s with everything neutral.
             // Each point applies the same force (ForcePoint divides by the point count), so the effective
             // centre is the plain mean of the point positions.
+            // MEASURED 2026-09-13: with per-point volumes the points do NOT carry equal shares, so the
+            // plain mean is not the CB. Weight by each point's own Volume.
             Vector3 cbWorld = Vector3.zero;
-            foreach (var p in points) cbWorld += p.transform.position;
-            cbWorld /= points.Length;
+            if (perPointVolumes)
+            {
+                float wsum = 0f;
+                foreach (var p in points) { cbWorld += p.Volume * p.transform.position; wsum += p.Volume; }
+                cbWorld = wsum > 0f ? cbWorld / wsum : trimLink.transform.position;
+            }
+            else
+            {
+                foreach (var p in points) cbWorld += p.transform.position;
+                cbWorld /= points.Length;
+            }
             Vector3 cbLocal = trimLink.transform.InverseTransformPoint(cbWorld);
             CentreOfBuoyancyBody = new Vector3(cbLocal.z, cbLocal.x, -cbLocal.y);
             Vector3 cgTargetWorld = cbWorld
@@ -240,6 +284,10 @@ namespace Force
             NetForceFullN = (BuoyancyKgf - (TotalMassKg + vbsWater * (100f - NeutralAtVBSPercent) / 100f)) * g;
 
             var sb = new StringBuilder();
+            if (perPointVolumes)
+                sb.AppendLine("[SAMBuoyancyTrim] STRIP cloud (VolumeIsPerPoint): volumes and section radii left alone; displacement read back from the points.");
+            if (ballast != null)
+                sb.AppendLine($"[SAMBuoyancyTrim] ballast link '{ballast.name}' present: trim is SAMBallastTrim's job, base_link mass/CoM/inertia NOT re-solved here (ApplyTrim forced false).");
             sb.AppendLine($"[SAMBuoyancyTrim] {points.Length} ForcePoints on {groupCount.Count} bodies, {vEach * 1000f:F3} L per point = {DisplacedVolumeLitres:F2} L at {WaterDensity:F0} kg/m3 -> buoyancy {BuoyancyKgf:F3} kg-f");
             sb.AppendLine($"   {TrimLinkName}: mass {TrimMassAppliedKg:+0.000;-0.000} kg -> {trimLink.mass:F3} kg, CoM -> {trimLink.centerOfMass}, own inertia -> {BaseLinkOwnInertia}");
             sb.AppendLine($"   centre of buoyancy (ForcePoint centroid, body axes from base_link) = {CentreOfBuoyancyBody}");
