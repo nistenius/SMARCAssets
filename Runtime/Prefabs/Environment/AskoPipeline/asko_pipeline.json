@@ -1,0 +1,200 @@
+{
+  "generated_utc": "2026-08-30T13:54:58+00:00",
+  "generator": "data-cube/scripts/asko-site/build_asko_pipe.py",
+  "feature_key": "asko-pipeline-dv2024",
+  "object": "Askö pipeline — the exposed crown of a largely buried linear feature running NNE out of the station across the eastern basin",
+  "detection": {
+    "input": "smds-cloud-store/scenario-bundles/ov-site-Asko-curated-v1/payload/asko_dvhires_0125m_cog.tif",
+    "method": "4.1 m local-median residual -> cross-track difference-of-Gaussians ridge response (sigma 0.161 m against 1.00 m) -> Viterbi crest follow with a lateral-jump penalty, in the frame of the Phase 0 chord",
+    "phase0_chord": {
+      "a": [
+        652053.8,
+        6523227.7
+      ],
+      "b": [
+        652089.8,
+        6523349.2
+      ],
+      "note": "a CHORD, not the pipe: sinuosity 1.061 (Phase 0 §5). Kept only as the corridor frame."
+    },
+    "stop_rule": {
+      "gate": "3 m rolling detectability z >= 5.0 AND lateral ambiguity <= 0.8",
+      "south": {
+        "E": 652050.8760062007,
+        "N": 6523235.215317791
+      },
+      "north": {
+        "E": 652082.2140272101,
+        "N": 6523334.2687396705
+      },
+      "why": "south of it the ridge is below the background; north of it the crest falls into the boulder field AND the unexplained beaded line has already converged, so the trace cannot say which feature it is following. The model stops rather than guess."
+    },
+    "cross_check_run12": {
+      "doc": "docs/2026-08-30-asko-run12-pipeline-sss.md",
+      "note": "independent re-trace by the run-12 agent; its south endpoint E 652049.5 / N 6523231.1 is reproduced here to 0.11 m, and its northern reliability limit N 6523334 is reproduced to 0.2 m."
+    }
+  },
+  "measurement": {
+    "crest_residual_m": {
+      "median": 0.05075813554146439,
+      "p10": 0.022739197893997115,
+      "p90": 0.10822705943365266,
+      "max": 0.25354920462992886,
+      "fraction_of_stations_positive": 0.9747596153846154
+    },
+    "peak_aligned_stack": {
+      "stations": 831,
+      "crown_m": 0.0598301130720287,
+      "fwhm_m": 0.48750000000000693,
+      "align_shift_rms_m": 0.1262541345035015
+    },
+    "diameter_is_NOT_measured": {
+      "verdict": "DEGENERATE. Over O.D. 0.10-3.3 m the cap+drape fit residual moves from 2.05 to 2.01 mm rms — the 0.125 m DEM cannot separate a small pipe under a sediment drape from a large one barely proud.",
+      "ladder": [
+        {
+          "kernel_sigma_m": 0.0,
+          "od_m": 3.3075697488378384,
+          "cap_crown_m": 0.011629776374919668,
+          "drape_amp_m": 0.04697312804209594,
+          "drape_sigma_m": 0.26485866645414974,
+          "rms_mm": 2.059441983913406
+        },
+        {
+          "kernel_sigma_m": 0.04,
+          "od_m": 2.7629736939114893,
+          "cap_crown_m": 0.01368812864198784,
+          "drape_amp_m": 0.045763202351992,
+          "drape_sigma_m": 0.2678023630316728,
+          "rms_mm": 2.0336749953729556
+        },
+        {
+          "kernel_sigma_m": 0.06,
+          "od_m": 2.1488572075668695,
+          "cap_crown_m": 0.01580270976237227,
+          "drape_amp_m": 0.04503567236068523,
+          "drape_sigma_m": 0.26934800926526115,
+          "rms_mm": 2.025199035982842
+        },
+        {
+          "kernel_sigma_m": 0.08,
+          "od_m": 1.3857616005717428,
+          "cap_crown_m": 0.01932460845669702,
+          "drape_amp_m": 0.044374315860962896,
+          "drape_sigma_m": 0.27058828986949207,
+          "rms_mm": 2.024146099329906
+        },
+        {
+          "kernel_sigma_m": 0.1,
+          "od_m": 0.46831167671649876,
+          "cap_crown_m": 0.02879587319365662,
+          "drape_amp_m": 0.04404955905993127,
+          "drape_sigma_m": 0.2710569513928233,
+          "rms_mm": 2.0260134965436905
+        },
+        {
+          "kernel_sigma_m": 0.125,
+          "od_m": 0.10339533164766825,
+          "cap_crown_m": 0.06483724861282483,
+          "drape_amp_m": 0.041242841443504874,
+          "drape_sigma_m": 0.27662349854152846,
+          "rms_mm": 2.041211306068278
+        }
+      ]
+    },
+    "diameter_adopted_m": 0.45,
+    "diameter_basis": "run-12 side-scan: near-flank-to-shadow separation 0.48 m (window C) and 0.68 m (window A) at 11-20° grazing implies an EXPOSED width of 0.2-0.5 m; with the measured crown that is O.D. 0.24-0.90 m. FITTED UNDER ASSUMPTION, NOT MEASURED.",
+    "exposure": {
+      "crown_above_ambient_seabed_m": {
+        "median": 0.05075813554146439,
+        "p10": 0.022739197893997115,
+        "p90": 0.10822705943365266,
+        "max": 0.25354920462992886,
+        "fraction_of_stations_positive": 0.9747596153846154
+      },
+      "fraction_of_diameter_proud": 0.11279585675880975,
+      "fraction_of_circumference_exposed": 0.21804766181739865,
+      "fraction_buried": 0.7819523381826013,
+      "exposed_width_at_median_crown_m": 0.2847087822320436
+    }
+  },
+  "geometry": {
+    "polyline_length_m": 105.9523832972729,
+    "straight_line_m": 103.8925018794221,
+    "sinuosity": 1.0198270460388132,
+    "vertices": 85,
+    "spans": 8,
+    "span_length_m": 15.0,
+    "radial_divisions": 20,
+    "triangles": 3400,
+    "crown_epsilon_m": 0.01,
+    "crown_rule": "the crown is set 0.010 m above the 0.125 m patch surface sampled ON the centreline, so the modelled protrusion IS the measured one. The terrain ridge is NOT flattened (work-order decision): the sediment drape the real seabed carries over the pipe stays, and the double echo it costs is accepted for now.",
+    "end_rule": "over the last 1.50 m at each end the axis dives until the crown is 0.06 m BELOW the surface. A flat-cut end standing proud where the evidence stops would be a claim; diving out of sight is not.",
+    "terrain_interaction": {
+      "max_protrusion_above_terrain_m": {
+        "median": 0.010317984588299467,
+        "p90": 0.033162166592286386
+      },
+      "exposed_width_above_terrain_m": {
+        "median": 0.14,
+        "p90": 0.20600000000000007
+      },
+      "reading": "with the terrain ridge left in place the object protrudes only the modelling epsilon over a narrow strip, because the mound IS the pipe's signature and the model is placed inside it. So the object adds almost nothing acoustically as shipped: the run-12 dipole comes from the TERRAIN. Flattening the ridge under the object (deferred by the work order) is what would transfer the echo to the steel — and would then have to be validated against run 12 all over again."
+    }
+  },
+  "frame": {
+    "crs": "EPSG:32633 (== EPSG:3006 here to 0.12 mm, SETTLED §3f0)",
+    "anchor_utm": [
+      652305.7460288886,
+      6523328.849552942
+    ],
+    "convention": "metres, Y up, Unity +X = UTM33N easting, +Z = northing, origin = the Askö anchor",
+    "obj_x_pre_mirrored": true,
+    "note": "OBJ vertices are already in SCENE coordinates. The prefab must sit at (0,0,0) under AskoCuratedWorld; the builder checks it and says so."
+  },
+  "endpoints": {
+    "south": {
+      "E": 652050.8760062007,
+      "N": 6523235.215317791,
+      "y_m": -8.680087907439324
+    },
+    "north": {
+      "E": 652082.2140272101,
+      "N": 6523334.2687396705,
+      "y_m": -5.591319490248815
+    },
+    "depth_range_m": [
+      -8.680087907439324,
+      -5.515373300107608
+    ]
+  },
+  "texture": {
+    "atlas": "asko_pipeline_coating.png",
+    "size": [
+      512,
+      1024
+    ],
+    "projection": "cylindrical: u = around the pipe with u=0 on the BURIED seam and u=0.50 on the crown, v = along the pipe, repeating every 6.0 m. Defined once in uv_of(); the atlas painter reads the same constants (SETTLED §3f0d).",
+    "deviation_from_the_mini": "the Mini uses a six-way BOX projection because a car's panels are flat and axis-facing. A swept tube has a natural (theta, s) parameterisation and box projection would smear it; the LESSON carried over is 'one definition, verified by rendering', not the box itself.",
+    "content": "generic subsea coating: aggregate-mottled grey, biological colonisation on the exposed crown only, iron staining. NO markings, livery or identification — nothing in the data names an owner and a painted identity would repeat the Mini's registration-plate mistake."
+  },
+  "materials": {
+    "physics": "Steel",
+    "sonar_reflectivity": 0.95,
+    "sonar_label": 5,
+    "basis": "Phase 7 §3 / SETTLED §3f0d — a man-made target must outrank the seabed it lies on.",
+    "caveat": "the MATERIAL IS UNKNOWN. If this is a concrete weight-coated pipe its true reflectivity would sit nearer bedrock's 0.80. Steel 0.95 is a modelling choice, recorded as one."
+  },
+  "non_claims": [
+    "The diameter is FITTED, not measured — the DEM is degenerate in it (see above).",
+    "The material and coating are ASSUMED; the bathymetry says nothing about them.",
+    "The SECOND, BEADED LINE (47 lumps, 5-7 m east, converging near N 6523328) is NOT modelled and is not part of this object. It is unexplained and acoustically the louder of the two features (run 12 §6).",
+    "The model STOPS at both ends of the evidence. There is no continuation towards the station in the south or across the boulder field in the north.",
+    "The vertical datum is inherited from the patch (assumed RH2000, undocumented in the delivery — Phase 0)."
+  ],
+  "files": {
+    "obj": "asko_pipeline.obj",
+    "mtl": "asko_pipeline.mtl",
+    "atlas": "asko_pipeline_coating.png",
+    "centreline": "asko_pipeline_centreline.csv"
+  }
+}

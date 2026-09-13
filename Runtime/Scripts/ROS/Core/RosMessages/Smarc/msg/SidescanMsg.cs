@@ -26,10 +26,10 @@ namespace RosMessageTypes.Smarc
         //  Max travel time of outermost bins (s)
         public byte[] port_channel;
         public byte[] starboard_channel;
-        public byte[] port_channel_angle_high;
-        public byte[] port_channel_angle_low;
-        public byte[] starboard_channel_angle_high;
-        public byte[] starboard_channel_angle_low;
+        public byte[] port_channel_phase_15_8;
+        public byte[] port_channel_phase_7_0;
+        public byte[] starboard_channel_phase_15_8;
+        public byte[] starboard_channel_phase_7_0;
         public byte[] extra_channel;
 
         public SidescanMsg()
@@ -43,14 +43,14 @@ namespace RosMessageTypes.Smarc
             this.max_duration = 0.0f;
             this.port_channel = new byte[0];
             this.starboard_channel = new byte[0];
-            this.port_channel_angle_high = new byte[0];
-            this.port_channel_angle_low = new byte[0];
-            this.starboard_channel_angle_high = new byte[0];
-            this.starboard_channel_angle_low = new byte[0];
+            this.port_channel_phase_15_8 = new byte[0];
+            this.port_channel_phase_7_0 = new byte[0];
+            this.starboard_channel_phase_15_8 = new byte[0];
+            this.starboard_channel_phase_7_0 = new byte[0];
             this.extra_channel = new byte[0];
         }
 
-        public SidescanMsg(Std.HeaderMsg header, byte type, uint time, byte frequency_id, short gain, ushort decimation, float max_duration, byte[] port_channel, byte[] starboard_channel, byte[] port_channel_angle_high, byte[] port_channel_angle_low, byte[] starboard_channel_angle_high, byte[] starboard_channel_angle_low, byte[] extra_channel)
+        public SidescanMsg(Std.HeaderMsg header, byte type, uint time, byte frequency_id, short gain, ushort decimation, float max_duration, byte[] port_channel, byte[] starboard_channel, byte[] port_channel_phase_15_8, byte[] port_channel_phase_7_0, byte[] starboard_channel_phase_15_8, byte[] starboard_channel_phase_7_0, byte[] extra_channel)
         {
             this.header = header;
             this.type = type;
@@ -61,10 +61,10 @@ namespace RosMessageTypes.Smarc
             this.max_duration = max_duration;
             this.port_channel = port_channel;
             this.starboard_channel = starboard_channel;
-            this.port_channel_angle_high = port_channel_angle_high;
-            this.port_channel_angle_low = port_channel_angle_low;
-            this.starboard_channel_angle_high = starboard_channel_angle_high;
-            this.starboard_channel_angle_low = starboard_channel_angle_low;
+            this.port_channel_phase_15_8 = port_channel_phase_15_8;
+            this.port_channel_phase_7_0 = port_channel_phase_7_0;
+            this.starboard_channel_phase_15_8 = starboard_channel_phase_15_8;
+            this.starboard_channel_phase_7_0 = starboard_channel_phase_7_0;
             this.extra_channel = extra_channel;
         }
 
@@ -81,11 +81,21 @@ namespace RosMessageTypes.Smarc
             deserializer.Read(out this.max_duration);
             deserializer.Read(out this.port_channel, sizeof(byte), deserializer.ReadLength());
             deserializer.Read(out this.starboard_channel, sizeof(byte), deserializer.ReadLength());
-            deserializer.Read(out this.port_channel_angle_high, sizeof(byte), deserializer.ReadLength());
-            deserializer.Read(out this.port_channel_angle_low, sizeof(byte), deserializer.ReadLength());
-            deserializer.Read(out this.starboard_channel_angle_high, sizeof(byte), deserializer.ReadLength());
-            deserializer.Read(out this.starboard_channel_angle_low, sizeof(byte), deserializer.ReadLength());
+            // FIELD ORDER IS THE WIRE FORMAT. The real driver's Sidescan.msg (measured from
+            // the 2024-12-10 ISSS bag's own inline definition) puts extra_channel BEFORE the
+            // four phase arrays; ours had it after. Serialization is positional, so the two
+            // would have decoded each other's arrays into the wrong fields -- lengths and all
+            // -- which is SETTLED §3c's "a message that changed since the recording decodes to
+            // confident nonsense", except between our own two halves. Order below now matches
+            // the real definition exactly:
+            //   port_channel, starboard_channel, extra_channel,
+            //   port_channel_phase_15_8, port_channel_phase_7_0,
+            //   starboard_channel_phase_15_8, starboard_channel_phase_7_0
             deserializer.Read(out this.extra_channel, sizeof(byte), deserializer.ReadLength());
+            deserializer.Read(out this.port_channel_phase_15_8, sizeof(byte), deserializer.ReadLength());
+            deserializer.Read(out this.port_channel_phase_7_0, sizeof(byte), deserializer.ReadLength());
+            deserializer.Read(out this.starboard_channel_phase_15_8, sizeof(byte), deserializer.ReadLength());
+            deserializer.Read(out this.starboard_channel_phase_7_0, sizeof(byte), deserializer.ReadLength());
         }
 
         public override void SerializeTo(MessageSerializer serializer)
@@ -101,16 +111,17 @@ namespace RosMessageTypes.Smarc
             serializer.Write(this.port_channel);
             serializer.WriteLength(this.starboard_channel);
             serializer.Write(this.starboard_channel);
-            serializer.WriteLength(this.port_channel_angle_high);
-            serializer.Write(this.port_channel_angle_high);
-            serializer.WriteLength(this.port_channel_angle_low);
-            serializer.Write(this.port_channel_angle_low);
-            serializer.WriteLength(this.starboard_channel_angle_high);
-            serializer.Write(this.starboard_channel_angle_high);
-            serializer.WriteLength(this.starboard_channel_angle_low);
-            serializer.Write(this.starboard_channel_angle_low);
+            // extra_channel BEFORE the phase arrays -- see the note in the deserializer.
             serializer.WriteLength(this.extra_channel);
             serializer.Write(this.extra_channel);
+            serializer.WriteLength(this.port_channel_phase_15_8);
+            serializer.Write(this.port_channel_phase_15_8);
+            serializer.WriteLength(this.port_channel_phase_7_0);
+            serializer.Write(this.port_channel_phase_7_0);
+            serializer.WriteLength(this.starboard_channel_phase_15_8);
+            serializer.Write(this.starboard_channel_phase_15_8);
+            serializer.WriteLength(this.starboard_channel_phase_7_0);
+            serializer.Write(this.starboard_channel_phase_7_0);
         }
 
         public override string ToString()
@@ -125,10 +136,10 @@ namespace RosMessageTypes.Smarc
             "\nmax_duration: " + max_duration.ToString() +
             "\nport_channel: " + System.String.Join(", ", port_channel.ToList()) +
             "\nstarboard_channel: " + System.String.Join(", ", starboard_channel.ToList()) +
-            "\nport_channel_angle_high: " + System.String.Join(", ", port_channel_angle_high.ToList()) +
-            "\nport_channel_angle_low: " + System.String.Join(", ", port_channel_angle_low.ToList()) +
-            "\nstarboard_channel_angle_high: " + System.String.Join(", ", starboard_channel_angle_high.ToList()) +
-            "\nstarboard_channel_angle_low: " + System.String.Join(", ", starboard_channel_angle_low.ToList()) +
+            "\nport_channel_phase_15_8: " + System.String.Join(", ", port_channel_phase_15_8.ToList()) +
+            "\nport_channel_phase_7_0: " + System.String.Join(", ", port_channel_phase_7_0.ToList()) +
+            "\nstarboard_channel_phase_15_8: " + System.String.Join(", ", starboard_channel_phase_15_8.ToList()) +
+            "\nstarboard_channel_phase_7_0: " + System.String.Join(", ", starboard_channel_phase_7_0.ToList()) +
             "\nextra_channel: " + System.String.Join(", ", extra_channel.ToList());
         }
 

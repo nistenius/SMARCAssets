@@ -1,0 +1,64 @@
+newmtl coating_span00
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span01
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span02
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span03
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span04
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span05
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span06
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+
+newmtl coating_span07
+Kd 0.660 0.644 0.620
+Ks 0.05 0.05 0.05
+Ns 8
+d 1.0
+illum 2
+map_Kd asko_pipeline_coating.png
+

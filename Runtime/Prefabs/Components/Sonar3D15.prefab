@@ -139,4 +139,4 @@ MonoBehaviour:
   InsRange: 4
   InsBeams: 150
   InsRaysPerBeam: 17
-  InsPingHz: 10
+  InsPingHz: 20

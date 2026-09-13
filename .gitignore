@@ -33,3 +33,8 @@ Runtime/Terrain/Kristineberg/kristineberg_dock*.asset
 Runtime/Terrain/Kristineberg/kristineberg_dock*.asset.meta
 Runtime/Terrain/Kristineberg/kristineberg_control.bin
 Runtime/Terrain/Kristineberg/kristineberg_control.bin.meta
+
+# Asko curated terrain (~544 MB) is NOT in git: it would exceed the 1 GB LFS quota.
+# Regenerate with the Asko site pipeline or fetch the Oceanverse bundle. (2026-09-13)
+Runtime/Terrain/Asko/
+Runtime/Terrain/Asko.meta

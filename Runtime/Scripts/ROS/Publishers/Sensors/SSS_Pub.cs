@@ -42,10 +42,10 @@ namespace ROS.Publishers
             ROSMsg.type = 0xE2;   // "Sonar 8 Bit", the packet type this payload actually is
             ROSMsg.port_channel = new byte[DataSource.NumBucketsPerBeam];
             ROSMsg.starboard_channel = new byte[DataSource.NumBucketsPerBeam];
-            ROSMsg.port_channel_angle_high = new byte[DataSource.NumBucketsPerBeam];
-            ROSMsg.port_channel_angle_low = new byte[DataSource.NumBucketsPerBeam];
-            ROSMsg.starboard_channel_angle_high = new byte[DataSource.NumBucketsPerBeam];
-            ROSMsg.starboard_channel_angle_low = new byte[DataSource.NumBucketsPerBeam];
+            ROSMsg.port_channel_phase_15_8 = new byte[DataSource.NumBucketsPerBeam];
+            ROSMsg.port_channel_phase_7_0 = new byte[DataSource.NumBucketsPerBeam];
+            ROSMsg.starboard_channel_phase_15_8 = new byte[DataSource.NumBucketsPerBeam];
+            ROSMsg.starboard_channel_phase_7_0 = new byte[DataSource.NumBucketsPerBeam];
 
         }
 
@@ -55,10 +55,10 @@ namespace ROS.Publishers
             var mid = DataSource.NumBucketsPerBeam;
             Array.Copy(DataSource.Buckets, 0, ROSMsg.port_channel, 0, mid);
             Array.Copy(DataSource.Buckets, mid, ROSMsg.starboard_channel, 0, mid);
-            Array.Copy(DataSource.BucketsAngleHigh, 0, ROSMsg.port_channel_angle_high, 0, mid);
-            Array.Copy(DataSource.BucketsAngleLow, 0, ROSMsg.port_channel_angle_low, 0, mid);
-            Array.Copy(DataSource.BucketsAngleHigh, mid, ROSMsg.starboard_channel_angle_high, 0, mid);
-            Array.Copy(DataSource.BucketsAngleLow, mid, ROSMsg.starboard_channel_angle_low, 0, mid);
+            Array.Copy(DataSource.BucketsPhaseHigh, 0, ROSMsg.port_channel_phase_15_8, 0, mid);
+            Array.Copy(DataSource.BucketsPhaseLow, 0, ROSMsg.port_channel_phase_7_0, 0, mid);
+            Array.Copy(DataSource.BucketsPhaseHigh, mid, ROSMsg.starboard_channel_phase_15_8, 0, mid);
+            Array.Copy(DataSource.BucketsPhaseLow, mid, ROSMsg.starboard_channel_phase_7_0, 0, mid);
         }
     }
 }

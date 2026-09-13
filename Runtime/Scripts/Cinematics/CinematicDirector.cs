@@ -146,6 +146,17 @@ namespace Smarc.Cinematics
         public BalticWaterPreset WaterPreset;
         [Tooltip("Sonar beam visualisers, toggled per shot (CameraShot.SonarBeamsVisible). Filled at Play from every RayViewer UNDER the vehicle — never scene-wide, so a second vehicle's sonar does not end up in this take.")]
         public List<RayViewer> SonarBeams = new List<RayViewer>();
+
+        [Tooltip("The side-scan waterfall panel already in the scene, opened and closed per shot " +
+                 "(CameraShot.ShowSSSWaterfall). Found at Play when empty. The director drives the " +
+                 "EXISTING panel rather than building a video copy of it: a second instrument that " +
+                 "can disagree with the first one is exactly what a video must not put on screen.\n\n" +
+                 "Entering cinematic mode also TAKES ITS KEY. The panel's toggle key is F6 and this " +
+                 "director's HUD key is F6, so in a scene holding both, one press meant two things. " +
+                 "SSSWaterfallHUD.SetDirectorControl gates the panel's own handler and hides its " +
+                 "closed-state button for the duration; leaving cinematic mode gives both back, " +
+                 "along with whatever open/closed state the panel had when F9 was pressed.")]
+        public SSSWaterfallHUD Waterfall;
         [Tooltip("WaterSurface whose TRANSFORM Y is the still-water plane. Read for its transform only — never GetWaterLevelAt (SETTLED §3s). Left empty, the first one in the scene is used; with none, the depth conditions say they cannot be evaluated instead of guessing Y = 0.")]
         public WaterSurface Surface;
         [Tooltip("Vehicle ROOT GameObject name. Everything the shots aim at is searched UNDER this first, which is what stops 'base_link' resolving to the station's.")]
@@ -231,6 +242,12 @@ namespace Smarc.Cinematics
         string editModePresetName = "";
         string appliedPresetName = "";
 
+        // 2026-09-01: the waterfall panel's open/closed state as it was when F9 was pressed, so
+        // leaving cinematic mode hands the operator back the panel they had — the same
+        // put-it-back-as-you-found-it rule the water look and the suppressed cameras follow.
+        bool waterfallWasOpen;
+        bool waterfallTaken;
+
         // round 3: the orbit's END pose, resolved once at shot start from OrbitEndAnchor
         bool orbitEndFromAnchor;
         float orbitEndBearingDeg, orbitEndRadius, orbitEndHeight;
@@ -266,6 +283,7 @@ namespace Smarc.Cinematics
             if (Drain == null) Drain = FindFirstObjectByType<DockDrainDirector>();
             if (Surface == null) Surface = FindFirstObjectByType<WaterSurface>();
             if (WaterPreset == null) WaterPreset = FindFirstObjectByType<BalticWaterPreset>();
+            if (Waterfall == null) Waterfall = FindFirstObjectByType<SSSWaterfallHUD>();
 
             ResolveSonarBeams();
             if (Surface == null)
@@ -389,6 +407,21 @@ namespace Smarc.Cinematics
                                $"{string.Join("; ", badPresets)}. Known: " +
                                $"{(WaterPreset != null ? string.Join(", ", WaterPreset.PresetNames()) : "NO BalticWaterPreset IN THE SCENE")}. " +
                                "Those shots will leave the water exactly as saved rather than substitute a look.");
+            // A shot that asks for the waterfall in a scene that has none is a shot that will look
+            // right in the Inspector and be missing an instrument in the frame. Said at Play.
+            int wantWaterfall = 0;
+            foreach (var s in Shots) if (s != null && s.ShowSSSWaterfall) wantWaterfall++;
+            if (wantWaterfall > 0 && Waterfall == null)
+                Debug.LogWarning($"[CinematicDirector] {wantWaterfall} shot(s) ask for the SSS waterfall " +
+                                 "panel, but there is no SSSWaterfallHUD in this scene. Those shots play " +
+                                 "without it — nothing is substituted. The panel is a component on the " +
+                                 "vehicle root; add it there, or clear ShowSSSWaterfall on those shots.");
+            else if (wantWaterfall > 0)
+                Debug.Log($"[CinematicDirector] the SSS waterfall panel " +
+                          $"('{HierarchyPath(Waterfall.transform)}') is up on {wantWaterfall} of " +
+                          $"{Shots.Count} shot(s). While cinematic mode is on, {ToggleHudKey} belongs to " +
+                          "this director and the panel's own key is gated — see SetDirectorControl.");
+
             if (drainShots.Count > 1)
                 Debug.LogWarning($"[CinematicDirector] {drainShots.Count} shots ask for a dock drain " +
                                  $"({string.Join(", ", drainShots)}). Leaving one shot refills the dock before the " +
@@ -637,6 +670,46 @@ namespace Smarc.Cinematics
             return best;
         }
 
+        /// <summary>
+        /// The object an `AdvanceWhen.TargetAstern` shot is flying past, resolved once and cached
+        /// onto the shot. SCENE-WIDE by design and not under the vehicle: the thing being passed is
+        /// a fixture on the seabed, not part of the hull. It says what it found and where, once,
+        /// because "the cut never came" and "the cut aimed at the wrong object" look identical from
+        /// the frame — which is the 2026-08-21 wrong-end-of-the-dock lesson in a new place.
+        /// </summary>
+        Transform ResolveAsternTarget(CameraShot shot)
+        {
+            if (shot.AsternTarget != null) return shot.AsternTarget;
+            if (string.IsNullOrEmpty(shot.AsternTargetName)) return null;
+            var go = GameObject.Find(shot.AsternTargetName);
+            if (go == null) return null;
+            shot.AsternTarget = go.transform;
+            Debug.Log($"[CinematicDirector] '{shot.Name}' fly-past target '{shot.AsternTargetName}' " +
+                      $"resolved scene-wide to '{HierarchyPath(go.transform)}' at {go.transform.position}. " +
+                      "If the cut lands on the wrong thing, this line names what it latched onto.");
+            return shot.AsternTarget;
+        }
+
+        /// <summary>
+        /// Is `target` behind the vehicle? HORIZONTAL test — the vehicle's forward tilts with its
+        /// pitch and it is pitching through this whole shot, so a 3-D dot product would make the
+        /// cut depend on the dive angle. `along` is the signed along-track distance in metres,
+        /// positive once the target is astern, which is what the overlay counts down.
+        /// </summary>
+        bool TargetIsAstern(Transform target, out float along, out float lateral)
+        {
+            along = 0f; lateral = 0f;
+            if (target == null || vehicleAim == null) return false;
+            Vector3 fwd = vehicleAim.forward; fwd.y = 0f;
+            if (fwd.sqrMagnitude < 1e-6f) return false;
+            fwd.Normalize();
+            Vector3 d = vehicleAim.position - target.position; d.y = 0f;
+            along = Vector3.Dot(d, fwd);
+            lateral = Vector3.Cross(Vector3.up, fwd).sqrMagnitude > 0f
+                    ? Vector3.Dot(d, Vector3.Cross(Vector3.up, fwd).normalized) : 0f;
+            return along > 0f;
+        }
+
         bool HoopIsAstern(int index)
         {
             if (Hoops == null || vehicleAim == null) return false;
@@ -754,6 +827,8 @@ namespace Smarc.Cinematics
                 case CameraShot.AdvanceWhen.VehicleSurfacedAndIdle:
                     return $"vehicle surfaced AND stopped for {s.IdleSeconds:F0} s";
                 case CameraShot.AdvanceWhen.DrainComplete: return "the dock to finish draining";
+                case CameraShot.AdvanceWhen.TargetAstern:
+                    return $"'{(s.AsternTarget != null ? s.AsternTarget.name : s.AsternTargetName)}' to go astern";
                 default: return "the Next key";
             }
         }
@@ -816,6 +891,20 @@ namespace Smarc.Cinematics
                     // Both halves true at shot start; the IdleSeconds hold is what MinSeconds now serves.
                     why = $"the run was ALREADY over at shot start — {VehicleDepth:F2} m down, {smoothedSpeed:F2} m/s";
                     return true;
+
+                case CameraShot.AdvanceWhen.TargetAstern:
+                    {
+                        // ALREADY TRUE, not moot: the vehicle is past the thing this shot was going
+                        // to film it passing. Waiting out a 180 s ceiling for a pass that has already
+                        // happened is precisely the take-006 dead air, in a new condition — which is
+                        // why this one participates in the rule rather than being an exception to it.
+                        var tgt = ResolveAsternTarget(shot);
+                        if (tgt == null) return false;
+                        if (!TargetIsAstern(tgt, out float along, out _)) return false;
+                        why = $"'{tgt.name}' was ALREADY {along:F1} m astern when this shot started — " +
+                              "the pass is behind us, not ahead";
+                        return true;
+                    }
             }
             return false;
         }
@@ -962,6 +1051,31 @@ namespace Smarc.Cinematics
                         return Drain.Progress01 >= 1f;
                     }
 
+                case CameraShot.AdvanceWhen.TargetAstern:
+                    {
+                        var tgt = ResolveAsternTarget(shot);
+                        if (tgt == null)
+                        {
+                            // Named and not found is a different failure from "not named at all",
+                            // and only one of them is a configuration mistake.
+                            detail = string.IsNullOrEmpty(shot.AsternTargetName) && shot.AsternTarget == null
+                                ? "waiting: something to go astern — THIS SHOT NAMES NOTHING TO PASS. Set " +
+                                  "Astern Target (or Astern Target Name) on it, or give it a different Advance."
+                                : $"waiting: '{shot.AsternTargetName}' to go astern — NO OBJECT OF THAT NAME " +
+                                  "in the scene, so this shot can only fall through on its ceiling. " +
+                                  "Run SMARC/Video/A1.";
+                            return false;
+                        }
+                        bool astern = TargetIsAstern(tgt, out float along, out float lateral);
+                        detail = astern
+                            ? $"'{tgt.name}' is astern — {along:F1} m behind, {Mathf.Abs(lateral):F1} m " +
+                              $"to {(lateral > 0f ? "port" : "starboard")}, running on for " +
+                              $"{shot.SteadySeconds:F1} s"
+                            : $"waiting: '{tgt.name}' to go astern — {-along:F1} m ahead, " +
+                              $"{Mathf.Abs(lateral):F1} m to {(lateral > 0f ? "port" : "starboard")}";
+                        return astern;
+                    }
+
                 case CameraShot.AdvanceWhen.HoopsIdle:
                     {
                         if (Hoops == null) { detail = "waiting: the plan to stop growing — NO MissionWPHoop_Sub, cannot tell"; return false; }
@@ -999,6 +1113,14 @@ namespace Smarc.Cinematics
             // once per entry into cinematic mode, so F9-off always puts back what F9-on found.
             editModePresetName = WaterPreset != null ? WaterPreset.ActivePreset : "";
             appliedPresetName = "";
+            // Take the waterfall panel — and with it, F6 — for the duration. See the field's tooltip
+            // and SSSWaterfallHUD.SetDirectorControl for why the key is borrowed rather than moved.
+            if (Waterfall != null)
+            {
+                waterfallWasOpen = Waterfall.open;
+                Waterfall.SetDirectorControl(true, name);
+                waterfallTaken = true;
+            }
             if (Particles != null) Particles.SetCamera(CinematicCamera);
             BeginShot(CurrentShot);
             Debug.Log($"[CinematicDirector] cinematic mode ON — {Shots.Count} shot(s), auto-advance " +
@@ -1020,15 +1142,27 @@ namespace Smarc.Cinematics
             // both its LEVEL (the drain) and its LOOK (the per-shot preset).
             ReleaseDrain();
             RestoreWaterPreset();
+            ReleaseWaterfall();
             if (Particles != null) Particles.SetCamera(null);
             Debug.Log("[CinematicDirector] cinematic mode OFF — cameras, GUI, HUD, sonar beams, " +
-                      "the water level and the water look all restored.");
+                      "the waterfall panel and its key, the water level and the water look all restored.");
+        }
+
+        /// <summary>Give the waterfall panel, its key and its open/closed state back. Idempotent.</summary>
+        void ReleaseWaterfall()
+        {
+            if (!waterfallTaken) return;
+            waterfallTaken = false;
+            if (Waterfall == null) return;
+            Waterfall.SetDirectorControl(false, name);
+            Waterfall.open = waterfallWasOpen;
         }
 
         // Belt and braces: leaving Play, deleting the director, or disabling it must not leave the
-        // dock drained or the water wearing a preset the scene was not saved with. DockDrainDirector
-        // restores itself too; both paths are cheap and neither is allowed to be the only one.
-        void OnDisable() { ReleaseDrain(); RestoreWaterPreset(); }
+        // dock drained, the water wearing a preset the scene was not saved with, or the waterfall
+        // panel deaf to its own key with no director left to press anything. DockDrainDirector
+        // restores itself too; every one of these paths is cheap and none is allowed to be the only one.
+        void OnDisable() { ReleaseDrain(); RestoreWaterPreset(); ReleaseWaterfall(); }
 
         void EnsureCamera()
         {
@@ -1145,6 +1279,10 @@ namespace Smarc.Cinematics
                 SonarMap.ShowLabel = shot.SonarMapLabelVisible;
             }
             ApplyBeams(shot.SonarBeamsVisible, shot.SonarRayLinesVisible);
+            // The waterfall panel is a per-shot instrument like the HUD and the map label. Only
+            // while the director actually holds it: jumping shots with F10 outside cinematic mode
+            // cannot happen, but a director that failed to take the panel must not silently drive it.
+            if (waterfallTaken && Waterfall != null) Waterfall.open = shot.ShowSSSWaterfall;
 
             // Per-shot setup that has to happen once, not every frame.
             wpCurrentIndex = -1;
@@ -1206,7 +1344,8 @@ namespace Smarc.Cinematics
 
             Debug.Log($"[CinematicDirector] shot {CurrentShot + 1}/{Shots.Count}: '{shot.Name}' ({shot.Kind}), " +
                       $"{shot.AdvanceSummary()}, HUD {(shot.HudVisible ? "on" : "off")}, " +
-                      $"map {(shot.SonarMapVisible ? "on" : "off")}" +
+                      $"map {(shot.SonarMapVisible ? "on" : "off")}, " +
+                      $"waterfall {(shot.ShowSSSWaterfall ? "UP" : "down")}" +
                       (string.IsNullOrEmpty(shot.WaterPresetName) ? "" : $", water '{shot.WaterPresetName}'") +
                       (preSatisfied ? $".\n  CONDITION PRE-SATISFIED: {preSatisfiedWhy} — this shot will hand " +
                                       $"over at its {Mathf.Max(MinShotSeconds, shot.MinSeconds):F1} s minimum " +

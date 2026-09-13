@@ -1,0 +1,71 @@
+{
+  "generated_utc": "2026-08-27T16:03:12+00:00",
+  "generator": "data-cube/scripts/asko-site/build_mmt_mini.py",
+  "object": "MMT Mini Cooper — sonar/search training target sunk at Askö by MMT",
+  "source_cad": "CAD models/MMT Mini/MiniCooper-1965.3dm",
+  "source_cad_layers": {
+    "Kaross": "paint",
+    "Fönster": "glazing",
+    "Däck": "rubber",
+    "Default": "trim",
+    "Framlyktor": "lamp",
+    "Framblinkers": "amber",
+    "Baklampor": "tail"
+  },
+  "source_scale": {
+    "rhino_units": "millimetres",
+    "note": "Default + named layers = 379 objects / 25,816 faces, the same geometry as the `simple` layer and the exported STL"
+  },
+  "dimensions_m": {
+    "width": 1.415950927734375,
+    "height": 1.2775850067734718,
+    "length": 3.07801025390625
+  },
+  "frame": "metres, Y up, +Z = nose, origin centred and resting on y = 0",
+  "triangles": {
+    "rubber": 2240,
+    "trim": 16790,
+    "lamp": 68,
+    "amber": 124,
+    "tail": 426,
+    "paint": 6050,
+    "glazing": 118
+  },
+  "texture": {
+    "atlas": "mmt_mini_paint.png",
+    "size": [
+      4096,
+      2048
+    ],
+    "method": "six-way box projection, 1024 px per axis cell"
+  },
+  "appearance": {
+    "state": "as recovered (Ivan, 2026-08-27) — rusted, bleached red roof",
+    "painted_from": "the recovery photographs in the CAD folder, not baked from a scan",
+    "colours": {
+      "yellow": [
+        214,
+        191,
+        47
+      ],
+      "red_roof": [
+        150,
+        26,
+        38
+      ],
+      "bleach": [
+        207,
+        176,
+        170
+      ],
+      "rust": [
+        122,
+        66,
+        30
+      ]
+    },
+    "registration_plate": "DELIBERATELY ILLEGIBLE — unreadable in every photograph we hold, and a plausible-looking Swedish registration would be an invented vehicle identity",
+    "mmt_laser_scan_not_used": "CAD models/MMT Mini/Från MMT/MMT_Mini_Laser.txt — 915k coloured points, but in a local 1000/1000 frame with scanner colour; used only to check the yellow (its dominant colour is 240,240,144)"
+  },
+  "placement": "NOT PLACED (Ivan, 2026-08-27: prefab only). No georeferenced drop position exists in the CAD folder; 'Askholmen' in the photo filename is the survey vessel, not a location."
+}

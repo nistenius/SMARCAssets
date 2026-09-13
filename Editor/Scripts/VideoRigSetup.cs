@@ -701,7 +701,13 @@ public static class VideoRigSetup
     /// damping) are deliberately NOT compared — re-seeding over those is the point of the dialog,
     /// not of this test.
     /// </summary>
-    static bool StoryboardMatches(List<CameraShot> have, List<CameraShot> want)
+    /// <remarks>
+    /// `internal` since 2026-09-01 so `AskoVideoRigSetup` can use THIS comparator rather than
+    /// grow a second one. SETTLED §3s8: two copies of "correct" is how a builder and its checker
+    /// start disagreeing, and a storyboard comparator is exactly the kind of thing that gets
+    /// re-typed slightly differently.
+    /// </remarks>
+    internal static bool StoryboardMatches(List<CameraShot> have, List<CameraShot> want)
     {
         // REWRITTEN 2026-08-21, after it lied on the rig: the hand-kept version compared SEVEN
         // fields, so when BuildStoryboard gained the shot-2 zoom-in (ZoomInSeconds /
@@ -891,7 +897,7 @@ public static class VideoRigSetup
     /// time and offer to replace the shot list. A scene Transform is stable, so 2b is a genuine
     /// no-op and only 2c/2d ever move these, saying so when they do.
     /// </summary>
-    static Transform EnsureMarker(CinematicDirector director, string name, System.Func<Vector3> where, out bool created)
+    internal static Transform EnsureMarker(CinematicDirector director, string name, System.Func<Vector3> where, out bool created)
     {
         created = false;
         var existing = director.transform.Find(name);
@@ -1495,7 +1501,7 @@ public static class VideoRigSetup
                   $"Changed:\n{changes}SAVE THE SCENE (Cmd-S). Press 2d again: it must say NOTHING TO CHANGE.");
     }
 
-    static void MoveIfNeeded(Transform t, Vector3 want, string label, System.Text.StringBuilder changes)
+    internal static void MoveIfNeeded(Transform t, Vector3 want, string label, System.Text.StringBuilder changes)
     {
         if (t == null) return;
         if ((t.position - want).sqrMagnitude <= 0.01f) return;
@@ -1964,6 +1970,11 @@ public static class VideoRigSetup
 
         var recorder = File.Exists("Packages/manifest.json") && File.ReadAllText("Packages/manifest.json").Contains("com.unity.recorder");
         sb.AppendLine(recorder ? "  ok    com.unity.recorder is in the manifest." : "  WARN  com.unity.recorder is NOT in Packages/manifest.json.");
+
+        // If this scene carries the Askö fly-past rig, its lines go here too — `5` stays the one
+        // menu item that answers "is this scene ready", instead of becoming a menu item you have to
+        // know not to trust. It appends nothing when there is no Askö rig.
+        AskoVideoRigSetup.AppendReadinessIfPresent(sb);
 
         Debug.Log(sb.ToString());
     }

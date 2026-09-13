@@ -25,3 +25,7 @@ Runtime/Models/DrydockHiRes/*.png   filter=lfs diff=lfs merge=lfs -text
 
 # Unity .meta files must stay as normal text (they are tiny and must diff)
 *.meta  -filter -diff -merge text
+
+# MMTMini scan (~19 MB, 2026-09-13)
+Runtime/Prefabs/Environment/MMTMini/*.obj filter=lfs diff=lfs merge=lfs -text
+Runtime/Prefabs/Environment/MMTMini/*.png filter=lfs diff=lfs merge=lfs -text

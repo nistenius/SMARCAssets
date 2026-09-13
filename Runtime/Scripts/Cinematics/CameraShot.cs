@@ -100,7 +100,27 @@ namespace Smarc.Cinematics
             /// leaves this false and the shot falls through on its ceiling, naming the refusal.
             /// Appended, never inserted.
             /// </summary>
-            DrainComplete
+            DrainComplete,
+
+            /// <summary>
+            /// A NAMED SCENE OBJECT IS ASTERN OF THE VEHICLE. The fly-past cut (2026-09-01,
+            /// Askö: "we pass the mini with sonars on"). `HoopPassed` could not do this job —
+            /// it can only latch onto a waypoint hoop, and the thing being passed here is a
+            /// car on the seabed, not a waypoint. So this condition takes an arbitrary
+            /// Transform (`AsternTarget`, or `AsternTargetName` resolved at Play) and fires
+            /// once the vehicle has gone by it, held for `SteadySeconds` — which on this
+            /// condition doubles as "how long the lens keeps running on after the pass",
+            /// exactly as it does for HoopPassed.
+            ///
+            /// ASTERN IS MEASURED IN THE HORIZONTAL PLANE. The vehicle's forward tilts with
+            /// its pitch, and it is pitching during a dive; a 3-D dot product would therefore
+            /// call the target "astern" a little early on the way down and a little late on
+            /// the way up. Flattening removes a pitch-dependent cut from a shot whose whole
+            /// subject is a dive.
+            ///
+            /// Appended, never inserted — see the note on Mode.
+            /// </summary>
+            TargetAstern
         }
 
         [Tooltip("Shown in the director's overlay and in the log when the shot starts.")]
@@ -143,6 +163,19 @@ namespace Smarc.Cinematics
         [Tooltip("Seconds of no change for HoopsIdle / VehicleIdle.")]
         public float IdleSeconds = 12f;
 
+        [Header("TargetAstern — the fly-past cut")]
+        [Tooltip("The object the vehicle flies PAST. AdvanceWhen.TargetAstern ends the shot once " +
+                 "this is behind the vehicle (horizontal test — see the enum's comment) and has " +
+                 "stayed behind it for SteadySeconds. A scene Transform rather than a Vector3 so " +
+                 "the seeded shot list compares equal to itself on a second press (SETTLED §3s8): " +
+                 "a position derived from a scene object changes the moment that object is nudged, " +
+                 "and the builder would then find a difference every time it ran.")]
+        public Transform AsternTarget;
+        [Tooltip("Fallback for AsternTarget: a GameObject name, resolved SCENE-WIDE at shot start " +
+                 "and cached. Scene-wide on purpose — unlike LookAtName, the thing being passed is " +
+                 "NOT part of the vehicle. It logs what it found and where, once per resolve.")]
+        public string AsternTargetName = "";
+
         [Tooltip("LEGACY, kept so an older saved shot list still behaves. If Advance is Manual and this is on, the shot is treated as Advance = Duration. New shots should set Advance instead.")]
         public bool AutoAdvance = false;
 
@@ -165,6 +198,19 @@ namespace Smarc.Cinematics
 
         [Tooltip("Also draw the RAY LINES, not just the hit points. Off by default: 2550 lines from a 150-beam FLS reads as a solid wall, not as beams.")]
         public bool SonarRayLinesVisible = false;
+
+        [Tooltip("SHOW THE SIDE-SCAN WATERFALL PANEL during this shot (Ivan, 2026-09-01: the beams " +
+                 "AND the existing SSSWaterfallHUD burned into frame). The director opens and closes " +
+                 "the panel that is already in the scene — it does not build a second one, because a " +
+                 "video copy of an instrument panel is a second instrument that can disagree with the " +
+                 "first one on camera. The panel keeps its own AGC, palette and footer statistics, so " +
+                 "what the video shows is what the operator sees.\n\n" +
+                 "The panel's own toggle key is F6, which is ALSO the director's HUD key. While " +
+                 "cinematic mode is on the director takes that key and gates the panel's own handler " +
+                 "(SSSWaterfallHUD.SetDirectorControl), so one key press cannot mean two things. It " +
+                 "also hides the panel's closed-state '▲ SSS waterfall (F6)' button, which would " +
+                 "otherwise be burned into every frame of every shot that does not want the panel.")]
+        public bool ShowSSSWaterfall = false;
 
         [Tooltip("NAME OF A BalticWaterPreset TO APPLY WHILE THIS SHOT RUNS — \"\" leaves the water exactly as " +
                  "the scene was saved (Ivan, 2026-08-21 round 3: \"shift water to the clear version instead and " +

@@ -10,11 +10,19 @@ namespace VehicleComponents.Sensors
     /// <summary>
     /// Water Linked Sonar 3D-15 operating modes (as on SAM 2.2).
     ///
-    /// The real unit runs at two frequencies with different range/rate/beam width:
-    ///   NAVIGATION  1.2 MHz : 15 m,  5 Hz, 0.6 deg H x 2.4 deg V  — transit, long look
-    ///   INSPECTION  2.4 MHz :  4 m, 20 Hz, ~0.3 deg H x 1.2 deg V — close work, fine detail
-    /// Field of view stays 90 deg x 40 deg in both; what changes is range, ping rate
-    /// and angular resolution.
+    /// The real unit runs at two frequencies with different FOV/range/rate/beam width.
+    /// CORRECTED 2026-09-09 against the Water Linked datasheet (waterlinked.com/datasheets/
+    /// sonar-3D-15, read that day; SETTLED §3ad):
+    ///   NAVIGATION  1.2 MHz : 90 deg x 40 deg, 15 m, 5 Hz, beams 0.85 deg H x 1.60 deg V
+    ///   INSPECTION  2.4 MHz : 40 deg x 40 deg,  4 m, 20 Hz, beams 0.45 deg H x 0.85 deg V
+    /// Range resolution 1.5 mm; minimum range 20 cm; 20 W.
+    ///
+    /// THE FIELD OF VIEW DOES **NOT** STAY 90 x 40. This summary said it did, and that was an
+    /// over-claim: the high-frequency mode is 40 deg x 40 deg, i.e. it gives up more than half
+    /// its azimuth fan to buy the finer beams. The sim does not model either FOV change or the
+    /// finer beams (see below), so nothing in the scene changes with this correction — but a
+    /// mission planned against "90 deg in both" would expect an inspection-mode fan that does
+    /// not exist on the real unit.
     ///
     /// WHAT THE SIM SWITCH ACTUALLY CHANGES: range and ping rate only. Ray counts
     /// are fixed at Awake — see Apply() for why (live re-allocation crashes every
@@ -73,7 +81,12 @@ namespace VehicleComponents.Sensors
         public float InsRange = 4f;
         public int InsBeams = 150;        // keep == NavBeams: see Apply()
         public int InsRaysPerBeam = 17;   // keep == NavRaysPerBeam: see Apply()
-        public float InsPingHz = 10f;     // spec 20 Hz
+        // 2026-09-09: was 10 f. The datasheet says 20 Hz and the previous comment said so
+        // while the value did not — a number that documents its own disagreement is the shape
+        // SETTLED §3k warns about. Corrected to the spec. NOT COMPILED: this session has no
+        // Unity, so the effect on the scene is unverified and the prefab's own serialized
+        // InsPingHz (also 10, also corrected) is what the built scene actually reads.
+        public float InsPingHz = 20f;     // datasheet: 20 Hz
 
         float lastSwitchTime = -999f;
         float noReturnSince = -1f;

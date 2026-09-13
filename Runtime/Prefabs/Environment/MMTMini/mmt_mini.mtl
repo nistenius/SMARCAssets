@@ -1,0 +1,50 @@
+newmtl rubber
+Kd 0.050 0.050 0.050
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+
+newmtl trim
+Kd 0.420 0.400 0.360
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+
+newmtl lamp
+Kd 0.700 0.700 0.660
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+
+newmtl amber
+Kd 0.620 0.280 0.030
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+
+newmtl tail
+Kd 0.450 0.040 0.050
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+
+newmtl paint
+Kd 0.840 0.750 0.180
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+map_Kd mmt_mini_paint.png
+
+newmtl glazing
+Kd 0.080 0.090 0.100
+Ks 0.1 0.1 0.1
+Ns 20
+d 1.0
+illum 2
+

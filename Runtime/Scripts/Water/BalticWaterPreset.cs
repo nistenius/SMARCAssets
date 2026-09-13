@@ -275,9 +275,33 @@ namespace SmarcGUI.Water
 
             ActivePreset = look.Name;
 
-            if (look.UnderWater && surface.volumeBounds == null)
-                Debug.LogWarning("[BalticWaterPreset] underWater is on but the surface has no Volume Bounds BoxCollider — " +
-                                 "HDRP has no region to render the underwater view in, so in-water shots will look like above-water ones.");
+            // WHICH REGION HDRP RENDERS THE UNDERWATER VIEW IN DEPENDS ON THE SURFACE TYPE, and
+            // this warning used to assume the Beckholmen answer for every scene.
+            //
+            // Measured out of this project's own HDRP 17.3 source
+            // (Runtime/Water/HDRenderPipeline.WaterSystem.Underwater.cs, ~line 60): a surface with
+            // `IsInfinite()` — surfaceType OceanSeaLake AND geometryType Infinite — takes a
+            // completely different branch, testing the camera against
+            //   surfaceY - volumeDepth  <  cameraY  <  surfaceY + max(2*maxWaveHeight, 0.1, volumeHeight)
+            // and never looking at `volumeBounds` at all. Askö's Ocean is exactly that surface, so
+            // the old warning fired on a scene where the field it names is IRRELEVANT — and a
+            // warning that is wrong in one scene is a warning nobody reads in any scene.
+            //
+            // Beckholmen's Water is surfaceType Pool, so it takes the `volumeBounds` branch and the
+            // original warning stands there unchanged. That is the SETTLED §3s9 defect: the box
+            // must cover every camera position, not just the vehicle's.
+            if (look.UnderWater)
+            {
+                if (IsInfiniteSurface(surface))
+                    Debug.Log($"[BalticWaterPreset] '{surface.name}' is an INFINITE ocean surface, so the " +
+                              $"underwater view is bounded by volumeDepth ({surface.volumeDepth:F0} m below " +
+                              $"the plane) and volumeHeight ({surface.volumeHeight:F0} m above it), not by a " +
+                              "volumeBounds collider. The Beckholmen box-collider trap does not apply here.");
+                else if (surface.volumeBounds == null)
+                    Debug.LogWarning("[BalticWaterPreset] underWater is on, this is a NON-infinite surface, and it " +
+                                     "has no Volume Bounds BoxCollider — HDRP has no region to render the " +
+                                     "underwater view in, so in-water shots will look like above-water ones.");
+            }
 
             Debug.Log($"[BalticWaterPreset] '{look.Name}' applied to '{surface.name}' " +
                       $"(absorption {look.AbsorptionDistance} m, underwater x{look.AbsorptionDistanceMultiplier}). " +
@@ -367,11 +391,48 @@ namespace SmarcGUI.Water
                                "levels, differential buoyancy, and a vehicle at 67 m/s. Move the TERRAIN, not the " +
                                "water. (This preset changes appearance only and did not move anything.)");
 
-            if (surface.scriptInteractions)
-                Debug.LogWarning("[BalticWaterPreset] the surface has CPU 'Script Interactions' ON. That is the mode " +
-                                 "HDRPWaterQueryModel actually searches in, and it has never been the shipped " +
-                                 "Beckholmen setting (serialized: off). If the vehicle starts behaving differently " +
-                                 "after a look change, this — not the colours — is the difference.");
+            // SCRIPT INTERACTIONS: A FLAT POOL AND A WAVY OCEAN WANT OPPOSITE ANSWERS, and this
+            // warning used to give only one of them.
+            //
+            // `scriptInteractions` is the CPU water simulation `HDRPWaterQueryModel` searches. On
+            // Beckholmen's flat Pool it is OFF and turning it on is a change worth noticing. On
+            // Askö's Ocean it is ON in the shipped scene and it MUST BE: with displacement, the
+            // water level under a ForcePoint is not the transform's Y, and without the CPU
+            // simulation the query model has nothing to search. Turning it off there does not make
+            // the vehicle safer, it makes buoyancy wrong.
+            //
+            // Said ONCE per component, not once per apply: a CinematicDirector applies a preset at
+            // every cut, and a warning repeated on every cut of every take is noise that trains
+            // people to stop reading the Console.
+            if (surface.scriptInteractions && !saidScriptInteractions)
+            {
+                saidScriptInteractions = true;
+                if (IsInfiniteSurface(surface))
+                    Debug.Log($"[BalticWaterPreset] '{surface.name}' has CPU 'Script Interactions' ON. On an " +
+                              "INFINITE ocean surface that is correct and required — the water level under a " +
+                              "ForcePoint is not the transform Y once there is displacement, and the query " +
+                              "model has nothing to search without it. DO NOT turn it off to match Beckholmen.");
+                else
+                    Debug.LogWarning("[BalticWaterPreset] the surface has CPU 'Script Interactions' ON. That is the mode " +
+                                     "HDRPWaterQueryModel actually searches in, and it has never been the shipped " +
+                                     "Beckholmen setting (serialized: off). If the vehicle starts behaving differently " +
+                                     "after a look change, this — not the colours — is the difference.");
+            }
+        }
+
+        bool saidScriptInteractions;
+
+        /// <summary>
+        /// HDRP's own `WaterSurface.IsInfinite()` is `internal`, so this reproduces its single line
+        /// (HDRP 17.3, WaterSurface.cs:801) rather than reaching for it by reflection: two public
+        /// enum comparisons are cheaper to read and cannot fail at runtime the way a renamed
+        /// internal method would. If HDRP ever changes the rule, this is the one place to change.
+        /// </summary>
+        public static bool IsInfiniteSurface(WaterSurface s)
+        {
+            return s != null
+                && s.surfaceType == WaterSurfaceType.OceanSeaLake
+                && s.geometryType == WaterGeometryType.Infinite;
         }
 
         // ---------------------------------------------------------------- misc
