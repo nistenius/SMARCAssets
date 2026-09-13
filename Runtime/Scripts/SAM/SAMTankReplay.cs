@@ -90,7 +90,7 @@ namespace Force
             string tag = Selector != null ? (Selector.Model == SAMHydroModelSelector.HydroModel.V2_TankIdentified2026 ? "v2" : "v1") : "na";
             string outDir = Path.Combine(Application.streamingAssetsPath, "SAMReplay", "out"); Directory.CreateDirectory(outDir);
             outPath = Path.Combine(outDir, Path.GetFileNameWithoutExtension(CsvName) + $"_{tag}_H{RestartEverySeconds:F0}.csv");
-            outBuf = new StringBuilder(); outBuf.AppendLine("t,restart,px,py,pz,qx,qy,qz,qw,su,sv,sw,sp,sq,sr,rpm1,rpm2,yaw,pitch,vbs,lcg,thrust,perr");
+            outBuf = new StringBuilder(); outBuf.AppendLine("t,restart,px,py,pz,qx,qy,qz,qw,su,sv,sw,sp,sq,sr,rpm1,rpm2,yaw,pitch,vbs,lcg,thrust,perr,vbs_act,lcg_act");
             ReplayTime = StartTime; SampleIndex = 0; Restarts = 0; lastRestart = -1e9f; Running = true; if (TimeScale > 0f) Time.timeScale = TimeScale;
             Debug.Log($"[SAMReplay] {CsvName}: {rows.Length} rows at {1f / dtRec:F0} Hz, replaying {StartTime:F0}..{tEnd:F0} s, model {tag}, restart every {RestartEverySeconds} s -> {outPath}");
         }
@@ -169,8 +169,16 @@ namespace Force
                 .Append(wl.z.ToString("F4", ci)).Append(',').Append(wl.x.ToString("F4", ci)).Append(',').Append((-wl.y).ToString("F4", ci)).Append(',')      // FRD p,q,r
                 .Append(rpm1.ToString("F0", ci)).Append(',').Append(rpm2.ToString("F0", ci)).Append(',').Append(yaw.ToString("F4", ci)).Append(',').Append(pitch.ToString("F4", ci)).Append(',')
                 .Append(C(r, "vbs").ToString("F1", ci)).Append(',').Append(C(r, "lcg").ToString("F1", ci)).Append(',').Append((V2 != null && V2.enabled ? V2.ThrustForce : 0f).ToString("F3", ci)).Append(',')
-                .Append(PosError.ToString("F4", ci)).Append('\n');
+                .Append(PosError.ToString("F4", ci)).Append(',')
+                // ACHIEVED, not commanded. Until 2026-09-14 the LCG/VBS drives were 1000/2000 N/m
+                // springs, so a recorded 50 % landed as 59.5 % once the hull pitched; the replay was
+                // feeding the sim an actuator state the bag never had and nothing logged it.
+                .Append(VbsActual().ToString("F2", ci)).Append(',').Append(LcgActual().ToString("F2", ci))
+                .Append('\n');
         }
+
+        float VbsActual() { if (Vbs == null) return float.NaN; try { return Vbs.GetCurrentValue(); } catch { return float.NaN; } }
+        float LcgActual() { if (Lcg == null) return float.NaN; try { return Lcg.GetCurrentValue(); } catch { return float.NaN; } }
 
         public void Finish()
         {
