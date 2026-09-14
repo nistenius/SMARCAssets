@@ -26,6 +26,9 @@ namespace Force
     {
         [Header("Input")]
         public string CsvName = "rosbag2_2025_06_10-17_57_49.csv";
+        [Tooltip("Optional StreamingAssets/SAMReplay/<PlaylistFile>: one CSV name per line (# comments). When present it replaces CsvName and the replays run back to back in one Play session, each writing its own out/ file.")]
+        public string PlaylistFile = "replay_playlist.txt";
+        List<string> playlist; int playlistIndex = -1;
         public bool RunOnStart = true;
         [Tooltip("Seconds into the recording to start from")] public float StartTime = 0f;
         [Tooltip("Seconds to replay (0 = to the end)")] public float MaxDuration = 0f;
@@ -57,7 +60,20 @@ namespace Force
 
         float[][] rows; ArticulationBody[] allBodies; Vector3 pendingVel, pendingAngVel; bool havePendingVel; Dictionary<string, int> col; float dtRec; float lastRestart = -1e9f; StringBuilder outBuf; string outPath; MixedBody body; float tEnd;
 
-        void Start() { if (RunOnStart) Begin(); }
+        void Start()
+        {
+            if (!string.IsNullOrEmpty(PlaylistFile))
+            {
+                string pl = Path.Combine(Application.streamingAssetsPath, "SAMReplay", PlaylistFile);
+                if (File.Exists(pl))
+                {
+                    playlist = new List<string>();
+                    foreach (var raw in File.ReadAllLines(pl)) { string l = raw.Trim(); if (l.Length > 0 && !l.StartsWith("#")) playlist.Add(l); }
+                    if (playlist.Count > 0) { playlistIndex = 0; CsvName = playlist[0]; Debug.Log($"[SAMReplay] playlist {PlaylistFile}: {playlist.Count} replays, starting with {CsvName}"); }
+                }
+            }
+            if (RunOnStart) Begin();
+        }
 
         public void Begin()
         {
@@ -88,6 +104,7 @@ namespace Force
             if (V2 != null && FeedERPMToV2) { V2.ThrustSource = SAMHydrodynamicsV2.ThrustSourceMode.ExternalERPM; V2.UseCommandRPM = false; }
 
             string tag = Selector != null ? (Selector.Model == SAMHydroModelSelector.HydroModel.V2_TankIdentified2026 ? "v2" : "v1") : "na";
+            if (V2 != null && !string.IsNullOrEmpty(V2.OverrideTag)) tag += "_" + V2.OverrideTag;
             string outDir = Path.Combine(Application.streamingAssetsPath, "SAMReplay", "out"); Directory.CreateDirectory(outDir);
             outPath = Path.Combine(outDir, Path.GetFileNameWithoutExtension(CsvName) + $"_{tag}_H{RestartEverySeconds:F0}.csv");
             outBuf = new StringBuilder(); outBuf.AppendLine("t,restart,px,py,pz,qx,qy,qz,qw,su,sv,sw,sp,sq,sr,rpm1,rpm2,yaw,pitch,vbs,lcg,thrust,perr,vbs_act,lcg_act");
@@ -136,7 +153,13 @@ namespace Force
 
             // ---- identical actuator commands ----
             float rpm1 = C(r, "cmd_rpm1"), rpm2 = C(r, "cmd_rpm2");
-            float yaw = YawSign * C(r, "d1"), pitch = PitchSign * C(r, "d2");
+            // d1 = thruster_VERTICAL_radians (pitch plane), d2 = thruster_HORIZONTAL_radians (yaw plane) — the field order of
+            // sam_msgs/ThrusterAngles and MEASURED 2026-09-14 on 15 Askö bags: corr(d2, r) = +0.44 mean (up to +0.76),
+            // corr(d1, q) = +0.25, the cross terms ~0. Until 2026-09-14 this line fed d1 to the yaw hinge and d2 to the pitch
+            // hinge; it survived the June-10 tank gate only because that run barely excited yaw. YawSign -1 stays: the
+            // recording has positive d2 -> positive r (FRD), the Unity hinge gives cmd +7 deg -> r -2.42 deg/s (Rudder DoF).
+            // PitchSign is UNVERIFIED for the corrected channel (recording: positive d1 -> positive q).
+            float yaw = YawSign * C(r, "d2"), pitch = PitchSign * C(r, "d1");
             if (DriveActuators)
             {
                 if (DriveProps)
@@ -185,6 +208,13 @@ namespace Force
             if (!Running) return; Running = false; Time.timeScale = 1f;
             File.WriteAllText(outPath, outBuf.ToString());
             Debug.Log($"[SAMReplay] done: {Restarts} restarts, wrote {outPath}");
+            if (playlist != null && playlistIndex >= 0 && playlistIndex + 1 < playlist.Count)
+            {
+                playlistIndex++; CsvName = playlist[playlistIndex];
+                Debug.Log($"[SAMReplay] playlist: next {CsvName} ({playlistIndex + 1}/{playlist.Count})");
+                Begin();
+            }
+            else if (playlist != null) Debug.Log("[SAMReplay] playlist finished");
         }
         void OnDisable() { if (Running) Finish(); }
     }
