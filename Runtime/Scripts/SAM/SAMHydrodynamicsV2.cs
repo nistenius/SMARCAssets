@@ -7,8 +7,10 @@ namespace Force
     /// 2026-09-14 (v2.2): the hull VELOCITY family and the tail surfaces are now physical point forces —
     ///   slender-body momentum flux per station (Munk couple + tail base term, LN 9.5 three-part model),
     ///   Hoerner body lift at 0.65 L, the nozzle duct as a RING WING fin at z -0.731, and the deflected ring's
-    ///   lift in the slipstream on top of the rotated jet. See data-cube/docs/2026-09-14-hw4-strip-theory-on-sam21.md
-    ///   §14-§21. The explicit MunkCoefficient term is skipped while UseSlenderBodyFlux is on.
+    ///   inlet-momentum turning (mdot u sin delta; v2.3, 2026-09-14 late — the earlier 1/2 rho V_duct^2 S CLa form was
+    ///   wrong: the duct rotates with the props) on top of the rotated jet. See
+    ///   data-cube/docs/2026-09-14-hw4-strip-theory-on-sam21.md §14-§23. The explicit MunkCoefficient term is skipped
+    ///   while UseSlenderBodyFlux is on.
     ///
     /// SAM hydrodynamics, v2.1 (2026-09-11) — the full 6x6 coefficient set from
     /// data-cube/scripts/sam-sysid/sam_hydro_coeffs_v2_1.yaml, in a form you can test-run
@@ -85,7 +87,7 @@ namespace Force
         public bool RingUsesSlipstream = true;
         [Tooltip("Propeller/duct disc area for the slipstream velocity: V_jet = sqrt(u^2 + 2T/(rho A)), V_duct = (u + V_jet)/2.")]
         public float DuctArea = 0.01287f;
-        [Tooltip("Deflecting the nozzle also deflects the ring wing: side force 1/2 rho V_duct^2 S CL_a sin(delta) at the prop link, on top of the rotated jet T sin(delta). ON = the §16 control model (Y_d 45.7 N/rad at 1 m/s vs 11.5 for the jet alone).")]
+        [Tooltip("The duct turns WITH the propellers, so the deflected pack also turns the INGESTED free stream: side force mdot*u*sin(delta) with mdot = rho*DuctArea*V_duct, at the prop link, on top of the rotated jet T sin(delta) (control volume: (T + mdot u) sin delta; zero at u = 0). Doc §23, 2026-09-14. Y_d 28.7 N/rad at 1 m/s vs 11.5 for the jet alone.")]
         public bool UseDeflectedRingLift = true;
         [Tooltip("Hull-wake / interference factor on the fin-type terms (ring + body lift). 1 = no reduction; 0.6-0.8 typical for a tail fin in a hull wake. Unmeasured.")]
         [Range(0f, 1f)] public float TailEffectiveness = 1f;
@@ -141,6 +143,10 @@ namespace Force
         public float DuctVelocity;
         public Vector3 LastForceLocal, LastTorqueLocal;
         public float LogEverySeconds = 0f;
+        [Header("Coefficient override file (2026-09-14)")]
+        [Tooltip("Optional StreamingAssets/SAMReplay/<OverrideFile>: key=value lines applied in Awake AFTER the Inspector values, so coefficient sets can be A/B-tested without recompiling or editing the prefab. Keys: tag, xu xuu yv yvv zw zww kp kpp mq mqq nr nrr (DLin/DQuad diagonals), ma_u ma_v ma_w ma_p ma_q ma_r (added mass), tail_eff, kt_scale, ring_cla, body_lift, use_flux use_bodylift use_ring use_defl use_rollcoupling (0/1), munk. Empty = off.")]
+        public string OverrideFile = "hydro_overrides.txt";
+        [Tooltip("The 'tag' line of the override file, appended to replay output names")] public string OverrideTag = "";
 
         MixedBody body; WaterQueryModel waterModel; float DLinPhysXWas, DAngPhysXWas;
         float[] fluxZ, fluxM; int fluxSepAft, fluxSepFore; float tailCut = -1f;
@@ -168,6 +174,7 @@ namespace Force
             if (AddedMass == null || AddedMass.Length != 6) AddedMass = new float[6];
             if (DLinOffDiag == null || DLinOffDiag.Length != 36) DLinOffDiag = new float[36];
             waterModel = WaterQueryModel.GetWaterQueryModel(); lastQueryTime = -999f;
+            ApplyOverrideFile();
             BuildHullProfile();
             if (UseSlenderBodyFlux && MunkCoefficient != 0f)
                 Debug.Log($"[SAMHydroV2] {name}: UseSlenderBodyFlux is ON — the explicit MunkCoefficient ({MunkCoefficient}) is NOT applied (the flux stations produce the Munk couple and the tail base term physically).");
@@ -216,6 +223,47 @@ namespace Force
             }
             return 0f;
         }
+        void ApplyOverrideFile()
+        {
+            OverrideTag = "";
+            if (string.IsNullOrEmpty(OverrideFile)) return;
+            string path = System.IO.Path.Combine(Application.streamingAssetsPath, "SAMReplay", OverrideFile);
+            if (!System.IO.File.Exists(path)) return;
+            var ci = System.Globalization.CultureInfo.InvariantCulture; int n = 0;
+            foreach (var raw in System.IO.File.ReadAllLines(path))
+            {
+                string line = raw.Trim(); if (line.Length == 0 || line.StartsWith("#")) continue;
+                int eq = line.IndexOf('='); if (eq < 0) continue;
+                string k = line.Substring(0, eq).Trim().ToLowerInvariant(), v = line.Substring(eq + 1).Trim();
+                float f; bool num = float.TryParse(v, System.Globalization.NumberStyles.Float, ci, out f);
+                switch (k)
+                {
+                    case "tag": OverrideTag = v; break;
+                    case "xu": DLin[0] = f; break;   case "xuu": DQuad[0] = f; break;
+                    case "yv": DLin[1] = f; break;   case "yvv": DQuad[1] = f; break;
+                    case "zw": DLin[2] = f; break;   case "zww": DQuad[2] = f; break;
+                    case "kp": DLin[3] = f; break;   case "kpp": DQuad[3] = f; break;
+                    case "mq": DLin[4] = f; break;   case "mqq": DQuad[4] = f; break;
+                    case "nr": DLin[5] = f; break;   case "nrr": DQuad[5] = f; break;
+                    case "ma_u": AddedMass[0] = f; break; case "ma_v": AddedMass[1] = f; break; case "ma_w": AddedMass[2] = f; break;
+                    case "ma_p": AddedMass[3] = f; break; case "ma_q": AddedMass[4] = f; break; case "ma_r": AddedMass[5] = f; break;
+                    case "tail_eff": TailEffectiveness = f; break;
+                    case "kt_scale": kT1Fwd *= f; kT2Fwd *= f; kT1Rev *= f; kT2Rev *= f; cQuad *= f; break;
+                    case "ring_cla": RingCLa = f; break;
+                    case "body_lift": BodyLiftCoefficient = f; break;
+                    case "munk": MunkCoefficient = f; break;
+                    case "use_flux": UseSlenderBodyFlux = f > 0.5f; break;
+                    case "use_bodylift": UseBodyLift = f > 0.5f; break;
+                    case "use_ring": UseRingWing = f > 0.5f; break;
+                    case "use_defl": UseDeflectedRingLift = f > 0.5f; break;
+                    case "use_rollcoupling": UseSteeringRollCoupling = f > 0.5f; break;
+                    default: Debug.LogWarning($"[SAMHydroV2] override file: unknown key '{k}'"); continue;
+                }
+                n++;
+            }
+            Debug.Log($"[SAMHydroV2] {name}: applied {n} overrides from {OverrideFile} (tag '{OverrideTag}'): X {DLin[0]}/{DQuad[0]}, Yvv {DQuad[1]}, Zww {DQuad[2]}, Kp {DLin[3]}, Nrr {DQuad[5]}, MA {AddedMass[1]}/{AddedMass[5]}, tail_eff {TailEffectiveness}, kT1 {kT1Fwd:F4}, rollcoupling {UseSteeringRollCoupling}");
+        }
+
         void BuildHullProfile()
         {
             int n = Mathf.Max(FluxStations, 8); tailCut = TailCut();
@@ -358,9 +406,12 @@ namespace Force
                 body.AddForceAtPosition(ThrustTransform.forward * T, ThrustTransform.position, ForceMode.Force);
                 if (UseRingWing && UseDeflectedRingLift)
                 {
-                    // the deflected duct is a ring wing at angle delta to the duct flow: lift 1/2 rho V_duct^2 S CL_a sin(delta), toward the deflection
+                    // the duct rotates with the props: its own slipstream gives it no incidence. The extra side force is the turning of the
+                    // ingested free stream, mdot * u * sin(delta), mdot = rho A V_duct (control volume: F_lat = (T + mdot u) sin delta; T sin delta
+                    // is already in the rotated thrust above). Signed u: reverse motion turns the stream the other way. Doc §23 (2026-09-14).
                     Vector3 nz = ThrustTransform.forward; Vector3 lat = nz - Vector3.Dot(nz, axisW) * axisW;   // |lat| = sin(delta)
-                    Vector3 F = 0.5f * WaterDensity * DuctVelocity * DuctVelocity * RingArea * RingCLa * TailEffectiveness * Mathf.Sign(T) * SubmergedFraction * lat;
+                    float mdot = WaterDensity * Mathf.Max(DuctArea, 1e-4f) * DuctVelocity;
+                    Vector3 F = mdot * u * TailEffectiveness * SubmergedFraction * lat;
                     body.AddForceAtPosition(F, ThrustTransform.position, ForceMode.Force); RingControlForceN = F.magnitude;
                 }
             }
