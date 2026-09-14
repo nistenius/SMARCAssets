@@ -4,6 +4,12 @@ using DefaultNamespace.Water;
 namespace Force
 {
     /// <summary>
+    /// 2026-09-14 (v2.2): the hull VELOCITY family and the tail surfaces are now physical point forces —
+    ///   slender-body momentum flux per station (Munk couple + tail base term, LN 9.5 three-part model),
+    ///   Hoerner body lift at 0.65 L, the nozzle duct as a RING WING fin at z -0.731, and the deflected ring's
+    ///   lift in the slipstream on top of the rotated jet. See data-cube/docs/2026-09-14-hw4-strip-theory-on-sam21.md
+    ///   §14-§21. The explicit MunkCoefficient term is skipped while UseSlenderBodyFlux is on.
+    ///
     /// SAM hydrodynamics, v2.1 (2026-09-11) — the full 6x6 coefficient set from
     /// data-cube/scripts/sam-sysid/sam_hydro_coeffs_v2_1.yaml, in a form you can test-run
     /// next to the existing SAMHydrodynamics (disable one, enable the other; never both).
@@ -61,6 +67,29 @@ namespace Force
         [Tooltip("Centre-of-pressure offset [m] along the long axis where transverse drag is applied — gives heave->pitch / sway->yaw physically (SAM.py x_cp = 0.1).")]
         public float CenterOfPressureOffset = 0.1f;
 
+        [Header("Hull velocity family + tail surfaces (2026-09-14, LN 9.5 three-part model + nozzle ring wing)")]
+        [Tooltip("Slender-body momentum flux dZ/dx = u d/dx[m_a v_loc] applied per station from the tail SEPARATION station to the nose tip (reverse: nose separation to tail end). Reproduces the Munk couple u(I0-m11) AND the tail base term -u m_T v(x_T) physically, with moments taken by the engine about the real CoM. When ON the explicit MunkCoefficient term is skipped (it would double-count).")]
+        public bool UseSlenderBodyFlux = true;
+        [Tooltip("Hull profile in base_link z: nose tip and nozzle-joint stations (SAM_HULL.dae: +0.657 / -0.687), Myring nose length (n=2) and tail length to the virtual tip, tail half-angle, radius at the cut (nozzle joint).")]
+        public float HullNoseTipZ = 0.657f, HullTailEndZ = -0.687f, NoseLength = 0.07f, TailLength = 0.30f, TailHalfAngleDeg = 25f, TailEndRadius = 0.025f;
+        [Tooltip("Separation closure: the flux integral stops where the stern half-angle exceeds this (Prestero/T&H: 15 deg).")]
+        public float SeparationHalfAngleDeg = 15f;
+        public int FluxStations = 60;
+        [Tooltip("Hoerner viscous body lift: F = -1/2 rho D^2 c_ydb |u| v_loc at BodyLiftStationZ (0.65 L from the nose). c_ydb = 0.003 (L/D) 180/pi = 1.85 for L/D 10.75.")]
+        public bool UseBodyLift = true;
+        public float BodyLiftCoefficient = 1.85f;
+        public float BodyLiftStationZ = -0.217f;
+        [Tooltip("The nozzle duct as a RING WING fin: F = -1/2 rho S CL_a V v_loc at the ring quarter-chord (base_link z -0.731). S = D c = 0.128 x 0.060 m2, CL_a 5.0/rad from the vortex lattice (ring_wing_vlm.py). V = duct velocity from actuator-disc theory when RingUsesSlipstream, else |u|.")]
+        public bool UseRingWing = true;
+        public float RingArea = 0.00768f, RingCLa = 5.0f, RingStationZ = -0.731f;
+        public bool RingUsesSlipstream = true;
+        [Tooltip("Propeller/duct disc area for the slipstream velocity: V_jet = sqrt(u^2 + 2T/(rho A)), V_duct = (u + V_jet)/2.")]
+        public float DuctArea = 0.01287f;
+        [Tooltip("Deflecting the nozzle also deflects the ring wing: side force 1/2 rho V_duct^2 S CL_a sin(delta) at the prop link, on top of the rotated jet T sin(delta). ON = the §16 control model (Y_d 45.7 N/rad at 1 m/s vs 11.5 for the jet alone).")]
+        public bool UseDeflectedRingLift = true;
+        [Tooltip("Hull-wake / interference factor on the fin-type terms (ring + body lift). 1 = no reduction; 0.6-0.8 typical for a tail fin in a hull wake. Unmeasured.")]
+        [Range(0f, 1f)] public float TailEffectiveness = 1f;
+
         [Header("Added mass M_A, diagonal [u v w p q r]  (kg, kg.m2) — Lamb prior, spheroid a/b 7.89")]
         public bool UseAddedMass = true;
         public float[] AddedMass = { 0.503f, 15.90f, 15.90f, 0.041f, 1.611f, 1.611f };
@@ -107,10 +136,14 @@ namespace Force
 
         [Header("Live telemetry (read-only)")]
         public float SubmergedFraction, SpeedThroughWater, ThrustForce;
+        [Tooltip("Magnitudes of the new tail/hull point forces this step [N]: slender-body flux (all stations), ring-wing fin, body lift, deflected-ring control")]
+        public float FluxForceN, RingFinForceN, BodyLiftForceN, RingControlForceN;
+        public float DuctVelocity;
         public Vector3 LastForceLocal, LastTorqueLocal;
         public float LogEverySeconds = 0f;
 
         MixedBody body; WaterQueryModel waterModel; float DLinPhysXWas, DAngPhysXWas;
+        float[] fluxZ, fluxM; int fluxSepAft, fluxSepFore; float tailCut = -1f;
         Vector3 axisN, t1, t2; Vector3[] stripLocal; float[] stripSubmerged;
         Vector3 prevLinVelBody, prevAngVelBody; bool havePrev;
         float lastQueryTime, cachedCenterLevel, lastLogTime, prevDelta1, prevDelta2; bool haveCenterLevel;
@@ -135,6 +168,9 @@ namespace Force
             if (AddedMass == null || AddedMass.Length != 6) AddedMass = new float[6];
             if (DLinOffDiag == null || DLinOffDiag.Length != 36) DLinOffDiag = new float[36];
             waterModel = WaterQueryModel.GetWaterQueryModel(); lastQueryTime = -999f;
+            BuildHullProfile();
+            if (UseSlenderBodyFlux && MunkCoefficient != 0f)
+                Debug.Log($"[SAMHydroV2] {name}: UseSlenderBodyFlux is ON — the explicit MunkCoefficient ({MunkCoefficient}) is NOT applied (the flux stations produce the Munk couple and the tail base term physically).");
             Transform root = body.transform.root;
             if (ThrustTransform == null && !string.IsNullOrEmpty(ThrustTransformName))
                 foreach (var tf in root.GetComponentsInChildren<Transform>(true)) if (tf.name == ThrustTransformName) { ThrustTransform = tf; break; }
@@ -153,6 +189,56 @@ namespace Force
 
         /// <summary>Call after a teleport so the added-mass velocity-increment correction does not see the jump.</summary>
         public void ResetHistory() { havePrev = false; }
+
+        /// <summary>Myring hull radius at base_link z (nose n = 2 ellipse, parallel mid-body, Myring tail cut at TailEndRadius).</summary>
+        float HullRadius(float z)
+        {
+            float R = 0.5f * Diameter, L = HullNoseTipZ - HullTailEndZ;
+            float xn = HullNoseTipZ - z;                       // distance from the nose tip, aft positive
+            if (xn < 0f) return 0f;
+            if (xn < NoseLength) { float t = 1f - (xn - NoseLength) * (xn - NoseLength) / (NoseLength * NoseLength); return R * Mathf.Sqrt(Mathf.Max(t, 0f)); }
+            if (tailCut < 0f) tailCut = TailCut();
+            float tailStart = L - (TailLength - tailCut);                 // nose-to-cone-start = L - visible cone length
+            if (xn <= tailStart) return R;
+            float c = TailLength, xt = xn - tailStart, th = TailHalfAngleDeg * Mathf.Deg2Rad;
+            float r = R - (3f * R / (c * c) - Mathf.Tan(th) / c) * xt * xt + (2f * R / (c * c * c) - Mathf.Tan(th) / (c * c)) * xt * xt * xt;
+            return Mathf.Max(r, 0f);
+        }
+        /// <summary>How much of the virtual Myring tail is cut off so that the cone ends at TailEndRadius.</summary>
+        float TailCut()
+        {
+            float R = 0.5f * Diameter, c = TailLength, th = TailHalfAngleDeg * Mathf.Deg2Rad;
+            for (int i = 1; i < 400; i++)
+            {
+                float xt = c * i / 400f;
+                float r = R - (3f * R / (c * c) - Mathf.Tan(th) / c) * xt * xt + (2f * R / (c * c * c) - Mathf.Tan(th) / (c * c)) * xt * xt * xt;
+                if (r <= TailEndRadius) return c - xt;
+            }
+            return 0f;
+        }
+        void BuildHullProfile()
+        {
+            int n = Mathf.Max(FluxStations, 8); tailCut = TailCut();
+            fluxZ = new float[n + 1]; fluxM = new float[n + 1];
+            for (int k = 0; k <= n; k++)
+            {
+                fluxZ[k] = HullTailEndZ + (HullNoseTipZ - HullTailEndZ) * k / n;      // aft -> fore
+                float r = HullRadius(fluxZ[k]); fluxM[k] = WaterDensity * Mathf.PI * r * r;
+            }
+            // separation stations: aft-most / fore-most interface where the half-angle is still below the threshold
+            float tanS = Mathf.Tan(SeparationHalfAngleDeg * Mathf.Deg2Rad), dz = (HullNoseTipZ - HullTailEndZ) / n;
+            fluxSepAft = 0; fluxSepFore = n;
+            for (int k = 0; k < n; k++) { float slope = Mathf.Abs(HullRadius(fluxZ[k + 1]) - HullRadius(fluxZ[k])) / dz; if (slope < tanS) { fluxSepAft = k; break; } }
+            for (int k = n; k > 0; k--) { float slope = Mathf.Abs(HullRadius(fluxZ[k]) - HullRadius(fluxZ[k - 1])) / dz; if (slope < tanS) { fluxSepFore = k; break; } }
+            Debug.Log($"[SAMHydroV2] hull profile: {n} stations z {HullTailEndZ:F3}..{HullNoseTipZ:F3}, tail separation at z {fluxZ[fluxSepAft]:F3} (m_T {fluxM[fluxSepAft]:F2} kg/m), nose separation at z {fluxZ[fluxSepFore]:F3} (m_N {fluxM[fluxSepFore]:F2}); ring fin at z {RingStationZ:F3}, body lift at z {BodyLiftStationZ:F3}");
+        }
+        /// <summary>Velocity of the hull point at base_link (axisN * z) minus its component along the hull axis, in world coordinates.</summary>
+        Vector3 LateralVelocityAt(float z, Transform tr, Vector3 axisW, out Vector3 worldPoint)
+        {
+            worldPoint = tr.TransformPoint(axisN * z);
+            Vector3 v = body.velocity + Vector3.Cross(body.angularVelocity, worldPoint - tr.TransformPoint(body.centerOfMass));
+            return v - Vector3.Dot(v, axisW) * axisW;
+        }
 
         float PropForce(float eRPM, float kFwd, float kRev)
         {
@@ -201,7 +287,7 @@ namespace Force
                 tau[i] = d * SubmergedFraction;
             }
             // Munk moment (prior): pitch from heave, yaw from sway, both scaled by surge speed
-            if (MunkCoefficient != 0f)
+            if (MunkCoefficient != 0f && !UseSlenderBodyFlux)
             {
                 tau[4] += MunkCoefficient * nu[0] * nu[2] * SubmergedFraction;
                 tau[5] -= MunkCoefficient * nu[0] * nu[1] * SubmergedFraction;
@@ -225,10 +311,58 @@ namespace Force
             }
             else T = PropForce(Prop1eRPM, kT1Fwd, kT1Rev) + PropForce(Prop2eRPM, kT2Fwd, kT2Rev);
             ThrustForce = T;
+            // duct velocity (actuator disc): V_jet = sqrt(u^2 + 2|T|/(rho A)), V_duct = (|u| + V_jet)/2 — flow through the ring
+            float u = nu[0], absU = Mathf.Abs(u);
+            float vJet = Mathf.Sqrt(u * u + 2f * Mathf.Abs(T) / (WaterDensity * Mathf.Max(DuctArea, 1e-4f)));
+            DuctVelocity = 0.5f * (absU + vJet);
+            Vector3 axisW = tr.TransformDirection(axisN);
+
+            // ---- hull velocity family as point forces (LN 9.5 three-part model, 2026-09-14) ----
+            FluxForceN = RingFinForceN = BodyLiftForceN = RingControlForceN = 0f;
+            if (UseSlenderBodyFlux && fluxZ != null && absU > 1e-4f)
+            {
+                // F_i = u * ( m_{k+1} v_{k+1} - m_k v_k ) at the mid-station, interfaces from the separation station to the free end
+                int k0 = u >= 0f ? fluxSepAft : 0, k1 = u >= 0f ? fluxZ.Length - 1 : fluxSepFore;
+                Vector3 pPrev; Vector3 vPrev = LateralVelocityAt(fluxZ[k0], tr, axisW, out pPrev);
+                float mPrev = fluxM[k0];
+                for (int k = k0 + 1; k <= k1; k++)
+                {
+                    Vector3 pk; Vector3 vk = LateralVelocityAt(fluxZ[k], tr, axisW, out pk);
+                    float mk = (u >= 0f && k == k1) ? 0f : fluxM[k];          // nose tip: m_a = 0 (closed); reverse: fore separation
+                    Vector3 F = u * (mk * vk - mPrev * vPrev) * SubmergedFraction;
+                    body.AddForceAtPosition(F, 0.5f * (pk + pPrev), ForceMode.Force);
+                    FluxForceN += F.magnitude;
+                    vPrev = vk; pPrev = pk; mPrev = mk;
+                }
+            }
+            if (UseBodyLift && absU > 1e-4f)
+            {
+                Vector3 pc; Vector3 vc = LateralVelocityAt(BodyLiftStationZ, tr, axisW, out pc);
+                Vector3 F = -0.5f * WaterDensity * Diameter * Diameter * BodyLiftCoefficient * TailEffectiveness * absU * SubmergedFraction * vc;
+                body.AddForceAtPosition(F, pc, ForceMode.Force); BodyLiftForceN = F.magnitude;
+            }
+            if (UseRingWing)
+            {
+                float V = RingUsesSlipstream ? DuctVelocity : absU;
+                if (V > 1e-4f)
+                {
+                    Vector3 pr; Vector3 vr = LateralVelocityAt(RingStationZ, tr, axisW, out pr);
+                    Vector3 F = -0.5f * WaterDensity * RingArea * RingCLa * TailEffectiveness * V * SubmergedFraction * vr;
+                    body.AddForceAtPosition(F, pr, ForceMode.Force); RingFinForceN = F.magnitude;
+                }
+            }
+
             if (Mathf.Abs(T) > 1e-6f && ThrustTransform != null)
             {
                 // physical thrust vectoring: along the prop link's forward, at the prop link (joints + motor-pack mass do the rest)
                 body.AddForceAtPosition(ThrustTransform.forward * T, ThrustTransform.position, ForceMode.Force);
+                if (UseRingWing && UseDeflectedRingLift)
+                {
+                    // the deflected duct is a ring wing at angle delta to the duct flow: lift 1/2 rho V_duct^2 S CL_a sin(delta), toward the deflection
+                    Vector3 nz = ThrustTransform.forward; Vector3 lat = nz - Vector3.Dot(nz, axisW) * axisW;   // |lat| = sin(delta)
+                    Vector3 F = 0.5f * WaterDensity * DuctVelocity * DuctVelocity * RingArea * RingCLa * TailEffectiveness * Mathf.Sign(T) * SubmergedFraction * lat;
+                    body.AddForceAtPosition(F, ThrustTransform.position, ForceMode.Force); RingControlForceN = F.magnitude;
+                }
             }
             else if (Mathf.Abs(T) > 1e-6f)
             {

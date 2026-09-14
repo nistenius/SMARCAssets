@@ -40,6 +40,8 @@ namespace Force
         public float StartDepth = 0f;
         [Tooltip("Diagnostic: run with the v2 hydrodynamics component switched off, so only the ForcePoints and PhysX gravity act.")]
         public bool DisableHydroV2 = false;
+        [Tooltip("Tail model on SAMHydrodynamicsV2 for this run (config key tail_model): 'new' = slender-body flux + body lift + ring wing (2026-09-14), 'old' = explicit Munk 16.038 and nothing else (the model before 2026-09-14), 'keep' = whatever the prefab says.")]
+        public string TailModel = "keep";
         [Tooltip("Hold the vehicle at StartDepth, level and still, for the whole settle phase. The VBS piston starts empty and needs several seconds to reach the neutral fill; without the hold the vehicle has already surfaced before the first step.")]
         public bool HoldDuringSettle = true;
 
@@ -92,6 +94,7 @@ namespace Force
                     case "tag": Tag = v; break;
                     case "start_depth": if (float.TryParse(v, NumberStyles.Float, ci, out f)) StartDepth = f; break;
                     case "disable_v2": if (bool.TryParse(v, out bool db)) DisableHydroV2 = db; break;
+                    case "tail_model": TailModel = v.ToLowerInvariant(); break;
                     case "hold_during_settle": if (bool.TryParse(v, out bool hb)) HoldDuringSettle = hb; break;
                     case "step": if (float.TryParse(v, NumberStyles.Float, ci, out f)) StepSeconds = f; break;
                     case "settle": if (float.TryParse(v, NumberStyles.Float, ci, out f)) SettleSeconds = f; break;
@@ -177,6 +180,17 @@ namespace Force
                 string tn = c.GetType().Name;
                 if (tn == "Teleporter_Sub" || tn == "SAMKeyboardControl" || tn == "SAMTankReplay" || tn == "Actuator_Sub")
                     if (c.enabled) { c.enabled = false; Debug.Log($"[SAMDofTest] disabled competing writer {tn} on '{c.name}' for this run."); }
+            }
+            if (TailModel == "old" || TailModel == "new")
+            {
+                var v2t = root.GetComponentInChildren<SAMHydrodynamicsV2>(true);
+                if (v2t != null)
+                {
+                    bool nw = TailModel == "new";
+                    v2t.UseSlenderBodyFlux = nw; v2t.UseBodyLift = nw; v2t.UseRingWing = nw; v2t.UseDeflectedRingLift = nw;
+                    v2t.MunkCoefficient = nw ? 14.97f : 16.038f;
+                    Debug.Log($"[SAMDofTest] tail_model={TailModel}: flux/bodylift/ring/deflected-ring = {nw}, MunkCoefficient {v2t.MunkCoefficient} (explicit term {(nw ? "skipped" : "active")})");
+                }
             }
             if (DisableHydroV2)
             {

@@ -12542,7 +12542,7 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  MunkCoefficient: 16.038
+  MunkCoefficient: 14.97
   CenterOfPressureOffset: 0.1
   UseAddedMass: 1
   AddedMass:
