@@ -42,7 +42,7 @@ namespace Visualizers
     /// ==================================================================================
     /// ROOT CAUSE, measured out of the asset files and not guessed:
     ///   * `Beckholmen.unity` holds TWO prefab instances both renamed `sam_auv_v1` — an INACTIVE
-    ///     `sam_auv_v1.prefab` (guid 78d04dcb…, `m_IsActive: 0`) and the ACTIVE `sam2.2.prefab`
+    ///     `sam_auv_v1.prefab` (guid 78d04dcb…, `m_IsActive: 0`) and the ACTIVE `sam21.prefab`
     ///     (guid c1e7da78…, `m_IsActive: 1`). The active one — the one that flies — carries
     ///     `SAMSensorsV2.prefab`, whose sonars are `SideScanSonar DeepVision` (**Type = SSS**) and
     ///     the nested `Sonar3D15` (**Type = FLS**, 5 Hz, 17 rays x 150 beams, 15 m range).
@@ -110,7 +110,7 @@ namespace Visualizers
         public bool AutoFindSonars = true;
         [Tooltip("Sonars to accumulate. Filled at Play when AutoFindSonars is on.")]
         public List<Sonar> Sonars = new List<Sonar>();
-        [Tooltip("Include the downward multibeam. sam2.2 does NOT have one — only the older sam_auv_v1 prefab does (SAMSensors/MultiBeamSonar). Left on because it costs nothing and the older vehicle is still flown elsewhere.")]
+        [Tooltip("Include the downward multibeam. sam21 does NOT have one — only the older sam_auv_v1 prefab does (SAMSensors/MultiBeamSonar). Left on because it costs nothing and the older vehicle is still flown elsewhere.")]
         public bool IncludeMBES = true;
         [Tooltip("Include the side scans. OFF, and Ivan asked for it explicitly on 2026-08-21 round 3: " +
                  "\"skip the side scan in the 3d point cloud map building here\". They draw the dock WALLS at " +
@@ -118,7 +118,7 @@ namespace Visualizers
                  "depth, so a 2.5 m run images the floor and the lower walls and nothing else. " +
                  "SMARC/Video/2 turns this back OFF if it has been ticked for a test.")]
         public bool IncludeSSS = false;
-        [Tooltip("Include forward-looking sonars. ON since 2026-08-21: Sonar3D15 (Type = FLS, 5 Hz, 150 beams x 17 rays, 15 m) is the ONLY forward sensor sam2.2 carries, and it is what drapes the dock. With this off the map is empty — that was defect A.")]
+        [Tooltip("Include forward-looking sonars. ON since 2026-08-21: Sonar3D15 (Type = FLS, 5 Hz, 150 beams x 17 rays, 15 m) is the ONLY forward sensor sam21 carries, and it is what drapes the dock. With this off the map is empty — that was defect A.")]
         public bool IncludeFLS = true;
         [Tooltip("If the Include* flags match NO sonar but the robot has some, tap them all anyway and log an ERROR naming each. A map that stays empty for ten minutes is worse than a map that admits it is showing a sonar you did not tick.")]
         public bool TapEverySonarIfFilterMatchesNone = true;
@@ -364,7 +364,7 @@ namespace Visualizers
         /// The vehicle root, chosen deliberately rather than by whatever `GameObject.Find` hands back.
         ///
         /// BECKHOLMEN HAS TWO OBJECTS NAMED `sam_auv_v1`: an inactive `sam_auv_v1.prefab` instance
-        /// and the active `sam2.2.prefab` instance. `GameObject.Find` skips inactive objects, so it
+        /// and the active `sam21.prefab` instance. `GameObject.Find` skips inactive objects, so it
         /// happens to return the right one — but "happens to" is not a property, so this enumerates
         /// every match, including inactive ones, and says out loud when there is more than one.
         /// </summary>
@@ -445,7 +445,7 @@ namespace Visualizers
                                $"and saying so, because an empty map is not a measurement. " +
                                $"{string.Join("; ", why)}. Tick the right Include flag and this line goes away. " +
                                "(This is exactly what produced '0 pts' for the whole 643 s take on 2026-08-21: " +
-                               "sam2.2 has an FLS and an SSS and no MBES, and only IncludeMBES was on.)");
+                               "sam21 has an FLS and an SSS and no MBES, and only IncludeMBES was on.)");
             }
             else
             {

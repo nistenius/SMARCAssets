@@ -553,7 +553,7 @@ public static class AskoSiteBuilder
     static readonly Vector3 LaunchXZ = new Vector3(-150f, 0f, -158f);
     static readonly Vector3 StationXZ = new Vector3(30f, 0f, 10f);   // shore by the lab, +1.3 m [lidar]
 
-    const string VehiclePrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam2.2.prefab";
+    const string VehiclePrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam21.prefab";
     const string VehicleName = "sam_auv_v1";   // prefixes every ROS topic and tf frame
     const string GuiPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/SmarcGUI/GUI.prefab";
     const string StationPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/datacube_station_01.prefab";

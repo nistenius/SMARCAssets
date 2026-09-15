@@ -1,5 +1,112 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &43290483287133510
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8217423905390434037}
+  - component: {fileID: 6858167243814812251}
+  - component: {fileID: 781434786612459356}
+  - component: {fileID: 6982818365793895915}
+  m_Layer: 0
+  m_Name: ForcePoint 4R
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8217423905390434037
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43290483287133510}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.055, y: 0, z: -0.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6858167243814812251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43290483287133510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &781434786612459356
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43290483287133510}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6982818365793895915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43290483287133510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &56340309477754821
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,7 +402,7 @@ ArticulationBody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 442497149713888540}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Mass: 1
   m_ParentAnchorPosition: {x: 0, y: 0, z: 0}
@@ -341,7 +448,7 @@ ArticulationBody:
   m_AngularDamping: 0.05
   m_JointFriction: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 0.0001, y: 0.0001, z: 0.0001}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
     serializedVersion: 2
@@ -349,8 +456,8 @@ ArticulationBody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 0
-  m_ImplicitTensor: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
   m_Immovable: 0
   m_UseGravity: 1
   m_CollisionDetectionMode: 0
@@ -1629,6 +1736,113 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2086758068000043895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4009478327026874776}
+  - component: {fileID: 2949650176445027412}
+  - component: {fileID: 3576370019864912512}
+  - component: {fileID: 8738014834811707258}
+  m_Layer: 0
+  m_Name: ForcePoint 3L
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4009478327026874776
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086758068000043895}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.055, y: 0, z: -0.275}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2949650176445027412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086758068000043895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &3576370019864912512
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086758068000043895}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8738014834811707258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086758068000043895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &2132929083151201447
 GameObject:
   m_ObjectHideFlags: 0
@@ -2045,6 +2259,113 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2568853246150515220
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6938412043325405651}
+  - component: {fileID: 7761467947377740577}
+  - component: {fileID: 5943557868910466201}
+  - component: {fileID: 8008180933303813671}
+  m_Layer: 0
+  m_Name: ForcePoint 2R
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6938412043325405651
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2568853246150515220}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.055, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7761467947377740577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2568853246150515220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &5943557868910466201
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2568853246150515220}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8008180933303813671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2568853246150515220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &2614924984523667849
 GameObject:
   m_ObjectHideFlags: 0
@@ -2458,6 +2779,113 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46398bc5d6905ad429a6d2d973afe002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &3172044069192174288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6557031963960705478}
+  - component: {fileID: 2786347139218823930}
+  - component: {fileID: 9133670636814152610}
+  - component: {fileID: 3806546361332587093}
+  m_Layer: 0
+  m_Name: ForcePoint 3R
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6557031963960705478
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3172044069192174288}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.055, y: 0, z: -0.275}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2786347139218823930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3172044069192174288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &9133670636814152610
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3172044069192174288}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3806546361332587093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3172044069192174288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &3283852741781743268
 GameObject:
   m_ObjectHideFlags: 0
@@ -2851,9 +3279,6 @@ GameObject:
   - component: {fileID: 5339568580728683376}
   - component: {fileID: 156089369104606854}
   - component: {fileID: 4865858304184685475}
-  - component: {fileID: 2247361040506246964}
-  - component: {fileID: 4303947549021066843}
-  - component: {fileID: 7201000000000000003}
   m_Layer: 0
   m_Name: base_link
   m_TagString: Untagged
@@ -2900,8 +3325,6 @@ Transform:
   - {fileID: 3326888178657805885}
   - {fileID: 7535042536209519554}
   - {fileID: 6204473137661483632}
-  - {fileID: 3445728492935842385}
-  - {fileID: 408084325999011886}
   m_Father: {fileID: 8986356567178910094}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4789438567749751556
@@ -2926,7 +3349,7 @@ ArticulationBody:
   m_GameObject: {fileID: 3427471025016459466}
   m_Enabled: 1
   serializedVersion: 5
-  m_Mass: 11.22568
+  m_Mass: 12.012
   m_ParentAnchorPosition: {x: 0, y: 0, z: 0}
   m_ParentAnchorRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_AnchorPosition: {x: 0, y: 0, z: 0}
@@ -3015,12 +3438,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ConnectedArticulationBody: {fileID: 5339568580728683376}
   ConnectedRigidbody: {fileID: 0}
-  Length: 1.44
-  Diameter: 0.125
-  Mass: 16.85
+  Length: 1.5
+  Diameter: 0.19
+  Mass: 15.4
   LongAxis: {x: 0, y: 0, z: 1}
   StripCount: 10
-  WaterDensity: 997
+  WaterDensity: 1026
   Xuu: 3
   Yvv: 50
   Zww: 50
@@ -3034,7 +3457,7 @@ MonoBehaviour:
   UseDistributedCrossFlow: 0
   CrossFlowCd: 1.1
   WaterQueryFrequency: 50
-  UseWaveOrbitalVelocity: 0
+  UseWaveOrbitalVelocity: 1
   SubmergedFraction: 0
   SpeedThroughWater: 0
   LastDampingForceWorld: {x: 0, y: 0, z: 0}
@@ -3578,10 +4001,8 @@ GameObject:
   - component: {fileID: 4829626952481490712}
   - component: {fileID: 7997547083344584193}
   - component: {fileID: 6953815696283108999}
-  - component: {fileID: 7201000000000000001}
-  - component: {fileID: 7201000000000000002}
   m_Layer: 0
-  m_Name: sam2.2
+  m_Name: sam21
   m_TagString: robot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3753,9 +4174,9 @@ ArticulationBody:
   m_XDrive:
     lowerLimit: -0.057
     upperLimit: 0
-    stiffness: 100000
-    damping: 2000
-    forceLimit: 200
+    stiffness: 1000
+    damping: 500
+    forceLimit: 40
     target: 0
     targetVelocity: 0
     driveType: 0
@@ -3903,9 +4324,9 @@ ArticulationBody:
   m_XDrive:
     lowerLimit: 0.006
     upperLimit: 0.05
-    stiffness: 100000
-    damping: 2000
-    forceLimit: 200
+    stiffness: 2000
+    damping: 6000
+    forceLimit: 20
     target: 0
     targetVelocity: 0
     driveType: 0
@@ -4636,6 +5057,113 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5805302827182638969}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4487215760021850040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7442701425292946227}
+  - component: {fileID: 5720504291810808011}
+  - component: {fileID: 6942243533100796476}
+  - component: {fileID: 7173597741419926737}
+  m_Layer: 0
+  m_Name: ForcePoint 2L
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7442701425292946227
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4487215760021850040}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.055, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5720504291810808011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4487215760021850040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &6942243533100796476
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4487215760021850040}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7173597741419926737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4487215760021850040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &4535123355097688431
 GameObject:
   m_ObjectHideFlags: 0
@@ -5331,6 +5859,113 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46398bc5d6905ad429a6d2d973afe002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5104727727422013739
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6300307583848249599}
+  - component: {fileID: 955772199505053594}
+  - component: {fileID: 5472575765666191784}
+  - component: {fileID: 7461830316964948447}
+  m_Layer: 0
+  m_Name: ForcePoint 0R
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6300307583848249599
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5104727727422013739}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.055, y: 0, z: 0.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &955772199505053594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5104727727422013739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &5472575765666191784
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5104727727422013739}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7461830316964948447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5104727727422013739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &5323223854974647959
 GameObject:
   m_ObjectHideFlags: 0
@@ -5740,33 +6375,16 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7337323208231403806}
-  - {fileID: 3564279141758314308}
-  - {fileID: 6456640914253731269}
-  - {fileID: 8572663362446926917}
-  - {fileID: 6264114330311737292}
-  - {fileID: 5493370334793279189}
-  - {fileID: 4637394272016604849}
-  - {fileID: 8164669859553307824}
-  - {fileID: 583462368065907738}
-  - {fileID: 5314246724361091226}
-  - {fileID: 4838700163523169627}
-  - {fileID: 6632095517819761209}
-  - {fileID: 5262226497140002401}
-  - {fileID: 5311906289239928770}
-  - {fileID: 246241014915366383}
-  - {fileID: 4568037679055939293}
-  - {fileID: 5551684603325713428}
-  - {fileID: 548360464817047194}
-  - {fileID: 8619019113684547248}
-  - {fileID: 2809540196691511079}
-  - {fileID: 5877022727093761144}
-  - {fileID: 5061003844217032165}
-  - {fileID: 7537053978675425927}
-  - {fileID: 374655187794367823}
-  - {fileID: 1517806748478680464}
-  - {fileID: 818787035560486141}
-  - {fileID: 4689919139440621803}
+  - {fileID: 6300307583848249599}
+  - {fileID: 2489066590413132863}
+  - {fileID: 3097532864544142831}
+  - {fileID: 113761121685733740}
+  - {fileID: 6938412043325405651}
+  - {fileID: 7442701425292946227}
+  - {fileID: 6557031963960705478}
+  - {fileID: 4009478327026874776}
+  - {fileID: 8217423905390434037}
+  - {fileID: 4222318048120402433}
   m_Father: {fileID: 380243405807791077}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5724323113961092011
@@ -5861,6 +6479,113 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   geometryType: 3
+--- !u!1 &5814298154294851194
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2489066590413132863}
+  - component: {fileID: 247845279875605514}
+  - component: {fileID: 9207284383627498614}
+  - component: {fileID: 6901280204893926478}
+  m_Layer: 0
+  m_Name: ForcePoint 0L
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2489066590413132863
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5814298154294851194}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.055, y: 0, z: 0.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &247845279875605514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5814298154294851194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &9207284383627498614
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5814298154294851194}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6901280204893926478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5814298154294851194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &5818993102367744392
 GameObject:
   m_ObjectHideFlags: 0
@@ -6351,6 +7076,113 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6753267677432964751}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6352978104187664387
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 113761121685733740}
+  - component: {fileID: 2669357276118377038}
+  - component: {fileID: 2116157359445128270}
+  - component: {fileID: 7802936354489939728}
+  m_Layer: 0
+  m_Name: ForcePoint 1L
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &113761121685733740
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6352978104187664387}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.055, y: 0, z: 0.275}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2669357276118377038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6352978104187664387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &2116157359445128270
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6352978104187664387}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7802936354489939728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6352978104187664387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &6527483049062569833
 GameObject:
   m_ObjectHideFlags: 0
@@ -6819,7 +7651,7 @@ ArticulationBody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7059614467905578189}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Mass: 1
   m_ParentAnchorPosition: {x: 0, y: 0, z: 0}
@@ -6865,7 +7697,7 @@ ArticulationBody:
   m_AngularDamping: 0.05
   m_JointFriction: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 0.0001, y: 0.0001, z: 0.0001}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
     serializedVersion: 2
@@ -6873,8 +7705,8 @@ ArticulationBody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 0
-  m_ImplicitTensor: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
   m_Immovable: 0
   m_UseGravity: 1
   m_CollisionDetectionMode: 0
@@ -7567,6 +8399,113 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46398bc5d6905ad429a6d2d973afe002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &7718370927016309406
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4222318048120402433}
+  - component: {fileID: 6393746647001311672}
+  - component: {fileID: 5891768348984298459}
+  - component: {fileID: 8473071164798993462}
+  m_Layer: 0
+  m_Name: ForcePoint 4L
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4222318048120402433
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7718370927016309406}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.055, y: 0, z: -0.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6393746647001311672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7718370927016309406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &5891768348984298459
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7718370927016309406}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8473071164798993462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7718370927016309406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &7884347334426990963
 GameObject:
   m_ObjectHideFlags: 0
@@ -7657,6 +8596,113 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &7921273911104848008
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3097532864544142831}
+  - component: {fileID: 726927391827848278}
+  - component: {fileID: 5258190563529925512}
+  - component: {fileID: 7111125487407009323}
+  m_Layer: 0
+  m_Name: ForcePoint 1R
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3097532864544142831
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7921273911104848008}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.055, y: 0, z: 0.275}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9069054020623709610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &726927391827848278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7921273911104848008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConnectedArticulationBody: {fileID: 5339568580728683376}
+  ConnectedRigidbody: {fileID: 0}
+  WaterQueryFrequency: -1
+  VolumeObject: {fileID: 151070843103861228}
+  VolumeMesh: {fileID: 0}
+  Volume: 0
+  WaterDensity: 997
+  DepthBeforeSubmerged: 0.03
+  MaxBuoyancyForce: 1000
+  BuoyancyDebounceFrames: 3
+  UnderwaterDrag: 1.02
+  UnderwaterAngularDrag: 1.5
+  AirDrag: 0.1
+  AirAngularDrag: 0.1
+  IsUnderwater: 0
+  IsSubmerged: 0
+  CurrentDepth: 0
+  AddGravity: 0
+  AutomaticCenterOfGravity: 0
+  Mass: 0
+  DrawForces: 0
+  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
+  AppliedGravityForce: {x: 0, y: 0, z: 0}
+  ApplyCustomForce: 0
+  CustomForce: {x: 0, y: 0, z: 0}
+--- !u!135 &5258190563529925512
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7921273911104848008}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7111125487407009323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7921273911104848008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoType: 0
+  radius: 0.03
+  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
 --- !u!1 &7981670589210556786
 GameObject:
   m_ObjectHideFlags: 0
@@ -9238,3348 +10284,3 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 857238084682568678}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &5837899595731698066
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7337323208231403806}
-  - component: {fileID: 8464679488173615702}
-  - component: {fileID: 7605837340855897689}
-  - component: {fileID: 7794142299228898905}
-  m_Layer: 0
-  m_Name: Strip_00_z-0.665
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7337323208231403806
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5837899595731698066}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.66461}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8464679488173615702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5837899595731698066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00019131
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.03395
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &7605837340855897689
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5837899595731698066}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7794142299228898905
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5837899595731698066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &7520015216544150741
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3564279141758314308}
-  - component: {fileID: 3164610242976475155}
-  - component: {fileID: 3461403339219686586}
-  - component: {fileID: 7958921779712700037}
-  m_Layer: 0
-  m_Name: Strip_01_z-0.615
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3564279141758314308
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7520015216544150741}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.61474}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3164610242976475155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7520015216544150741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00052308
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.05615
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &3461403339219686586
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7520015216544150741}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7958921779712700037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7520015216544150741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &8602577457767728835
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6456640914253731269}
-  - component: {fileID: 6448941255910007859}
-  - component: {fileID: 1611236585553191741}
-  - component: {fileID: 623912702291554775}
-  m_Layer: 0
-  m_Name: Strip_02_z-0.565
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6456640914253731269
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8602577457767728835}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.56487}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6448941255910007859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8602577457767728835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &1611236585553191741
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8602577457767728835}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &623912702291554775
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8602577457767728835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &4699413069893398510
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8572663362446926917}
-  - component: {fileID: 4627497325361980218}
-  - component: {fileID: 1234873800470624639}
-  - component: {fileID: 2476945388389759930}
-  m_Layer: 0
-  m_Name: Strip_03_z-0.515
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8572663362446926917
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4699413069893398510}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.51500}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4627497325361980218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4699413069893398510}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &1234873800470624639
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4699413069893398510}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2476945388389759930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4699413069893398510}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &7691911008709156581
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6264114330311737292}
-  - component: {fileID: 3528623100398774514}
-  - component: {fileID: 4328750501917707163}
-  - component: {fileID: 2034098054285549492}
-  m_Layer: 0
-  m_Name: Strip_04_z-0.465
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6264114330311737292
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7691911008709156581}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.46513}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3528623100398774514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7691911008709156581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &4328750501917707163
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7691911008709156581}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2034098054285549492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7691911008709156581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &4991866361518128849
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5493370334793279189}
-  - component: {fileID: 6742404211792302153}
-  - component: {fileID: 8051980741187531602}
-  - component: {fileID: 4287744143328758512}
-  m_Layer: 0
-  m_Name: Strip_05_z-0.415
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5493370334793279189
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4991866361518128849}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.41525}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6742404211792302153
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4991866361518128849}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &8051980741187531602
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4991866361518128849}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4287744143328758512
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4991866361518128849}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &8168109686945621734
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4637394272016604849}
-  - component: {fileID: 525030630753792629}
-  - component: {fileID: 8960274908294095583}
-  - component: {fileID: 7125698605901250782}
-  m_Layer: 0
-  m_Name: Strip_06_z-0.365
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4637394272016604849
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8168109686945621734}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.36538}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &525030630753792629
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8168109686945621734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &8960274908294095583
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8168109686945621734}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7125698605901250782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8168109686945621734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &1759116724687331571
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8164669859553307824}
-  - component: {fileID: 6871502690305397379}
-  - component: {fileID: 216738417817978313}
-  - component: {fileID: 7220755019277433914}
-  m_Layer: 0
-  m_Name: Strip_07_z-0.316
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8164669859553307824
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759116724687331571}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.31551}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6871502690305397379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759116724687331571}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &216738417817978313
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759116724687331571}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7220755019277433914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759116724687331571}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &1397574587914723436
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 583462368065907738}
-  - component: {fileID: 6088546743933890926}
-  - component: {fileID: 2119952173076995249}
-  - component: {fileID: 849985442681509999}
-  m_Layer: 0
-  m_Name: Strip_08_z-0.266
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &583462368065907738
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1397574587914723436}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.26564}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6088546743933890926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1397574587914723436}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &2119952173076995249
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1397574587914723436}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &849985442681509999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1397574587914723436}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &7890850565112569283
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5314246724361091226}
-  - component: {fileID: 2862329339622210209}
-  - component: {fileID: 8006816561719751394}
-  - component: {fileID: 6696897400101543194}
-  m_Layer: 0
-  m_Name: Strip_09_z-0.216
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5314246724361091226
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890850565112569283}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.21577}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2862329339622210209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890850565112569283}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &8006816561719751394
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890850565112569283}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6696897400101543194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7890850565112569283}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &7582246530697873936
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4838700163523169627}
-  - component: {fileID: 3722700580403288513}
-  - component: {fileID: 7069922225844767172}
-  - component: {fileID: 8134575960160012230}
-  m_Layer: 0
-  m_Name: Strip_10_z-0.166
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4838700163523169627
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7582246530697873936}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.16590}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3722700580403288513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7582246530697873936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &7069922225844767172
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7582246530697873936}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8134575960160012230
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7582246530697873936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &6648563925288197153
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6632095517819761209}
-  - component: {fileID: 5559510051198269355}
-  - component: {fileID: 4959248349435477028}
-  - component: {fileID: 6759453252122168941}
-  m_Layer: 0
-  m_Name: Strip_11_z-0.116
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6632095517819761209
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6648563925288197153}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.11602}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5559510051198269355
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6648563925288197153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &4959248349435477028
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6648563925288197153}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6759453252122168941
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6648563925288197153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &5352106422506392247
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5262226497140002401}
-  - component: {fileID: 1029532108900588161}
-  - component: {fileID: 5910221504463930725}
-  - component: {fileID: 252531762967266810}
-  m_Layer: 0
-  m_Name: Strip_12_z-0.066
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5262226497140002401
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5352106422506392247}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.06615}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1029532108900588161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5352106422506392247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &5910221504463930725
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5352106422506392247}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &252531762967266810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5352106422506392247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &4417853696725550421
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5311906289239928770}
-  - component: {fileID: 8072782897808927617}
-  - component: {fileID: 8796123950161630535}
-  - component: {fileID: 1171763573246149326}
-  m_Layer: 0
-  m_Name: Strip_13_z-0.016
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5311906289239928770
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4417853696725550421}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.01628}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8072782897808927617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4417853696725550421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &8796123950161630535
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4417853696725550421}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1171763573246149326
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4417853696725550421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &1318086370864905259
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 246241014915366383}
-  - component: {fileID: 3753318453860436807}
-  - component: {fileID: 3575762748170856365}
-  - component: {fileID: 1205660270502283568}
-  m_Layer: 0
-  m_Name: Strip_14_z+0.034
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &246241014915366383
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318086370864905259}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.03359}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3753318453860436807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318086370864905259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &3575762748170856365
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318086370864905259}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1205660270502283568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1318086370864905259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &2268187854770273013
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4568037679055939293}
-  - component: {fileID: 2967150889359544587}
-  - component: {fileID: 484117162915000076}
-  - component: {fileID: 138401256508460307}
-  m_Layer: 0
-  m_Name: Strip_15_z+0.083
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4568037679055939293
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268187854770273013}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.08346}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2967150889359544587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268187854770273013}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &484117162915000076
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268187854770273013}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &138401256508460307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268187854770273013}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &4741031400089182631
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5551684603325713428}
-  - component: {fileID: 6797221858966488080}
-  - component: {fileID: 8453245955948552478}
-  - component: {fileID: 1795725236351263123}
-  m_Layer: 0
-  m_Name: Strip_16_z+0.133
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5551684603325713428
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4741031400089182631}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.13334}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6797221858966488080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4741031400089182631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &8453245955948552478
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4741031400089182631}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1795725236351263123
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4741031400089182631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &1046716362379521899
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 548360464817047194}
-  - component: {fileID: 7355532579137436326}
-  - component: {fileID: 8925938378819200725}
-  - component: {fileID: 3619236351908026102}
-  m_Layer: 0
-  m_Name: Strip_17_z+0.183
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &548360464817047194
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046716362379521899}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.18321}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7355532579137436326
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046716362379521899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &8925938378819200725
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046716362379521899}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3619236351908026102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1046716362379521899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &1919516809941681462
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8619019113684547248}
-  - component: {fileID: 4777690861345280013}
-  - component: {fileID: 6672748084751698774}
-  - component: {fileID: 8960436506054704956}
-  m_Layer: 0
-  m_Name: Strip_18_z+0.233
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8619019113684547248
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919516809941681462}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.23308}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4777690861345280013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919516809941681462}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &6672748084751698774
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919516809941681462}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8960436506054704956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1919516809941681462}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &5472400972742637766
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2809540196691511079}
-  - component: {fileID: 5193114052143945141}
-  - component: {fileID: 6772351665265472958}
-  - component: {fileID: 5190106610379646375}
-  m_Layer: 0
-  m_Name: Strip_19_z+0.283
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2809540196691511079
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5472400972742637766}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.28295}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5193114052143945141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5472400972742637766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &6772351665265472958
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5472400972742637766}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5190106610379646375
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5472400972742637766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &8060608147695813888
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5877022727093761144}
-  - component: {fileID: 6228152726687640917}
-  - component: {fileID: 7046940652555390528}
-  - component: {fileID: 4095794913465042928}
-  m_Layer: 0
-  m_Name: Strip_20_z+0.333
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5877022727093761144
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8060608147695813888}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.33282}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6228152726687640917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8060608147695813888}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &7046940652555390528
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8060608147695813888}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4095794913465042928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8060608147695813888}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &6491474651997606790
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5061003844217032165}
-  - component: {fileID: 2032190117390088461}
-  - component: {fileID: 5711270684286853648}
-  - component: {fileID: 7740150624386357353}
-  m_Layer: 0
-  m_Name: Strip_21_z+0.383
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5061003844217032165
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6491474651997606790}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.38269}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2032190117390088461
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6491474651997606790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &5711270684286853648
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6491474651997606790}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7740150624386357353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6491474651997606790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &8891929133695644015
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7537053978675425927}
-  - component: {fileID: 5107893073581200097}
-  - component: {fileID: 7828502632715295155}
-  - component: {fileID: 4075029647819441426}
-  m_Layer: 0
-  m_Name: Strip_22_z+0.433
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7537053978675425927
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8891929133695644015}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.43257}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5107893073581200097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8891929133695644015}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &7828502632715295155
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8891929133695644015}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4075029647819441426
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8891929133695644015}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &2580293884534329842
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 374655187794367823}
-  - component: {fileID: 3494399697239657202}
-  - component: {fileID: 5932694209151453240}
-  - component: {fileID: 3839522980681572587}
-  m_Layer: 0
-  m_Name: Strip_23_z+0.482
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &374655187794367823
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2580293884534329842}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.48244}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3494399697239657202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2580293884534329842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &5932694209151453240
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2580293884534329842}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3839522980681572587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2580293884534329842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &8621522697387613651
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1517806748478680464}
-  - component: {fileID: 8939372848161038503}
-  - component: {fileID: 1798643270538422897}
-  - component: {fileID: 266456241068601422}
-  m_Layer: 0
-  m_Name: Strip_24_z+0.532
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1517806748478680464
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8621522697387613651}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.53231}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8939372848161038503
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8621522697387613651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &1798643270538422897
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8621522697387613651}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &266456241068601422
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8621522697387613651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &4064235866379299270
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 818787035560486141}
-  - component: {fileID: 5256083757396468546}
-  - component: {fileID: 5803586599778067942}
-  - component: {fileID: 327983720440077336}
-  m_Layer: 0
-  m_Name: Strip_25_z+0.582
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &818787035560486141
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4064235866379299270}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.58218}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5256083757396468546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4064235866379299270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00064820
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06250
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &5803586599778067942
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4064235866379299270}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &327983720440077336
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4064235866379299270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!1 &2455623208639744218
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4689919139440621803}
-  - component: {fileID: 1510187270190904479}
-  - component: {fileID: 6523861682564187288}
-  - component: {fileID: 2837316352473232752}
-  m_Layer: 0
-  m_Name: Strip_26_z+0.632
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4689919139440621803
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2455623208639744218}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.63205}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9069054020623709610}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1510187270190904479
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2455623208639744218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cabd620bcc508e47915e35234c68c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  WaterQueryFrequency: -1
-  VolumeObject: {fileID: 151070843103861228}
-  VolumeMesh: {fileID: 0}
-  Volume: 0.00062982
-  WaterDensity: 997
-  DepthBeforeSubmerged: 0.03
-  MaxBuoyancyForce: 1000
-  SectionRadius: 0.06161
-  VolumeIsPerPoint: 1
-  BuoyancyDebounceFrames: 0
-  UnderwaterDrag: 0
-  UnderwaterAngularDrag: 1.5
-  AirDrag: 0.1
-  AirAngularDrag: 0.1
-  IsUnderwater: 0
-  IsSubmerged: 0
-  CurrentDepth: 0
-  AddGravity: 0
-  AutomaticCenterOfGravity: 0
-  Mass: 0
-  DrawForces: 0
-  AppliedBuoyancyForce: {x: 0, y: 0, z: 0}
-  AppliedGravityForce: {x: 0, y: 0, z: 0}
-  ApplyCustomForce: 0
-  CustomForce: {x: 0, y: 0, z: 0}
---- !u!135 &6523861682564187288
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2455623208639744218}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2837316352473232752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2455623208639744218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c45d08c9307ff52ef83b1dd1ccdde076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoType: 0
-  radius: 0.012
-  color: {r: 0.08797165, g: 0.2453528, b: 0.45910704, a: 1}
---- !u!114 &2247361040506246964
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3427471025016459466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b1d5e3f9a2c4168d3e5f7a9b1c3d5e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WaterDensity: 997
-  SetForcePointDensity: 1
-  ApplyBallast: 1
-  BallastMassKg: 0.56480
-  StarboardFraction: 0.5
-  RailX: 0.07
-  RailY: -0.03
-  RailZ: 0.30470
-  ApplyPosition: 0
-  AutoSolve: 0
-  PortLinkName: ballast_port_link
-  StarboardLinkName: ballast_stbd_link
-  TrimLinkName: base_link
-  VbsLinkName: vbs_link
---- !u!114 &4303947549021066843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3427471025016459466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c2e6f401b3d5279e4f6a8b0c2d4e6f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MarkerSize: 0.04
-  ForceBarScale: 0.002
-  ShowLabels: 1
---- !u!1 &6914425103349467432
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3445728492935842385}
-  - component: {fileID: 8434079797756852766}
-  m_Layer: 0
-  m_Name: ballast_port_link
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3445728492935842385
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6914425103349467432}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.07000, y: -0.03000, z: 0.30473}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 380243405807791077}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!171741748 &8434079797756852766
-ArticulationBody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6914425103349467432}
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Mass: 0.28239
-  m_ParentAnchorPosition: {x: -0.07000, y: -0.03000, z: 0.30473}
-  m_ParentAnchorRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_AnchorPosition: {x: 0, y: 0, z: 0}
-  m_AnchorRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_MatchAnchors: 1
-  m_ArticulationJointType: 0
-  m_LinearX: 2
-  m_LinearY: 2
-  m_LinearZ: 2
-  m_SwingY: 2
-  m_SwingZ: 2
-  m_Twist: 2
-  m_XDrive:
-    lowerLimit: 0
-    upperLimit: 0
-    stiffness: 0
-    damping: 0
-    forceLimit: 3.4028235e+38
-    target: 0
-    targetVelocity: 0
-    driveType: 0
-  m_YDrive:
-    lowerLimit: 0
-    upperLimit: 0
-    stiffness: 0
-    damping: 0
-    forceLimit: 3.4028235e+38
-    target: 0
-    targetVelocity: 0
-    driveType: 0
-  m_ZDrive:
-    lowerLimit: 0
-    upperLimit: 0
-    stiffness: 0
-    damping: 0
-    forceLimit: 3.4028235e+38
-    target: 0
-    targetVelocity: 0
-    driveType: 0
-  m_LinearDamping: 0
-  m_AngularDamping: 0
-  m_JointFriction: 0
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 0.0001, y: 0.0001, z: 0.0001}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 0
-  m_ImplicitTensor: 0
-  m_Immovable: 0
-  m_UseGravity: 1
-  m_CollisionDetectionMode: 0
---- !u!1 &3488868840459555468
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 408084325999011886}
-  - component: {fileID: 8404656850534587146}
-  m_Layer: 0
-  m_Name: ballast_stbd_link
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &408084325999011886
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3488868840459555468}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.07000, y: -0.03000, z: 0.30473}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 380243405807791077}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!171741748 &8404656850534587146
-ArticulationBody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3488868840459555468}
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Mass: 0.28239
-  m_ParentAnchorPosition: {x: 0.07000, y: -0.03000, z: 0.30473}
-  m_ParentAnchorRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_AnchorPosition: {x: 0, y: 0, z: 0}
-  m_AnchorRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_MatchAnchors: 1
-  m_ArticulationJointType: 0
-  m_LinearX: 2
-  m_LinearY: 2
-  m_LinearZ: 2
-  m_SwingY: 2
-  m_SwingZ: 2
-  m_Twist: 2
-  m_XDrive:
-    lowerLimit: 0
-    upperLimit: 0
-    stiffness: 0
-    damping: 0
-    forceLimit: 3.4028235e+38
-    target: 0
-    targetVelocity: 0
-    driveType: 0
-  m_YDrive:
-    lowerLimit: 0
-    upperLimit: 0
-    stiffness: 0
-    damping: 0
-    forceLimit: 3.4028235e+38
-    target: 0
-    targetVelocity: 0
-    driveType: 0
-  m_ZDrive:
-    lowerLimit: 0
-    upperLimit: 0
-    stiffness: 0
-    damping: 0
-    forceLimit: 3.4028235e+38
-    target: 0
-    targetVelocity: 0
-    driveType: 0
-  m_LinearDamping: 0
-  m_AngularDamping: 0
-  m_JointFriction: 0
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 0.0001, y: 0.0001, z: 0.0001}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 0
-  m_ImplicitTensor: 0
-  m_Immovable: 0
-  m_UseGravity: 1
-  m_CollisionDetectionMode: 0
---- !u!114 &7201000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3767765934768285763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c7e1f0a9b2d4e5f8a1b2c3d4e5f6a71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Model: 1
-  V1PropellerForceMultiplier: 0.005
-  V1: {fileID: 4865858304184685475}
-  V2: {fileID: 7201000000000000003}
-  Propellers: []
---- !u!114 &7201000000000000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3767765934768285763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d8f2a1b0c3e5f6a9b2c3d4e5f6a7b82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CsvName: rosbag2_2025_06_10-17_57_49.csv
-  RunOnStart: 1
-  StartTime: 0
-  MaxDuration: 0
-  RestartEverySeconds: 10
-  TimeScale: 4
-  WorldOffset: {x: -151.14, y: 0, z: -210.67}
-  YawOffsetDeg: 0
-  YawSign: -1
-  PitchSign: 1
-  FeedERPMToV2: 1
-  DriveActuators: 1
-  DriveProps: 1
-  DriveHinges: 1
-  DriveVbsLcg: 1
-  SetVelocityOnRestart: 1
-  BaseLink: {fileID: 0}
-  Selector: {fileID: 0}
-  V2: {fileID: 0}
-  PropFront: {fileID: 0}
-  PropBack: {fileID: 0}
-  HingeYaw: {fileID: 0}
-  HingePitch: {fileID: 0}
-  Vbs: {fileID: 0}
-  Lcg: {fileID: 0}
---- !u!114 &7201000000000000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3427471025016459466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a58358f02930644e99848dfa023d3d57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConnectedArticulationBody: {fileID: 5339568580728683376}
-  ConnectedRigidbody: {fileID: 0}
-  Length: 1.44
-  Diameter: 0.125
-  Mass: 16.85
-  LongAxis: {x: 0, y: 0, z: 1}
-  WaterDensity: 997
-  DLin:
-  - 2.61
-  - 0
-  - 0
-  - 0.011
-  - 0
-  - 0
-  DQuad:
-  - 8.92
-  - 50
-  - 50
-  - 40
-  - 200
-  - 10
-  DLinOffDiag:
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  MunkCoefficient: 14.97
-  CenterOfPressureOffset: 0.1
-  UseAddedMass: 1
-  AddedMass:
-  - 0.277
-  - 16.315
-  - 16.315
-  - 0.0405
-  - 1.609
-  - 1.609
-  AddedMassScale: 1
-  RigidInertia: {x: 0.135, y: 2.192, z: 2.102}
-  Prop1eRPM: 0
-  Prop2eRPM: 0
-  kT1Fwd: 0.1031
-  kT1Rev: 0.0529
-  kT2Fwd: 0.1407
-  kT2Rev: 0.0663
-  ThrustSource: 1
-  Propellers: []
-  ThrustTransform: {fileID: 0}
-  ThrustTransformName: front_prop_link
-  UseCommandRPM: 0
-  CommandRPM: 0
-  cQuad: 7.99e-06
-  ReverseRatio: 0.49
-  Delta1: 0
-  Delta2: 0
-  ThrustArm: -0.677
-  UseSteeringRollCoupling: 0
-  SteeringRateRoll: 0.019
-  ThrustDeflectionRoll: 0.0093
-  ZeroPhysXDamping: 1
-  WaterQueryFrequency: 50
-  StripCount: 10
-  SubmergedFraction: 0
-  SpeedThroughWater: 0
-  ThrustForce: 0
-  LastForceLocal: {x: 0, y: 0, z: 0}
-  LastTorqueLocal: {x: 0, y: 0, z: 0}
-  LogEverySeconds: 0

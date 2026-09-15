@@ -65,7 +65,7 @@ namespace Smarc.Cinematics
     ///
     /// THE TWO DEFECTS THE 2026-08-21 TAKE FOUND, and where they actually were:
     ///   * "sonar map · 0 pts" for 643 s — `SonarMapAccumulator` bound no sonar at all, because
-    ///     sam2.2 has an FLS and an SSS and no MBES and only `IncludeMBES` was ticked. Nothing here.
+    ///     sam21 has an FLS and an SSS and no MBES and only `IncludeMBES` was ticked. Nothing here.
     ///   * "'ApproachingHoop' never happened … last filmed 1" — `MissionWPHoop_Sub` never held more
     ///     than one hoop, because every waypoint on the wire is named "wp" and identity was the
     ///     name alone. Also nothing here; but the OVERLAY made it unreadable by printing a count

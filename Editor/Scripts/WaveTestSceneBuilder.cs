@@ -7,10 +7,10 @@
 //
 // WHAT IT BUILDS. AskoWaveTest.unity — the Askö world (its terrain, its Ocean pinned at
 // (0,0,0), its Baltic water preset) with:
-//   * the OLD sam2.2 instance (scene-renamed `sam_auv_v1`, 1064 property overrides, the legacy
+//   * the OLD sam21 instance (scene-renamed `sam_auv_v1`, 1064 property overrides, the legacy
 //     two-column 10-point buoyancy cloud) DISABLED, not deleted, so the scene still diffs
 //     cleanly against AskoCurated and Ivan can re-enable it for an A/B;
-//   * a fresh `sam2.2.strips` instance — 27 on-axis strips + the ballast links — at the same
+//   * a fresh `sam21.strips` instance — 27 on-axis strips + the ballast links — at the same
 //     station, on the surface;
 //   * every ROS publisher/subscriber on that new vehicle disabled. A physics measurement does
 //     not need the wire, and the publishers were flooding the console with "cannot sustain
@@ -36,7 +36,7 @@ namespace SmarcEditor
     {
         const string SourceScene = "Assets/Scenes/AskoCurated.unity";
         const string TargetScene = "Assets/Scenes/AskoWaveTest.unity";
-        const string StripsPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam2.2.strips.prefab";
+        const string StripsPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam21.strips.prefab";
 
         static readonly string[] DisableRoots =
         {
@@ -70,14 +70,14 @@ namespace SmarcEditor
             // 3. the new vehicle
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(StripsPrefab)
                          ?? AssetDatabase.LoadAssetAtPath<GameObject>(FindStripsPrefab());
-            if (prefab == null) { Debug.LogError("[WaveTestSceneBuilder] sam2.2.strips.prefab not found."); return; }
+            if (prefab == null) { Debug.LogError("[WaveTestSceneBuilder] sam21.strips.prefab not found."); return; }
 
             var sam = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
             Vector3 home = oldSam != null ? oldSam.transform.position : new Vector3(-151.14f, 0f, -210.67f);
             sam.transform.position = new Vector3(home.x, 0f, home.z);
             sam.transform.rotation = Quaternion.identity;
-            sam.name = "sam2.2.strips";
-            log.Add($"instantiated sam2.2.strips at ({home.x:F2}, 0.00, {home.z:F2})");
+            sam.name = "sam21.strips";
+            log.Add($"instantiated sam21.strips at ({home.x:F2}, 0.00, {home.z:F2})");
 
             int killed = 0;
             foreach (var mb in sam.GetComponentsInChildren<MonoBehaviour>(true))
@@ -107,10 +107,10 @@ namespace SmarcEditor
 
         static string FindStripsPrefab()
         {
-            foreach (var guid in AssetDatabase.FindAssets("sam2.2.strips t:Prefab"))
+            foreach (var guid in AssetDatabase.FindAssets("sam21.strips t:Prefab"))
             {
                 var p = AssetDatabase.GUIDToAssetPath(guid);
-                if (Path.GetFileName(p) == "sam2.2.strips.prefab") return p;
+                if (Path.GetFileName(p) == "sam21.strips.prefab") return p;
             }
             return "";
         }

@@ -254,7 +254,7 @@ namespace SMARC.Editor
         /// without regenerating anything, because Ivan has `datacube_station_01` placed in
         /// Beckholmen at (1.3, 1.14567, 48.7) on the dock bridge and `BuildStation()` replaces its
         /// output wholesale. That is the `SMARC/Build SAM v2 Perception Prefabs` failure mode
-        /// exactly (SETTLED §5: one press, three prefabs destroyed, every fileID in `sam2.2`
+        /// exactly (SETTLED §5: one press, three prefabs destroyed, every fileID in `sam21`
         /// churned, the open scene's vehicle instance broken with thousands of NREs).
         ///
         /// WHAT IT TOUCHES, AND NOTHING ELSE:

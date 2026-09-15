@@ -207,14 +207,14 @@ public static class VideoRigSetup
             map.SeedRamp();
         }
         map.MapMaterial = AssetDatabase.LoadAssetAtPath<Material>(MapMatPath);
-        // DEFECT A, 2026-08-21: sam2.2 carries an FLS (Sonar3D15) and an SSS (DeepVision) and NO
+        // DEFECT A, 2026-08-21: sam21 carries an FLS (Sonar3D15) and an SSS (DeepVision) and NO
         // MBES, so a rig created before today taps nothing and the map stays at 0 pts for the whole
         // take. Correct it here rather than leaving it to be noticed on camera again.
         if (!map.IncludeFLS)
         {
             map.IncludeFLS = true;
             Debug.LogWarning("[VideoRig] SonarMapAccumulator had IncludeFLS OFF — turned ON. The only " +
-                             "forward sonar on sam2.2 is Sonar3D15 (Type = FLS); with this off the sonar " +
+                             "forward sonar on sam21 is Sonar3D15 (Type = FLS); with this off the sonar " +
                              "map accumulates nothing, which is exactly what the 2026-08-21 take recorded.");
         }
         // ROUND 3, Ivan: "skip the side scan in the 3d point cloud map building here". The flag was
@@ -1059,7 +1059,7 @@ public static class VideoRigSetup
             //      from that below-and-behind plunge pose to the pose the vehicle carries itself.
             //
             //      (0.28, 0.21, -1.29) is MEASURED, not chosen: it is the localPosition of the
-            //      `3rdPersonCam` GameObject in SMARCAssets/Runtime/Prefabs/sam2.2.prefab, whose
+            //      `3rdPersonCam` GameObject in SMARCAssets/Runtime/Prefabs/sam21.prefab, whose
             //      parent is `base_link` with identity rotation — which is exactly the frame
             //      FollowOffset is expressed in (x right, y up, z forward). So the shot literally
             //      finishes looking through SAM's own third-person camera.
@@ -1075,7 +1075,7 @@ public static class VideoRigSetup
                 Advance = CameraShot.AdvanceWhen.VehicleSubmerged,
                 MinSeconds = 8f, MaxSeconds = 60f, SteadySeconds = 1.0f, SubmergeDepth = 2.5f,
                 FollowTargetName = "base_link",
-                FollowOffset = new Vector3(0.28f, 0.21f, -1.29f),   // sam2.2.prefab ▸ base_link ▸ 3rdPersonCam
+                FollowOffset = new Vector3(0.28f, 0.21f, -1.29f),   // sam21.prefab ▸ base_link ▸ 3rdPersonCam
                 ZoomInSeconds = 6f, ZoomStartOffset = new Vector3(1.8f, -2.5f, -5.0f),
                 PositionDamping = 0.45f, RotationDamping = 0.3f, YawOnly = true,
                 NearClip = 0.04f,                                   // the lens ends 1.3 m off the hull
@@ -1805,7 +1805,7 @@ public static class VideoRigSetup
         }
         if (named > 1)
             sb.AppendLine($"  WARN  {named} root objects are named '{robotName}' ({namedActive} active). " +
-                          "Beckholmen holds an INACTIVE sam_auv_v1.prefab and an ACTIVE sam2.2.prefab both " +
+                          "Beckholmen holds an INACTIVE sam_auv_v1.prefab and an ACTIVE sam21.prefab both " +
                           "renamed sam_auv_v1 — everything binds to the active one, which is the one with " +
                           "no MBES on it.");
 

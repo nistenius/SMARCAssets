@@ -25,10 +25,14 @@ public static class SamV2PerceptionBuilder
     const string RealSensePrefabPath = PKG + "/Components/RealSenseD435i.prefab";
     const string SensorsV2PrefabPath = PKG + "/Components/SAMSensorsV2.prefab";
     const string SamV1PrefabPath = PKG + "/sam_auv_v1.prefab";
-    // Named sam2.2 (SAM class 2, version 2) so multiple versions/instances of the class
-    // can coexist. NOTE: ROS names cannot contain '.', and topics/frames are prefixed
-    // with the robot GameObject's name at runtime — name scene instances sam2_2, sam0 etc.
-    const string SamV2PrefabPath = PKG + "/sam2.2.prefab";
+    // RENAMED sam2.2 -> sam21 on 2026-09-15 (Ivan): this prefab is the SAM 2.1 HULL. It was
+    // called sam2.2 only because the forward-looking sensor built for SAM 2.2 was added to it
+    // virtually; every bag and every real test behind its numbers is the 2.1 vehicle. The real
+    // SAM 2.2 (new nose/aft cone, new sensors) gets its OWN prefab, derived from this one later.
+    // The asset guid c1e7da780778545138405fc308f5eb43 is unchanged, so scenes are unaffected.
+    // NOTE: ROS names cannot contain '.', and topics/frames are prefixed with the robot
+    // GameObject's name at runtime — scene instances stay named sam_auv_v1 / sam0 etc.
+    const string SamV2PrefabPath = PKG + "/sam21.prefab";
     const string RayMaterialGUID = "4c69fe22859e53c60b1e6d411903d798"; // same mat the old MBES RayViewer used
 
     // ---- WL Sonar 3D-15 (real: 90x40 deg, 15 m, ~16k beams/ping; sim uses fewer rays, tune as needed)
@@ -73,7 +77,7 @@ public static class SamV2PerceptionBuilder
     // generated prefab after the first build is discarded without a word. Measured
     // damage from a single press: Sonar3D15 lost `WaterLinkedSonar3DModes` entirely and
     // had its beam reset 150x17 -> 91x41; SAMSensorsV2's side-scan mount went 0/60 ->
-    // 45/45; and sam2.2 was re-serialized end to end, which invalidated every fileID the
+    // 45/45; and sam21 (then called sam2.2) was re-serialized end to end, which invalidated every fileID the
     // open scene's vehicle instance referred to — ForcePoints, sensors and publishers all
     // came up null and Play produced thousands of NREs and "No registered publisher"
     // exceptions. Two of those losses had previously been blamed on "Unity re-serializing
@@ -330,7 +334,7 @@ public static class SamV2PerceptionBuilder
 
         var root = (GameObject)PrefabUtility.InstantiatePrefab(src);
         PrefabUtility.UnpackPrefabInstance(root, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-        root.name = "sam2.2";
+        root.name = "sam21";
 
         // 1) Swap the sensor suite.
         var oldSensors = FindDeep(root.transform, "SAMSensors");

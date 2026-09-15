@@ -24,7 +24,7 @@ using VehicleComponents.Sensors;  // Sonar, DeepVisionSSS
 ///
 /// WHAT THE SCENE ALREADY HAS, and what this therefore does NOT create (measured 2026-09-01 out
 /// of `Assets/Scenes/AskoCurated.unity`):
-///   * ONE active `sam_auv_v1` (the sam2.2 prefab) at (-151.14, -0.10, -210.67), yaw 262°;
+///   * ONE active `sam_auv_v1` (the sam21 prefab) at (-151.14, -0.10, -210.67), yaw 262°;
 ///   * `MMTMiniCooper` at (-171.83, -8.22, -155.39), on a seabed the 0.125 m DV patch puts at
 ///     -8.05 m — the car has settled 0.17 m into the grid;
 ///   * an `SSSWaterfallHUD` ON THE VEHICLE ROOT (F6), which this rig DRIVES rather than replaces;
@@ -80,7 +80,7 @@ public static class AskoVideoRigSetup
         /// <summary>Metres the TRACK passes to PORT of the car — i.e. the car is this far to
         /// STARBOARD of the vehicle at closest approach. THE number the whole shot depends on.
         ///
-        /// The side scan shipped on sam2.2 is tilt 0° / breadth 60°, which is off-nadir
+        /// The side scan shipped on sam21 is tilt 0° / breadth 60°, which is off-nadir
         /// **30°..90°** — a 60° NADIR GAP, not the 0..45° fan an older note claims (that is the
         /// REGRESSED_BEAM_2026_08_16 signature, `sss_geometry.py`). So the constraint runs the
         /// OTHER WAY: lateral offset must be at LEAST Δdepth·tan30° = 0.577·Δdepth, or the car

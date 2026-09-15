@@ -11,7 +11,7 @@
 //   1. Save as SMARCAssets/Runtime/Scripts/Diagnostics/CoMGizmo.cs (any Runtime folder that
 //      references the Force namespace).
 //   2. Select the vehicle root (the object carrying base_link's ArticulationBody, e.g. `sam_auv_v1`
-//      or `sam2.2`) → Add Component → CoM Gizmo.
+//      or `sam21`) → Add Component → CoM Gizmo.
 //   3. Scene view → Gizmos toggle ON (top-right of the Scene view).
 //   4. In Play the markers move with the joints; set LCG/VBS from VC and watch the purple ▼.
 //

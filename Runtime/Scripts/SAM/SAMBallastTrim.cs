@@ -81,7 +81,7 @@ namespace Force
                  "and the number that is written to ballast_report.txt. Start() is the wrong moment: the " +
                  "actuators have not been commanded yet, so battery_link sits at whatever LCG the prefab " +
                  "was serialised at rather than at the LCG the vehicle runs at. MEASURED 2026-09-14 on " +
-                 "sam2.2.strips: 8.4 mm of composite CG between the two, which is a 34.8 deg nose-up " +
+                 "sam21.strips: 8.4 mm of composite CG between the two, which is a 34.8 deg nose-up " +
                  "hang against BG 11.2 mm -- while this component was reporting a 0.70 mm lever and " +
                  "3.6 deg. The masses are still APPLIED at Start (they must be); only the report moves. " +
                  "0 disables the re-report and you get the Start() numbers, which is what lied.")]

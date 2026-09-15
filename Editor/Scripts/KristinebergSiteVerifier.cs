@@ -250,7 +250,7 @@ public static class KristinebergSiteVerifier
         //         (2026-08-16). Everything here is about one question: can this hull,
         //         in this scene, see a rope at the prior's depth from a lane it can fly?
         //         `sam_auv_v1.prefab` has no sonar at all, so the manifest points at
-        //         sam2.2 while keeping the instance NAME `sam_auv_v1` (ROS namespace,
+        //         sam21 while keeping the instance NAME `sam_auv_v1` (ROS namespace,
         //         and `.` is illegal in ROS names). A farm mission on a hull with no SSS
         //         would run, scan nothing, and report an empty farm.
         if (m.sss != null && m.launch != null && !string.IsNullOrEmpty(m.launch.vehicle_name))
@@ -268,7 +268,7 @@ public static class KristinebergSiteVerifier
                 Check("vehicle carries a side scan sonar", sss != null,
                       sss != null ? $"{sss.transform.name} (of {sonars.Length} sonar(s))"
                                   : $"{sonars.Length} sonar(s), none of Type SSS",
-                      "one Sonar with Type = SSS — sam_auv_v1.prefab has none, use sam2.2");
+                      "one Sonar with Type = SSS — sam_auv_v1.prefab has none, use sam21");
 
                 if (sss != null)
                 {
