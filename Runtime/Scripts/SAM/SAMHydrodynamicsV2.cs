@@ -252,6 +252,10 @@ namespace Force
                     case "ring_cla": RingCLa = f; break;
                     case "body_lift": BodyLiftCoefficient = f; break;
                     case "munk": MunkCoefficient = f; break;
+                    // The quadratic counterweight to the Munk couple. 0 removes it, which is the
+                    // A/B the 2026-09-15 pitch diagnosis asks for; PitchSpeedRig sets the same
+                    // field per case, this key is for the replay path.
+                    case "cop": CenterOfPressureOffset = f; break;
                     case "use_flux": UseSlenderBodyFlux = f > 0.5f; break;
                     case "use_bodylift": UseBodyLift = f > 0.5f; break;
                     case "use_ring": UseRingWing = f > 0.5f; break;
