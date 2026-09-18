@@ -38,3 +38,14 @@ Runtime/Terrain/Kristineberg/kristineberg_control.bin.meta
 # Regenerate with the Asko site pipeline or fetch the Oceanverse bundle. (2026-09-13)
 Runtime/Terrain/Asko/
 Runtime/Terrain/Asko.meta
+
+# Djurö curated terrain (2026-09-15) is NOT in git, for a reason Askö's entry does not have:
+# EVERY cell of it is derived from Sjöfartsverket S-57 charts under the FUK licence
+# (research/education, no redistribution, inheritable), so committing it would put restricted
+# data in a repo with a GitHub remote — the mistake this project already made once with 7.4 MB
+# of FUK-derived GeoJSON. The size argument applies too (the r16 alone is 33.6 MB and the LFS
+# quota is nearly spent), but rights are the binding constraint here.
+# Regenerate with data-cube/scripts/djuro-site/build_heightmap.py + build_splatmap.py, or fetch
+# the Oceanverse bundle smds-cloud-store/scenario-bundles/ov-site-Djuro-curated-v1.
+Runtime/Terrain/Djuro/
+Runtime/Terrain/Djuro.meta

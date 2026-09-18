@@ -12,10 +12,18 @@ using Smarc.Environment;
 /// Builds the Askö CURATED site from every real survey we hold, via the data produced by
 /// data-cube/scripts/asko-site/{build_heightmap.py, build_splatmap.py} :
 ///
-///   AskoCurated_<tile>.asset   four TerrainDatas, 4096 m each at 1 m (4097^2), 2x2
+///   AskoCurated_&lt;tile&gt;.asset   four TerrainDatas, 4096 m each at 1 m (4097^2), 2x2
 ///   AskoCuratedWorld.prefab    cloned from AskoWorld.prefab so Ocean/Sky/Sun come from the
 ///                              proven Askö setup; the GLOBALREF and terrains are new
 ///   AskoCurated.unity          the scene
+///
+/// REFACTORED 2026-09-15. The 700 lines that built the terrains, the world prefab and the
+/// scene now live in <see cref="CuratedSiteBuilder"/> and are driven by the
+/// <see cref="CuratedSiteConfig"/> below — because Djurö became the second curated site and
+/// SETTLED §3d says one pipeline, never a second implementation. Behaviour here is
+/// unchanged: same menu item, same asset paths, same log lines, same order. What stays in
+/// this file is what is genuinely Askö's: the nested 0.125 m Deep Vision patch, and the
+/// hand-placed mission set (Ivan's MMT Mini, the bay line, the station).
 ///
 /// Scene: 8192 m x 8192 m covering the whole island group AND the FM2022-10168:2 measurement
 /// permit. Four terrains because Unity's heightmapResolution maxes at 4097: one terrain
@@ -31,7 +39,7 @@ using Smarc.Environment;
 /// 17.635227 E, which puts that frame's origin at UTM33 (653020.81, 6525308.63) —
 /// **2105 m from the registered site origin** (dE +715.1, dN +1979.8). AskoEvolo / AskoEmpty
 /// / Asko.prefab and this curated scene do NOT share coordinates. Measured 2026-08-27; the
-/// builder re-asserts it below so the discrepancy cannot quietly disappear.
+/// builder re-asserts it on every build so the discrepancy cannot quietly disappear.
 ///
 /// SYNTHETIC SEABED: cells no survey reached carry a chart-extrapolated patch. Each terrain
 /// gets an AskoGapPatchLayer whose toggle turns those cells into terrain HOLES, and a second
@@ -43,51 +51,49 @@ using Smarc.Environment;
 public static class AskoSiteBuilder
 {
     const string DataDir = "Packages/com.smarc.assets/Runtime/Terrain/Asko";
-    const string PrefabDir = "Packages/com.smarc.assets/Runtime/Prefabs/Environment/GeoReferenced";
+    const string PrefabDir = CuratedSiteBuilder.PrefabDir;
     const string AskoWorldPath = PrefabDir + "/AskoWorld.prefab";
     const string WorldPrefabPath = PrefabDir + "/AskoCuratedWorld.prefab";
     const string ScenePath = "Assets/Scenes/AskoCurated.unity";
-    const string MatDir = "Packages/com.smarc.assets/Runtime/Materials";
-    const string MatTerrain = MatDir + "/DefaultHDTerrainLitMaterial.mat";
-    const string TileMaterialPath = MatDir + "/2DMapMaterial.mat";
+    const string MatDir = CuratedSiteBuilder.MatDir;
+    const string MatTerrain = CuratedSiteBuilder.MatTerrain;
+    const string TileMaterialPath = CuratedSiteBuilder.TileMaterialPath;
     const string MudPhysicPath = MatDir + "/Physic/Mud.physicMaterial";
 
     // The legacy frame, measured from AskoWorld.prefab (see the class comment).
     const double LegacyOriginUtmE = 653020.81, LegacyOriginUtmN = 6525308.63;
 
-    // ---- mirror of asko_site.json -------------------------------------------
-    [Serializable] public class Vec3J { public float x, y, z; }
-    [Serializable]
-    public class AnchorJ
+    /// <summary>Everything about Askö that the shared builder needs to know.</summary>
+    public static readonly CuratedSiteConfig Config = new CuratedSiteConfig
     {
-        public double lat, lon; public string utm_epsg; public int utm_zone;
-        public double utm_easting, utm_northing;
-    }
-    [Serializable]
-    public class TileStatsJ
-    {
-        public float min_m, max_m, water_fraction, real_fraction, synthetic_fraction;
-    }
-    [Serializable]
-    public class TileJ
-    {
-        public string name, heightmap, synthetic_mask, source_mask;
-        public int resolution, mask_resolution;
-        public float terrain_size_x_m, terrain_size_z_m, terrain_size_y_m, terrain_base_y_m;
-        public Vec3J unity_position;
-        public TileStatsJ statistics;
-        // Added 2026-08-30 by the DV hi-res ingest. Both are OPTIONAL and absent on a tile
-        // that carries no nested patch, so a manifest written before the ingest still loads
-        // and builds exactly as it did.
-        //   heightmap_collared  the same tile WITH the seam collar blended in. The
-        //                       un-collared file stays on disk untouched and stays named in
-        //                       `heightmap`, so removing the ingest is deleting a file.
-        //   hires_cutout_mask   1 = this 1 m quad is fully covered by the 0.125 m patch and
-        //                       must become a terrain hole, or the two surfaces both render.
-        public string heightmap_collared, hires_cutout_mask;
-    }
+        prefix = "asko",
+        assetPrefix = "AskoCurated",
+        layerPrefix = "Asko_",
+        tag = "[Asko]",
+        dataDir = DataDir,
+        bundleRel = "../smds-cloud-store/scenario-bundles/ov-site-Asko-curated-v1/payload",
+        sourceWorldPrefab = AskoWorldPath,
+        worldPrefabPath = WorldPrefabPath,
+        worldObjectName = "AskoCuratedWorld",
+        scenePath = ScenePath,
+        globalRefName = "GLOBALREF - AskoSiteOrigin",
+        expectedUtmZone = 33,
+        legacyOriginUtm = new[] { LegacyOriginUtmE, LegacyOriginUtmN },
+        legacyOriginWhat = "the legacy Askö assets (AskoWorld/AskoEvolo/Asko.prefab)",
+        gapPatchSemantics =
+            "the chart-extrapolated 59.6% of the seabed becomes terrain HOLES when " +
+            "AskoGapPatchLayer.showSyntheticPatches is off. The measured 40.4% stays, and " +
+            "so does its rights status: the real-only surface does not carry the FUK licence.",
+        wireNeighbours = true,
+        terrainPhysicMaterial = "Mud",
+        sceneExistsHint =
+            "To add the mission set (vehicle, GUI, station, sonar HUDs, hoop) run " +
+            "SMARC -> Populate Asko Scene. ",
+        sceneCreatedHint =
+            "\n       now run SMARC -> Populate Asko Scene for the mission set.",
+    };
 
-    // ---- mirror of asko_dvhires.json (the nested 0.125 m patch) --------------
+    // ---- the nested-patch manifest model. Askö's alone: no other site has a hi-res patch.
     [Serializable]
     public class PatchStatsJ { public float min_m, max_m; }
     [Serializable]
@@ -97,448 +103,27 @@ public static class AskoSiteBuilder
         public string heightmap, source_mask, hole_mask, seabed_class_map, control_map;
         public int resolution, mask_resolution;
         public float terrain_size_x_m, terrain_size_z_m, terrain_size_y_m, terrain_base_y_m;
-        public Vec3J unity_position;
+        public CuratedSiteBuilder.Vec3J unity_position;
         public PatchStatsJ statistics;
-    }
-    [Serializable]
-    public class CoverageJ { public long cells, real; public float real_fraction, synthetic_fraction; }
-    [Serializable]
-    public class ChartPatchJ
-    {
-        public bool enabled_at_build; public long cells, cells_without_chart;
-        public float fraction_of_scene; public string method, source, rights, unity_toggle;
-    }
-    [Serializable]
-    public class SiteJ
-    {
-        public string generated_utc, generator, site, scenario_bundle;
-        public AnchorJ anchor; public TileJ[] tiles;
-        public CoverageJ coverage; public ChartPatchJ chart_patch;
-        public string[] priority; public string priority_rule;
-    }
-    [Serializable]
-    public class SplatLayerJ { public string name, texture, means; public float tile_size_m; }
-    [Serializable]
-    public class AcousticClassJ
-    {
-        public float reflectivity; public int label; public string physics_material, note;
-    }
-    [Serializable]
-    public class AcousticsJ
-    {
-        public AcousticClassJ bedrock, sand, clay, land;
-    }
-    [Serializable]
-    public class SplatJ
-    {
-        public int control_resolution; public float tile_size_m, ortho_tile_size_m;
-        public SplatLayerJ[] layers; public AcousticsJ acoustics;
     }
 
     [MenuItem("SMARC/Build Asko Curated Site")]
     public static void Build()
     {
-        try
-        {
-            splatCache = null;              // re-read the manifest on every build
-            var site = LoadSite();
-            var tds = new Dictionary<string, TerrainData>();
-            foreach (var t in site.tiles) tds[t.name] = BuildTerrain(site, t);
-            var world = BuildWorldPrefab(site, tds);
-            BuildScene(world, site);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            Debug.Log("[Asko] DONE. Scene: " + ScenePath);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("[Asko] build failed: " + e);
-            throw;
-        }
+        CuratedSiteBuilder.Build(Config);
     }
 
-    static string AssetPathToFull(string assetPath)
-    {
-        var pi = UnityEditor.PackageManager.PackageInfo.FindForAssetPath(assetPath);
-        if (pi != null)
-            return Path.Combine(pi.resolvedPath, assetPath.Substring(("Packages/" + pi.name + "/").Length));
-        return Path.Combine(Application.dataPath, assetPath.Substring("Assets/".Length));
-    }
-
-    // ------------------------------------------------------------------------
-    // WHERE THE CURATED DATA LIVES (rehomed 2026-08-27, Ivan's call):
-    // the OCEANVERSE scenario bundle in the SMDS cloud store is the SOURCE OF
-    // TRUTH for every curated artefact. This builder is the smarcsim import
-    // step: it reads build-time payloads (heightmaps, masks, splat controls)
-    // straight from the bundle, and the package keeps only what the ENGINE
-    // needs at runtime or by GUID (ortho textures, seabed_class + synthetic
-    // masks, the small manifests) as a cache the bundle can always regenerate.
-    // Earlier the bundle pointed backwards into this package — the consumer's
-    // copy was posing as the source, which is exactly what the data-cube
-    // concept exists to prevent.
-    // ------------------------------------------------------------------------
-    const string BundleRel = "../smds-cloud-store/scenario-bundles/ov-site-Asko-curated-v1/payload";
-
-    /// <summary>Full path of a curated payload file: the bundle first (source of
-    /// truth), the package cache second (runtime copies). Errors name both.</summary>
-    static string PayloadFull(string fileName)
-    {
-        // Application.dataPath = <project>/Assets; the workspace root is two up.
-        var projectRoot = Path.GetDirectoryName(Application.dataPath);
-        var bundle = Path.GetFullPath(Path.Combine(projectRoot, BundleRel, fileName));
-        if (File.Exists(bundle)) return bundle;
-        var cache = AssetPathToFull(DataDir + "/" + fileName);
-        if (File.Exists(cache))
-        {
-            Debug.LogWarning($"[Asko] {fileName}: not in the scenario bundle ({bundle}) — " +
-                             "using the engine cache copy. The bundle is supposed to be " +
-                             "the source of truth; re-run the generators.");
-            return cache;
-        }
-        throw new FileNotFoundException(
-            $"{fileName} found neither in the scenario bundle ({bundle}) nor the engine " +
-            $"cache ({cache}) — run data-cube/scripts/asko-site/build_heightmap.py first.");
-    }
-
-    static SiteJ LoadSite()
-    {
-        var p = PayloadFull("asko_site.json");
-        var s = JsonUtility.FromJson<SiteJ>(File.ReadAllText(p));
-        if (s == null || s.tiles == null || s.tiles.Length == 0 || s.anchor == null)
-            throw new Exception("asko_site.json did not parse into a site manifest");
-        Debug.Log($"[Asko] manifest {s.generated_utc}\n" +
-                  $"       {s.tiles.Length} tiles; REAL {s.coverage.real_fraction * 100f:F2}% of the " +
-                  $"scene, SYNTHETIC {s.coverage.synthetic_fraction * 100f:F2}% " +
-                  $"({s.chart_patch.cells:N0} chart-extrapolated cells)\n" +
-                  $"       priority: {string.Join(" > ", s.priority)}\n" +
-                  $"       {s.priority_rule}");
-        return s;
-    }
-
-    static TerrainData BuildTerrain(SiteJ site, TileJ t)
-    {
-        // The collared variant, when the manifest names one and the file is there. Same
-        // base/size_y, so it is a drop-in: it is the un-collared grid plus a correction
-        // raster that is kept separately and can be subtracted straight back out
-        // (test_ingest_reversibility.py guard 2). If it is missing we build the un-collared
-        // tile and SAY SO, rather than failing — the seam is cosmetic, a broken build is not.
-        var raw = PayloadFull(t.heightmap);
-        if (!string.IsNullOrEmpty(t.heightmap_collared))
-        {
-            try
-            {
-                raw = PayloadFull(t.heightmap_collared);
-                Debug.Log($"[Asko] {t.name}: using the SEAM-COLLARED heightmap " +
-                          $"{t.heightmap_collared} (the un-collared {t.heightmap} is " +
-                          "untouched on disk).");
-            }
-            catch (FileNotFoundException)
-            {
-                Debug.LogWarning($"[Asko] {t.name}: manifest names {t.heightmap_collared} " +
-                                 "but it is not there — building the UN-COLLARED tile, so " +
-                                 "expect a step at the hi-res patch boundary.");
-            }
-        }
-
-        int res = t.resolution;
-        var bytes = File.ReadAllBytes(raw);
-        long expected = (long)res * res * 2;
-        if (bytes.LongLength != expected)
-            throw new Exception($"{t.name}: heightmap is {bytes.LongLength} bytes, expected " +
-                                $"{expected} for res {res}");
-
-        // r16: uint16 little-endian, row 0 = SOUTH, col 0 = WEST.
-        // Unity's SetHeights takes [y, x] where y indexes +Z. Same order, direct copy.
-        var heights = new float[res, res];
-        int k = 0;
-        for (int z = 0; z < res; z++)
-            for (int x = 0; x < res; x++, k += 2)
-                heights[z, x] = (bytes[k] | (bytes[k + 1] << 8)) / 65535f;
-
-        string assetPath = DataDir + "/AskoCurated_" + t.name + ".asset";
-        var td = AssetDatabase.LoadAssetAtPath<TerrainData>(assetPath);
-        bool isNew = td == null;
-        if (isNew) td = new TerrainData();
-        td.name = "AskoCurated_" + t.name;
-        td.heightmapResolution = res;
-        td.size = new Vector3(t.terrain_size_x_m, t.terrain_size_y_m, t.terrain_size_z_m);
-        td.SetHeights(0, 0, heights);
-        if (isNew)
-        {
-            var dir = Path.GetDirectoryName(AssetPathToFull(assetPath));
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-            AssetDatabase.CreateAsset(td, assetPath);
-        }
-        else EditorUtility.SetDirty(td);
-
-        ApplySplat(td, t);
-
-        Debug.Log($"[Asko] {t.name}: {res}x{res} @1 m, size {td.size}, base {t.terrain_base_y_m:F1} m, " +
-                  $"range {t.statistics.min_m:F2}..{t.statistics.max_m:F2} m, " +
-                  $"{t.statistics.water_fraction * 100f:F1}% water, " +
-                  $"REAL {t.statistics.real_fraction * 100f:F1}% / " +
-                  $"SYNTHETIC {t.statistics.synthetic_fraction * 100f:F1}%");
-        return td;
-    }
-
-    /// Two layers: measured seabed, and the chart-extrapolated patch, so the difference is
-    /// visible without opening a mask file.
-    static void ApplySplat(TerrainData td, TileJ t)
-    {
-        var manifestPath = AssetPathToFull(DataDir + "/asko_splat.json");
-        if (!File.Exists(manifestPath))
-        {
-            Debug.LogWarning("[Asko] no asko_splat.json — terrain left untextured, so REAL and " +
-                             "SYNTHETIC will look identical. Run build_splatmap.py.");
-            return;
-        }
-        var sm = JsonUtility.FromJson<SplatJ>(File.ReadAllText(manifestPath));
-        var layers = new TerrainLayer[sm.layers.Length];
-        for (int i = 0; i < sm.layers.Length; i++)
-        {
-            var L = sm.layers[i];
-            // "PER_TILE" = the orthophoto, which is a different image for each terrain and is
-            // draped ONCE across it (tileSize = terrain size) rather than repeated. Everything
-            // else is a small repeating material texture shared by all four tiles.
-            bool perTile = L.texture == "PER_TILE";
-            string texPath = perTile ? DataDir + "/asko_" + t.name + "_ortho.png"
-                                     : DataDir + "/" + L.texture;
-            // Unity's default maxTextureSize is 2048, so a 4096 orthophoto would be silently
-            // halved to 2 m/px on import — the imagery would still LOOK fine and would simply
-            // be half the resolution we went and fetched. Set it explicitly.
-            if (perTile) EnsureMaxTextureSize(texPath, 4096);
-            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
-            if (tex == null)
-            {
-                Debug.LogWarning($"[Asko] missing texture {texPath} — layer '{L.name}' will be " +
-                                 "flat. Run build_ortho.py / build_splatmap.py.");
-            }
-            float tile = perTile ? sm.ortho_tile_size_m
-                                 : (L.tile_size_m > 0 ? L.tile_size_m : sm.tile_size_m);
-            var layerPath = perTile ? DataDir + "/Asko_Ortho_" + t.name + ".terrainlayer"
-                                    : DataDir + "/Asko_" + L.name + ".terrainlayer";
-            var layer = AssetDatabase.LoadAssetAtPath<TerrainLayer>(layerPath);
-            if (layer == null) { layer = new TerrainLayer(); AssetDatabase.CreateAsset(layer, layerPath); }
-            layer.diffuseTexture = tex;
-            layer.tileSize = new Vector2(tile, tile);
-            layer.tileOffset = Vector2.zero;
-            EditorUtility.SetDirty(layer);
-            layers[i] = layer;
-        }
-        td.terrainLayers = layers;
-
-        string ctrlPath;
-        try { ctrlPath = PayloadFull("asko_" + t.name + "_splat.u8"); }
-        catch (FileNotFoundException e)
-        { Debug.LogWarning("[Asko] control map missing: " + e.Message); return; }
-        var raw = File.ReadAllBytes(ctrlPath);
-        int n = sm.control_resolution;
-        long expect = (long)n * n * layers.Length;
-        if (raw.LongLength != expect)
-        {
-            Debug.LogError($"[Asko] {t.name} control map is {raw.LongLength} bytes, expected " +
-                           $"{expect} for {n}x{n}x{layers.Length} — regenerate it");
-            return;
-        }
-        td.alphamapResolution = n;
-        var maps = new float[n, n, layers.Length];
-        int k = 0;
-        for (int y = 0; y < n; y++)
-            for (int x = 0; x < n; x++)
-                for (int L = 0; L < layers.Length; L++, k++)
-                    maps[y, x, L] = raw[k] / 255f;
-        td.SetAlphamaps(0, 0, maps);
-    }
-
-    static void EnsureMaxTextureSize(string assetPath, int max)
-    {
-        var imp = AssetImporter.GetAtPath(assetPath) as TextureImporter;
-        if (imp == null) return;
-        if (imp.maxTextureSize >= max) return;
-        imp.maxTextureSize = max;
-        imp.SaveAndReimport();
-        Debug.Log($"[Asko] {assetPath}: maxTextureSize -> {max}");
-    }
-
-    static SplatJ splatCache;
-    static SplatJ LoadSplatManifest()
-    {
-        if (splatCache != null) return splatCache;
-        string p;
-        try { p = PayloadFull("asko_splat.json"); }
-        catch (FileNotFoundException) { return null; }
-        splatCache = JsonUtility.FromJson<SplatJ>(File.ReadAllText(p));
-        return splatCache;
-    }
-
-    static SeabedAcousticMap.ClassEntry MakeClass(string name, AcousticClassJ j)
-    {
-        return new SeabedAcousticMap.ClassEntry
-        {
-            name = name,
-            reflectivity = j != null ? j.reflectivity : 0.5f,
-            label = j != null ? j.label : 1,
-        };
-    }
-
-    static GameObject BuildWorldPrefab(SiteJ site, Dictionary<string, TerrainData> tds)
-    {
-        var asko = AssetDatabase.LoadAssetAtPath<GameObject>(AskoWorldPath);
-        if (asko == null) throw new FileNotFoundException("AskoWorld.prefab not found at " + AskoWorldPath);
-
-        var root = (GameObject)PrefabUtility.InstantiatePrefab(asko);
-        PrefabUtility.UnpackPrefabInstance(root, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-        root.name = "AskoCuratedWorld";
-        root.transform.position = Vector3.zero;
-
-        // Keep the environment essentials; drop the legacy GLOBALREF, which carries the
-        // 2105 m-away frame. Two GlobalReferencePoints disagreeing about where the world is
-        // is exactly the ambiguity this project has paid for before.
-        var keep = new HashSet<string> { "Ocean", "Sun", "Sky and Fog Global Volume" };
-        for (int i = root.transform.childCount - 1; i >= 0; i--)
-        {
-            var c = root.transform.GetChild(i).gameObject;
-            if (!keep.Contains(c.name)) UnityEngine.Object.DestroyImmediate(c);
-        }
-        // The Ocean must sit at exactly (0,0,0): the water plane is the vertical datum every
-        // depth in this pipeline is referenced to, and raising it "for realism" is what sent
-        // SAM to 67 m/s on 2026-08-18 (SETTLED §3s).
-        var ocean = root.transform.Find("Ocean");
-        if (ocean != null && ocean.localPosition != Vector3.zero)
-        {
-            Debug.LogWarning($"[Asko] Ocean was at {ocean.localPosition}; forcing (0,0,0) — " +
-                             "the water plane is the datum, not a dressing choice.");
-            ocean.localPosition = Vector3.zero;
-        }
-
-        // --- GLOBALREF at the scene origin, carrying the registered site anchor ----
-        var gref = new GameObject("GLOBALREF - AskoSiteOrigin");
-        gref.transform.SetParent(root.transform, false);
-        gref.transform.localPosition = Vector3.zero;
-        var grp = gref.AddComponent<GlobalReferencePoint>();
-        grp.OriginMode = OriginMode.LatLon;
-        grp.UnityCoordinateFrame = UnityCoordinateFrame.UTM;
-        grp.Lat = site.anchor.lat;
-        grp.Lon = site.anchor.lon;
-        var so = new SerializedObject(grp);
-        so.ApplyModifiedProperties();
-        // Reflection, not SendMessage: SendMessage on a just-added component trips Unity's
-        // ShouldRunBehaviour() assertion and logs a red error with no message.
-        var onValidate = typeof(GlobalReferencePoint).GetMethod("OnValidate",
-            System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.Public |
-            System.Reflection.BindingFlags.NonPublic);
-        if (onValidate != null) onValidate.Invoke(grp, null);
-
-        var tiler = gref.AddComponent<WMSTiler>();
-        tiler.TileMaterial = AssetDatabase.LoadAssetAtPath<Material>(TileMaterialPath);
-        tiler.Radius = 4096;
-        tiler.TileSizePx = 400;
-        tiler.TileSizeMeters = 256;
-        if (tiler.TileMaterial == null)
-            Debug.LogWarning("[Asko] tile material not found at " + TileMaterialPath);
-
-        // Cross-check Unity's own geodesy against the pipeline's pyproj — two independent
-        // implementations, one number. A silent disagreement here offsets everything.
-        Debug.Log($"[Asko] GLOBALREF {grp.Lat}, {grp.Lon} -> CoordinateSharp UTM " +
-                  $"{grp.UTMZone}{grp.UTMBand} {grp.UTMEasting:F2} {grp.UTMNorthing:F2}" +
-                  $"  | pyproj said {site.anchor.utm_zone} {site.anchor.utm_easting:F2} " +
-                  $"{site.anchor.utm_northing:F2}");
-        if (grp.UTMZone != site.anchor.utm_zone)
-            Debug.LogError($"[Asko] UTM ZONE MISMATCH: Unity says {grp.UTMZone}, pipeline assumed " +
-                           $"{site.anchor.utm_zone}. The scene frame is wrong. (Askö is 33.)");
-        double de = grp.UTMEasting - site.anchor.utm_easting;
-        double dn = grp.UTMNorthing - site.anchor.utm_northing;
-        if (Math.Abs(de) > 1.0 || Math.Abs(dn) > 1.0)
-            Debug.LogWarning($"[Asko] CoordinateSharp/pyproj UTM differ by ({de:F2}, {dn:F2}) m.");
-        else
-            Debug.Log($"[Asko] geodesy agrees to ({de:F3}, {dn:F3}) m");
-
-        double lde = LegacyOriginUtmE - site.anchor.utm_easting;
-        double ldn = LegacyOriginUtmN - site.anchor.utm_northing;
-        Debug.LogWarning($"[Asko] FRAME NOTE: the legacy Askö assets (AskoWorld/AskoEvolo/Asko.prefab) " +
-                         $"use an origin {Math.Sqrt(lde * lde + ldn * ldn):F0} m away " +
-                         $"(dE {lde:F1}, dN {ldn:F1}). Do not mix objects between those scenes and this one.");
-
-        // --- the four terrains ---------------------------------------------------
-        var mat = AssetDatabase.LoadAssetAtPath<Material>(MatTerrain);
-        var mud = AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(MudPhysicPath);
-        var made = new Dictionary<string, Terrain>();
-        foreach (var t in site.tiles)
-        {
-            var go = Terrain.CreateTerrainGameObject(tds[t.name]);
-            go.name = "AskoCurated_" + t.name;
-            go.transform.SetParent(root.transform, false);
-            go.transform.localPosition = new Vector3(
-                t.unity_position.x, t.unity_position.y, t.unity_position.z);
-            go.transform.localScale = Vector3.one;   // never scale a georeferenced terrain
-            var terr = go.GetComponent<Terrain>();
-            if (mat != null) terr.materialTemplate = mat;
-            // Without a physics material the TerrainCollider returns Sonar.cs's 0.5 default
-            // and label 0, so the bottom reads as "something unidentified" on every ping.
-            var tc = go.GetComponent<TerrainCollider>();
-            if (tc != null && mud != null) tc.sharedMaterial = mud;
-
-            // Per-cell bottom type, so sonar hardness depends on where the ray landed rather
-            // than on the terrain's single PhysicsMaterial. Values come from the generator's
-            // manifest; nothing acoustic is hardcoded here.
-            var sm2 = LoadSplatManifest();
-            if (sm2 != null && sm2.acoustics != null)
-            {
-                var acou = go.AddComponent<SeabedAcousticMap>();
-                acou.classMapAssetPath = DataDir + "/asko_" + t.name + "_seabed_class.u8";
-                acou.resolution = t.resolution;
-                acou.classes = new[]
-                {
-                    MakeClass("land", sm2.acoustics.land),
-                    MakeClass("bedrock", sm2.acoustics.bedrock),
-                    MakeClass("sand", sm2.acoustics.sand),
-                    MakeClass("clay", sm2.acoustics.clay),
-                };
-                acou.provenance =
-                    "Bottom type INFERRED from slope, roughness and depth (Baltic erosion / " +
-                    "transport / accumulation model) — not surveyed. Cells whose SHAPE is " +
-                    "chart-extrapolated carry the 0x80 flag and are inferred twice over. " +
-                    "Reflectivities are literature-typical, not measured at this site.";
-            }
-
-            var patch = go.AddComponent<AskoGapPatchLayer>();
-            patch.maskAssetPath = DataDir + "/" + t.synthetic_mask;
-            patch.maskResolution = t.mask_resolution;
-            patch.showSyntheticPatches = true;
-            patch.syntheticFraction = t.statistics.synthetic_fraction;
-            // Under a nested hi-res patch this tile must not draw at all: two coincident
-            // surfaces z-fight AND return two echoes. Same component, so there is still
-            // exactly ONE writer of this terrain's hole state.
-            if (!string.IsNullOrEmpty(t.hires_cutout_mask))
-                patch.alwaysHoleMaskAssetPath = DataDir + "/" + t.hires_cutout_mask;
-            patch.provenance =
-                $"{t.statistics.real_fraction * 100f:F1}% measured, " +
-                $"{t.statistics.synthetic_fraction * 100f:F1}% chart-extrapolated. " +
-                site.chart_patch.method;
-            made[t.name] = terr;
-        }
-
-        // Neighbours, so Unity stitches LOD across the tile seams instead of drawing a crack.
-        foreach (var t in site.tiles)
-        {
-            Terrain L = null, R = null, B = null, T = null;
-            var n = t.name;                                  // SW, SE, NW, NE
-            string we = n.Substring(1, 1), sn = n.Substring(0, 1);
-            made.TryGetValue(sn + (we == "E" ? "W" : "E"), out var horiz);
-            made.TryGetValue((sn == "N" ? "S" : "N") + we, out var vert);
-            if (we == "E") L = horiz; else R = horiz;
-            if (sn == "N") B = vert; else T = vert;
-            made[n].SetNeighbors(L, T, R, B);
-        }
-
-        var dirp = Path.GetDirectoryName(AssetPathToFull(WorldPrefabPath));
-        if (!Directory.Exists(dirp)) Directory.CreateDirectory(dirp);
-        var prefab = PrefabUtility.SaveAsPrefabAsset(root, WorldPrefabPath);
-        UnityEngine.Object.DestroyImmediate(root);
-        Debug.Log("[Asko] world prefab -> " + WorldPrefabPath);
-        return prefab;
-    }
+    static string AssetPathToFull(string p) { return CuratedSiteBuilder.AssetPathToFull(p); }
+    static string PayloadFull(string f) { return CuratedSiteBuilder.PayloadFull(Config, f); }
+    static CuratedSiteBuilder.SiteJ LoadSite() { return CuratedSiteBuilder.LoadSite(Config); }
+    static CuratedSiteBuilder.SplatJ LoadSplatManifest()
+    { return CuratedSiteBuilder.LoadSplatManifest(Config); }
+    static SeabedAcousticMap.ClassEntry MakeClass(string n, CuratedSiteBuilder.AcousticClassJ j)
+    { return CuratedSiteBuilder.MakeClass(n, j); }
+    static float TerrainHeightAt(GameObject world, float x, float z)
+    { return CuratedSiteBuilder.TerrainHeightAt(world, x, z); }
+    static GameObject Place(string prefabPath, string name, Vector3 pos, float yawDeg = 0)
+    { return CuratedSiteBuilder.Place(Config, prefabPath, name, pos, yawDeg); }
 
     // ---- the bay line (Ivan, 2026-08-27). THE CAR'S POSITION IS IVAN'S OWN — he placed
     // MMTMiniCooper by hand at (-171.8, -155.4), which sits in 8.0 m of water on REAL
@@ -554,58 +139,13 @@ public static class AskoSiteBuilder
     static readonly Vector3 StationXZ = new Vector3(30f, 0f, 10f);   // shore by the lab, +1.3 m [lidar]
 
     const string VehiclePrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam21.prefab";
-    const string VehicleName = "sam_auv_v1";   // prefixes every ROS topic and tf frame
+    // The GameObject name IS the ROS namespace: ROSBehaviour reads robot_name = robotGO.name
+    // and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it. `sam21` = the
+    // SAM 2.1 hull (VehiclePrefab above is sam21.prefab); a dot is illegal in a ROS name.
+    const string VehicleName = "sam21";   // prefixes every ROS topic and tf frame
     const string GuiPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/SmarcGUI/GUI.prefab";
     const string StationPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/datacube_station_01.prefab";
     const string MiniPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/Environment/MMTMini/MMTMiniCooper.prefab";
-
-    static float TerrainHeightAt(GameObject world, float x, float z)
-    {
-        foreach (var terr in world.GetComponentsInChildren<Terrain>())
-        {
-            var p = terr.transform.position;
-            var s = terr.terrainData.size;
-            if (x < p.x || x > p.x + s.x || z < p.z || z > p.z + s.z) continue;
-            return terr.SampleHeight(new Vector3(x, 0, z)) + p.y;
-        }
-        return float.NaN;
-    }
-
-    static GameObject Place(string prefabPath, string name, Vector3 pos, float yawDeg = 0)
-    {
-        var p = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-        if (p == null) { Debug.LogWarning("[Asko] prefab not found: " + prefabPath); return null; }
-        var go = (GameObject)PrefabUtility.InstantiatePrefab(p);
-        go.name = name;
-        go.transform.position = pos;
-        go.transform.rotation = Quaternion.Euler(0, yawDeg, 0);
-        return go;
-    }
-
-    static void BuildScene(GameObject worldPrefab, SiteJ site)
-    {
-        // NEVER overwrite an existing scene: AskoCurated.unity carries HAND-PLACED objects
-        // (Ivan placed the MMT Mini himself on 2026-08-27, on real multibeam bathymetry, and
-        // a regenerate-from-scratch here would have silently deleted it). Terrain, prefab
-        // and materials above always rebuild; the SCENE regenerates only when absent.
-        if (File.Exists(AssetPathToFull(ScenePath)))
-        {
-            Debug.Log($"[Asko] scene exists — NOT regenerating {ScenePath}. Terrains/prefab " +
-                      "are rebuilt in place. To add the mission set (vehicle, GUI, station, " +
-                      "sonar HUDs, hoop) run SMARC -> Populate Asko Scene. To truly start " +
-                      "over, delete the scene file first.");
-            return;
-        }
-        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        var world = (GameObject)PrefabUtility.InstantiatePrefab(worldPrefab);
-        world.transform.position = Vector3.zero;
-        var dir = Path.GetDirectoryName(ScenePath);
-        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-        EditorSceneManager.SaveScene(scene, ScenePath);
-        Debug.Log($"[Asko] scene -> {ScenePath}  (bundle: {site.scenario_bundle})\n" +
-                  $"       gap patch: {site.chart_patch.unity_toggle}\n" +
-                  "       now run SMARC -> Populate Asko Scene for the mission set.");
-    }
 
     // =========================================================================
     // THE NESTED 0.125 m DEEP VISION PATCH  (added 2026-08-30, Phase 2)
