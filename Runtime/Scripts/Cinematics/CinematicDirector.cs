@@ -160,7 +160,8 @@ namespace Smarc.Cinematics
         [Tooltip("WaterSurface whose TRANSFORM Y is the still-water plane. Read for its transform only — never GetWaterLevelAt (SETTLED §3s). Left empty, the first one in the scene is used; with none, the depth conditions say they cannot be evaluated instead of guessing Y = 0.")]
         public WaterSurface Surface;
         [Tooltip("Vehicle ROOT GameObject name. Everything the shots aim at is searched UNDER this first, which is what stops 'base_link' resolving to the station's.")]
-        public string VehicleName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        public string VehicleName = "sam21";
         [Tooltip("Vehicle root, used by WaypointCams, by OrbitZoomOut when no centre is given, and as the search root for every by-name target.")]
         public Transform Vehicle;
         [Tooltip("Child of the vehicle whose transform is treated as THE vehicle for speed, depth and aiming. Empty falls back to the vehicle root.")]

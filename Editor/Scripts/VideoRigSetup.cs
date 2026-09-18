@@ -260,7 +260,8 @@ public static class VideoRigSetup
             drain = go.AddComponent<DockDrainDirector>();
         }
         drain.Surface = surface;
-        drain.VehicleName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        drain.VehicleName = "sam21";
 
         // --- P-V3: hand the hoops their material
         var hoopSub = Object.FindFirstObjectByType<MissionWPHoop_Sub>(FindObjectsInactive.Include);

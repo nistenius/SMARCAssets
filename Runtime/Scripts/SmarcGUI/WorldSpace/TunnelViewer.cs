@@ -29,7 +29,8 @@ namespace SmarcGUI.WorldSpace
     public class TunnelViewer : MonoBehaviour
     {
         [Tooltip("Robot whose plan to display (absolute topics /<RobotName>/nav/...).")]
-        public string RobotName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        public string RobotName = "sam21";
 
         [Tooltip("Draw a ring every Nth centerline sample. Higher = sparser ladder.")]
         public int RingStride = 3;

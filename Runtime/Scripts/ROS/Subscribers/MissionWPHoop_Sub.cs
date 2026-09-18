@@ -70,7 +70,8 @@ namespace ROS.Subscribers
     public class MissionWPHoop_Sub : ROSBehaviour
     {
         [Tooltip("Robot whose mission to mirror. Used to namespace the topic (/<RobotName>/<topic>) and, if the robot exists in the scene, to orient the first hoop toward it.")]
-        public string RobotName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        public string RobotName = "sam21";
 
         [Tooltip("Visual thickness of the hoop tube.")]
         public float TubeRadius = 0.1f;

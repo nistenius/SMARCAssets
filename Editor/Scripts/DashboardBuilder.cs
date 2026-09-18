@@ -91,7 +91,8 @@ public static class DashboardBuilder
 
             var dash = panelGO.AddComponent<VehicleDashboard>();
             dash.DashboardText = tmp;
-            dash.RobotName = "sam_auv_v1";
+            // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+            dash.RobotName = "sam21";
 
             // Small controller annotations injected into the existing banner fields
             // (Ivan, 2026-08-10): yaw err on Compass, obstacle on Alt, depth ref+err

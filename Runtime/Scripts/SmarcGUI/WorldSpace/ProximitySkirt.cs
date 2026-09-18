@@ -32,7 +32,8 @@ namespace SmarcGUI.WorldSpace
     public class ProximitySkirt : MonoBehaviour
     {
         [Tooltip("Robot whose rose to display (absolute topic /<RobotName>/perception/margin_rose).")]
-        public string RobotName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        public string RobotName = "sam21";
 
         [Tooltip("Transform the skirt follows (usually the vehicle's base_link).")]
         public Transform Follow;

@@ -105,7 +105,8 @@ namespace Visualizers
 
         [Header("Which sonars")]
         [Tooltip("Robot whose sonars to tap. Used to find them and to ignore returns off the vehicle's own hull.")]
-        public string RobotName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        public string RobotName = "sam21";
         [Tooltip("Find every Sonar under the named robot at Play. Turn off to drive the list by hand.")]
         public bool AutoFindSonars = true;
         [Tooltip("Sonars to accumulate. Filled at Play when AutoFindSonars is on.")]

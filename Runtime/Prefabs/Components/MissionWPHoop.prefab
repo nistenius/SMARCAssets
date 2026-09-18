@@ -46,6 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: SMARC.SMARCAssets::ROS.Subscribers.MissionWPHoop_Sub
   topic: mission/last_wp
   NotARobot: 1
-  RobotName: sam_auv_v1
+  RobotName: sam21
   TubeRadius: 0.1
   Collidable: 0

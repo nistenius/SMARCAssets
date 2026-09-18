@@ -9786,7 +9786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2359d8fe2c11d496e85ddb99d2594808, type: 3}
   m_Name: 
   m_EditorClassIdentifier: SMARC.SMARCAssets::SmarcGUI.VehicleDashboard
-  RobotName: sam_auv_v1
+  RobotName: sam21
   DashboardText: {fileID: 292738924317821822}
   SmallCompassText: {fileID: 4875427536481351231}
   SmallAltText: {fileID: 3596954629389151972}

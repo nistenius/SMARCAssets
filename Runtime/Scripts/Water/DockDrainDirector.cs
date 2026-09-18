@@ -71,7 +71,8 @@ namespace SmarcGUI.Water
 
         [Header("The gate — when a drain is allowed at all")]
         [Tooltip("Vehicle root GameObject name. The surfaced/idle test is read off this object's transform, exactly like the CinematicDirector's own conditions.")]
-        public string VehicleName = "sam_auv_v1";
+        // ROS namespace. MUST equal the vehicle ROOT GameObject's name: ROSBehaviour derives robot_name from robotGO.name and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it.
+        public string VehicleName = "sam21";
 
         [Tooltip("Child treated as THE vehicle. Empty falls back to the root. Searched UNDER the vehicle only — 'base_link' is not unique at Beckholmen.")]
         public string VehicleAimChildName = "base_link";
