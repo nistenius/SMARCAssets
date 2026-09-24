@@ -411,6 +411,7 @@ GameObject:
   - component: {fileID: 2648676446342302858}
   - component: {fileID: 1097262752119382319}
   - component: {fileID: 9103084095782710429}
+  - component: {fileID: 6401924633453961972}
   m_Layer: 0
   m_Name: Ocean
   m_TagString: Untagged
@@ -456,7 +457,7 @@ MonoBehaviour:
   meshRenderers: []
   timeMultiplier: 1
   scriptInteractions: 1
-  cpuEvaluateRipples: 0
+  cpuEvaluateRipples: 1
   customMaterial: {fileID: 0}
   startSmoothness: 0.95
   endSmoothness: 0.85
@@ -708,3 +709,19 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 4967155731040606291}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6401924633453961972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9198762072867467403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5a0b8ff359485a9d2a5fa075954918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Density_kgm3: 1005
+  Source: 'Asko, Baltic brackish: salinity class value (Ivan''s ballast_site=asko), not measured'
+  ResolvedDensity_kgm3: 0
+  ResolvedFrom: 

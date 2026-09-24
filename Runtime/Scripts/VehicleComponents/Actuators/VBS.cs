@@ -26,7 +26,10 @@ namespace VehicleComponents.Actuators
         [Range(0, 100)] public float resetValue = 0f;
 
         public float maxVolume_l = 0.250f;
+        [Tooltip("Density of the water the VBS takes in, kg/m3. With UseSiteDensity (default) it is replaced at Awake " +
+                 "by the site's water (SiteWater): the tank ballasts with whatever the vehicle is floating in. 2026-09-23.")]
         public float density = 997f; //kg/m3
+        public bool UseSiteDensity = true;
 
         private float _initialMass;
         private float _maximumPos;
@@ -35,6 +38,7 @@ namespace VehicleComponents.Actuators
         public new void Awake()
         {
             base.Awake();
+            if (UseSiteDensity) density = Smarc.Environment.SiteWater.Density();   // the water the VBS takes in is the site's (Ivan, 2026-09-23)
             var xDrive = parentMixedBody.xDrive;
             //   _initialMass = parentArticulationBody.mass;
             _initialMass = density / 1000 * maxVolume_l;

@@ -125,6 +125,7 @@ namespace Force
 
         void Awake()
         {
+            WaterDensity = Smarc.Environment.SiteWater.Density();   // 2026-09-23: the site's water
             body = new MixedBody(ConnectedArticulationBody, ConnectedRigidbody);
             if (!body.isValid) { Debug.LogWarning($"{name}: SAMHydrodynamics needs a connected body."); enabled = false; return; }
 

@@ -254,6 +254,7 @@ GameObject:
   - component: {fileID: 2512615998805554969}
   - component: {fileID: 3080488628795191227}
   - component: {fileID: 7145166346751354348}
+  - component: {fileID: 7389850694791214947}
   m_Layer: 0
   m_Name: Water
   m_TagString: Untagged
@@ -298,8 +299,8 @@ MonoBehaviour:
   geometryType: 2
   meshRenderers: []
   timeMultiplier: 0.62
-  scriptInteractions: 0
-  cpuEvaluateRipples: 0
+  scriptInteractions: 1
+  cpuEvaluateRipples: 1
   customMaterial: {fileID: 0}
   startSmoothness: 0.88905823
   endSmoothness: 0.7890582
@@ -784,3 +785,19 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3249942740654945755}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7389850694791214947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015182924242810403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5a0b8ff359485a9d2a5fa075954918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Density_kgm3: 1005
+  Source: 'Beckholmen, Stockholm brackish: salinity class value, not measured'
+  ResolvedDensity_kgm3: 0
+  ResolvedFrom: 

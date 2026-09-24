@@ -138,10 +138,15 @@ public static class AskoSiteBuilder
     static readonly Vector3 LaunchXZ = new Vector3(-150f, 0f, -158f);
     static readonly Vector3 StationXZ = new Vector3(30f, 0f, 10f);   // shore by the lab, +1.3 m [lidar]
 
-    const string VehiclePrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam21.prefab";
+    // 2026-09-23 (Ivan): the SAM 2.1 hull in every curated site is the STRIP-BUOYANCY vehicle —
+    // 27 on-axis strips, ballast rails, drag owned by SAMHydrodynamics (SETTLED §3ae(29–33)).
+    // The legacy 10-point cloud in sam21.prefab floats 2.2x too stiff and was what AskoCurated
+    // carried until today. AskoCurated.unity was switched in place (backup in
+    // data-cube/scripts/sam-wave-model/backups/); this constant makes a rebuild agree.
+    const string VehiclePrefab = "Packages/com.smarc.assets/Runtime/Prefabs/sam21.strips.prefab";
     // The GameObject name IS the ROS namespace: ROSBehaviour reads robot_name = robotGO.name
     // and builds /{robot_name}/{topic} and tf frame {robot_name}/{link} from it. `sam21` = the
-    // SAM 2.1 hull (VehiclePrefab above is sam21.prefab); a dot is illegal in a ROS name.
+    // SAM 2.1 hull (VehiclePrefab above is sam21.strips.prefab); a dot is illegal in a ROS name.
     const string VehicleName = "sam21";   // prefixes every ROS topic and tf frame
     const string GuiPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/SmarcGUI/GUI.prefab";
     const string StationPrefab = "Packages/com.smarc.assets/Runtime/Prefabs/datacube_station_01.prefab";

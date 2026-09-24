@@ -28,6 +28,8 @@ namespace Force
         public float Volume;
 
         public float WaterDensity = 997; // kg/m3
+        [Tooltip("Replace WaterDensity at Awake with the site's water (SiteWater). 2026-09-23: one density per scene.")]
+        public bool UseSiteDensity = true;
 
         [Tooltip("How deep should the point be to apply the entire buoyancy force. Force is applied proportionally.")]
         public float DepthBeforeSubmerged = 0.03f;
@@ -157,6 +159,7 @@ namespace Force
         public void Awake()
         {
             body = new MixedBody(ConnectedArticulationBody, ConnectedRigidbody);
+            if (UseSiteDensity) WaterDensity = Smarc.Environment.SiteWater.Density();
 
             if (!body.isValid)
             {

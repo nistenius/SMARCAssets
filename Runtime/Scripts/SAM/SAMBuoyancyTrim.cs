@@ -114,6 +114,7 @@ namespace Force
 
         void Start()
         {
+            WaterDensity = Smarc.Environment.SiteWater.Density();   // 2026-09-23: the site's water
             ReadTrimConfig();
             Transform root = transform.root;
             var bodies = root.GetComponentsInChildren<ArticulationBody>(true);

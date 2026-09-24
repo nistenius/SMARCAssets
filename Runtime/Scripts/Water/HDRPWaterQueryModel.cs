@@ -66,6 +66,18 @@ namespace DefaultNamespace.Water
         [Tooltip("Include deformation (wakes, foam generators) in the queried height.")]
         public bool IncludeDeformation = true;
 
+        [Header("Physics = pixels (2026-09-23)")]
+        [Tooltip("ON (default): at Awake, force the Water Surface to expose to scripts EXACTLY what it renders — " +
+                 "Script Interactions on, and the ripple band evaluated (cpuEvaluateRipples). Measured by reading " +
+                 "HDRP 17: with the project's HDRP asset in GPUReadback mode the query reads back the rendered " +
+                 "GPU displacement at full resolution, but only the bands counted by EvaluateCPUBandCount, which " +
+                 "DROPS the ripple band unless cpuEvaluateRipples is on. On a Pool surface (KTH tank, Beckholmen " +
+                 "drydock) the ripple band is the ONLY band, so the physics read a flat plane.")]
+        public bool EnforceVisualParity = true;
+        [Tooltip("Read-only: HDRP asset script-interaction mode (GPUReadback = the rendered surface, a few frames old; " +
+                 "CPUSimulation = a CPU replica at (by default) half resolution).")]
+        public string ScriptInteractionsMode = "";
+
         [Header("Legacy defect (leave OFF)")]
         [Tooltip("ON restores the pre-2026-09-13 behaviour: seed every search from the PREVIOUS " +
                  "caller's result through one shared state. Kept only to reproduce the defect " +
@@ -78,6 +90,8 @@ namespace DefaultNamespace.Water
         public int NonConverged;
         public float WorstErrorM;
         public int WorstIterations;
+        [Tooltip("The last level returned, world Y.")]
+        public float LastLevel;
 
         WaterSearchResult _previous;
         float _stillLevel;
@@ -96,9 +110,27 @@ namespace DefaultNamespace.Water
                 water = all[0];
             }
             _stillLevel = water.transform.position.y;
-            if (!water.scriptInteractions)
-                Debug.LogWarning("[HDRPWaterQueryModel] WaterSurface.scriptInteractions is OFF — " +
-                                 "the CPU surface the physics reads does not exist. Buoyancy will be wrong.");
+            var hdrpAsset = (QualitySettings.renderPipeline ?? UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline) as HDRenderPipelineAsset;
+            ScriptInteractionsMode = hdrpAsset != null
+                ? hdrpAsset.currentPlatformRenderPipelineSettings.waterScriptInteractionsMode.ToString() + " @" +
+                  (int)hdrpAsset.currentPlatformRenderPipelineSettings.waterSimulationResolution
+                : "unknown (no HDRP asset)";
+            if (EnforceVisualParity)
+            {
+                var changed = new System.Collections.Generic.List<string>();
+                if (!water.scriptInteractions) { water.scriptInteractions = true; changed.Add("scriptInteractions -> on"); }
+                if (water.ripples && !water.cpuEvaluateRipples) { water.cpuEvaluateRipples = true; changed.Add("cpuEvaluateRipples -> on"); }
+                if (changed.Count > 0)
+                    Debug.LogWarning($"[HDRPWaterQueryModel] '{water.name}': {string.Join(", ", changed)} so the hull floats on the surface " +
+                                     "that is rendered. Set these on the world prefab to silence this (EnforceVisualParity).");
+            }
+            else if (!water.scriptInteractions)
+                Debug.LogError("[HDRPWaterQueryModel] WaterSurface.scriptInteractions is OFF — every query fails and the " +
+                               "physics floats on the still-water plane, whatever is rendered.");
+            else if (water.ripples && !water.cpuEvaluateRipples)
+                Debug.LogWarning("[HDRPWaterQueryModel] cpuEvaluateRipples is OFF — the rendered ripple band is not in the surface the physics reads.");
+            Debug.Log($"[HDRPWaterQueryModel] '{water.name}': script interactions {ScriptInteractionsMode}, type {water.surfaceType}, " +
+                      $"ripples rendered {water.ripples} / in physics {water.cpuEvaluateRipples}.");
         }
 
         public void ResetStats() { Queries = 0; Failed = 0; NonConverged = 0; WorstErrorM = 0f; WorstIterations = 0; }
@@ -138,7 +170,8 @@ namespace DefaultNamespace.Water
             if (result.error > WorstErrorM) WorstErrorM = result.error;
             if (result.numIterations > WorstIterations) WorstIterations = result.numIterations;
 
-            return result.projectedPositionWS.y;
+            LastLevel = result.projectedPositionWS.y;
+            return LastLevel;
         }
     }
 }

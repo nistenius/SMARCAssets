@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8604363294382296149}
   - component: {fileID: 505423518118131011}
   - component: {fileID: 6600082402906574140}
+  - component: {fileID: 4283841076575259874}
   m_Layer: 0
   m_Name: Water
   m_TagString: Untagged
@@ -57,8 +58,8 @@ MonoBehaviour:
   geometryType: 2
   meshRenderers: []
   timeMultiplier: 0.62
-  scriptInteractions: 0
-  cpuEvaluateRipples: 0
+  scriptInteractions: 1
+  cpuEvaluateRipples: 1
   customMaterial: {fileID: 0}
   startSmoothness: 0.88905823
   endSmoothness: 0.7890582
@@ -1843,3 +1844,19 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 9012266528884171203}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4283841076575259874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331914464447237204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5a0b8ff359485a9d2a5fa075954918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Density_kgm3: 997
+  Source: 'KTH tank, fresh: 997.17 kg/m3 at 24.5 C measured 2026-09-17 (Marczak)'
+  ResolvedDensity_kgm3: 0
+  ResolvedFrom: 

@@ -910,6 +910,7 @@ GameObject:
   - component: {fileID: 8567988039214150491}
   - component: {fileID: 2986450614888546184}
   - component: {fileID: 3305020453287889180}
+  - component: {fileID: 3393316601079498336}
   m_Layer: 0
   m_Name: Ocean
   m_TagString: Untagged
@@ -955,7 +956,7 @@ MonoBehaviour:
   meshRenderers: []
   timeMultiplier: 1
   scriptInteractions: 1
-  cpuEvaluateRipples: 0
+  cpuEvaluateRipples: 1
   customMaterial: {fileID: 0}
   startSmoothness: 0.95
   endSmoothness: 0.85
@@ -1426,3 +1427,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5138726419976127582}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3393316601079498336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6989262637345404243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5a0b8ff359485a9d2a5fa075954918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Density_kgm3: 1025
+  Source: 'Kristineberg, Gullmar fjord / west coast: ocean class value, not measured'
+  ResolvedDensity_kgm3: 0
+  ResolvedFrom: 

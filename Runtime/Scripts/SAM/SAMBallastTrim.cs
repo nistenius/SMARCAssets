@@ -53,6 +53,8 @@ namespace Force
         [Header("Site")]
         [Tooltip("Water density at the site [kg/m3]. 997 KTH tank, ~1005 Asko/Baltic, ~1025 Kristineberg.")]
         public float WaterDensity = 997f;
+        [Tooltip("Read-only: where WaterDensity came from at Play (SiteWater).")]
+        public string DensitySource = "";
         [Tooltip("Stamp WaterDensity onto every ForcePoint, so the buoyancy is the site's.")]
         public bool SetForcePointDensity = true;
 
@@ -166,6 +168,9 @@ namespace Force
         void Solve(bool apply)
         {
             ReadBallastConfig();
+            // 2026-09-23: the density is the SITE's (SiteWater), not config.txt's. SiteWater itself applies the
+            // replay config's ballast_site while a tank replay is running, and only then.
+            WaterDensity = Smarc.Environment.SiteWater.Density(out DensitySource);
 
             Transform root = transform.root;
             var bodies = root.GetComponentsInChildren<ArticulationBody>(true);

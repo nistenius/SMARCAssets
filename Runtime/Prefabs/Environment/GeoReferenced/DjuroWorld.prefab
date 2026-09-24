@@ -713,6 +713,7 @@ GameObject:
   - component: {fileID: 8296076266294145995}
   - component: {fileID: 7372416175246055189}
   - component: {fileID: 2492675410915942438}
+  - component: {fileID: 2559467723785304386}
   m_Layer: 0
   m_Name: Ocean
   m_TagString: Untagged
@@ -758,7 +759,7 @@ MonoBehaviour:
   meshRenderers: []
   timeMultiplier: 1
   scriptInteractions: 1
-  cpuEvaluateRipples: 0
+  cpuEvaluateRipples: 1
   customMaterial: {fileID: 0}
   startSmoothness: 0.95
   endSmoothness: 0.85
@@ -4306,3 +4307,19 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3368888681806266145}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2559467723785304386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715798938044736141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5a0b8ff359485a9d2a5fa075954918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Density_kgm3: 1005
+  Source: 'Djuro, Baltic brackish: salinity class value, not measured'
+  ResolvedDensity_kgm3: 0
+  ResolvedFrom: 
