@@ -49,3 +49,18 @@ Runtime/Terrain/Asko.meta
 # the Oceanverse bundle smds-cloud-store/scenario-bundles/ov-site-Djuro-curated-v1.
 Runtime/Terrain/Djuro/
 Runtime/Terrain/Djuro.meta
+
+# Open-data curated sites built by oceanverse/tools/ovsite (2026-09-18): site data lives in the
+# SMDS store (smds-cloud-store/scenario-bundles/), never in git. Regenerate with ovsite.build or
+# SMARC -> Build Curated Site from Bundle... (which re-syncs this cache from the bundle).
+Runtime/Terrain/MontereyBreakwater/
+Runtime/Terrain/MontereyBreakwater.meta
+# Regions (2026-09-19): one cache folder per region, same rule — the tiles live in the SMDS store.
+Runtime/Terrain/MontereyBay*/
+Runtime/Terrain/MontereyBay*.meta
+Runtime/Terrain/*Region*/
+Runtime/Terrain/*Region*.meta
+# Region caches named after the site id (2026-09-22, ovsite region "Site<lon><lat><date>"): 0.8 GB of
+# heightmaps/splats per region — the tiles live in the SMDS store, never in git.
+Runtime/Terrain/Site*/
+Runtime/Terrain/Site*.meta
